@@ -30,16 +30,11 @@ public class World {
     }
 
     private void testgen() {
+        /*
         player = new Turtle(this, 20, 30);
-        player.mass = 12;
         bodies.add(player);
-        bodies.add(new Turtle(this, 50, 200));/*
-        bodies.add(new Turtle(this, 100, 150));
-        bodies.add(new Turtle(this, 200, 450));
-        bodies.add(new Turtle(this, 300, 650));
-        bodies.add(new Turtle(this, 400, 550));
-        bodies.add(new Turtle(this, 800, 250));
-        */
+        bodies.add(new Turtle(this, 50, 230));
+         */
     }
 
     public EventManager getHandler() {
@@ -54,32 +49,20 @@ public class World {
         return this.webs;
     }
 
-    public Pair<ArrayRealVector, Double> getGravity() {
-        ArrayRealVector center = new ArrayRealVector(2);
-        double mass = 0;
-        for (TurtleBody b : bodies) {
-            center.combineToSelf(1, b.getMass(), b.getPos());
-            mass += b.getMass();
-        }
-        center.mapMultiplyToSelf(1.0 / mass);
-        return new Pair<>(center, mass);
-    } // THIS IS ABSOLUTE SHIT
-
     private void updateBodies() {
         // move and rotate
         ArrayRealVector pos;
         for (TurtleBody b : bodies) {
-            pos = b.getPos();
-            gravitate(pos, b.velocity);
+            gravitate(b.pos);
             b.update();
         }
     }
 
-    private void gravitate(ArrayRealVector pos, @NotNull ArrayRealVector velocity) {
+    private void gravitate(ArrayRealVector pos) {
         for (TurtleBody g : bodies) {
             ArrayRealVector dist;
             dist = getBorderDistance(g.getPos(), pos);
-            velocity.combineToSelf(1, 1,
+            pos.combineToSelf(1, 1,
                     dist.mapMultiplyToSelf(Config.gravity * g.getMass() / Math.pow(Math.max(dist.getNorm(), Config.minGravityDistance), 3)));
         }
     }
@@ -87,7 +70,7 @@ public class World {
     private void updateWebs() {
         for (Web w : webs) {
             for (Pair<ArrayRealVector, ArrayRealVector> link : w.getLinks()) {
-                gravitate(link.getKey(), link.getValue());
+                gravitate(link.getKey());
             }
             w.update();
         }

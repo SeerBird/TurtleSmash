@@ -3,7 +3,6 @@ package seerbird.game;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 import seerbird.game.input.MenuClickEvent;
 import seerbird.game.output.GameWindow;
 import seerbird.game.output.Renderer;
@@ -23,9 +22,6 @@ import java.util.*;
 
 import static java.util.Map.entry;
 
-/**
- *
- **/
 public class EventManager {
     GameWindow win;
     Sound sound;
@@ -43,7 +39,8 @@ public class EventManager {
     private final HashMap<Integer, MouseEvent> mouseReleaseEvents;
     private MouseEvent mouseMoveEvent;
     public boolean paused;
-    public final Map<Integer, Boolean> USED_KEYS = Map.ofEntries(entry(KeyEvent.VK_W, false), entry(KeyEvent.VK_A, false), entry(KeyEvent.VK_S, false), entry(KeyEvent.VK_D, false), entry(KeyEvent.VK_SPACE, false), entry(KeyEvent.VK_SHIFT, false), entry(KeyEvent.VK_CONTROL, false));
+    ArrayRealVector mousepos;
+    public final Map<Integer, Boolean> USED_KEYS = Map.ofEntries(entry(KeyEvent.VK_W, false), entry(KeyEvent.VK_A, false), entry(KeyEvent.VK_S, false), entry(KeyEvent.VK_D, false), entry(KeyEvent.VK_SPACE, false), entry(KeyEvent.VK_SHIFT, false), entry(KeyEvent.VK_CONTROL, false), entry(KeyEvent.VK_P, false));
 
     public EventManager() {
         gameState = GameState.Game; // SHOULD BE MENU
@@ -61,6 +58,7 @@ public class EventManager {
         mouseReleaseEvents = new HashMap<>();
         keyPressedEvents.putAll(USED_KEYS);
         keyReleasedEvents.putAll(USED_KEYS);
+        mousepos = new ArrayRealVector(new Double[]{(double) MouseInfo.getPointerInfo().getLocation().x, (double) MouseInfo.getPointerInfo().getLocation().y});
         paused = false;
     }
 
@@ -81,7 +79,9 @@ public class EventManager {
         handleClientInput();
         if (gameState == GameState.Game) {
             if (!paused) {
-                world.update();
+                for (int i = 0; i < CONSTANTS.worldStepsPerFrame; i++) {
+                    world.update();
+                }
             }
         } else if (gameState == GameState.Menu) {
             if (menuClickEvent != null) {
@@ -100,9 +100,13 @@ public class EventManager {
         }
         if (gameState == GameState.Game) {
             if (keyPressedEvents.get(KeyEvent.VK_SPACE)) {
-                ArrayRealVector dist = world.getPlayer().getDistance(getMousePos());
-                world.getPlayer().makeString((ArrayRealVector) dist.mapMultiply(Config.stringFling / dist.getNorm()));
+                //ArrayRealVector dist = world.getPlayer().getDistance(mousepos);
+                //world.getPlayer().makeString((ArrayRealVector) dist.mapMultiply(Config.stringFling / dist.getNorm()));
                 keyPressedEvents.put(KeyEvent.VK_SPACE, false);
+            }
+            if (keyPressedEvents.get(KeyEvent.VK_P)) {
+                paused ^= true;
+                keyPressedEvents.put(KeyEvent.VK_P, false);
             }
             /*
             if (keyReleasedEvents.get(KeyEvent.VK_SPACE)) {
@@ -145,8 +149,12 @@ public class EventManager {
         mouseReleaseEvents.put(e.getButton(), e);
     }
 
-    public void postMouseMoveEvent(MouseEvent e) {
+    public void postMouseMoveEvent(@NotNull MouseEvent e) {
         mouseMoveEvent = e;
+        if (mousepos != null) {
+            mousepos.setEntry(0, e.getPoint().x);
+            mousepos.setEntry(1, e.getPoint().y);
+        }
     }
 
     // World
@@ -156,11 +164,6 @@ public class EventManager {
 
     public void postTurtleBreak(Turtle t) {
 
-    }
-
-    private @NotNull ArrayRealVector getMousePos() {
-        Point mouse = mouseMoveEvent.getPoint();
-        return new ArrayRealVector(new Double[]{(double) mouse.x, (double) mouse.y});
     }
 
     public World getWorld() {

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Web {
     // nodes have mass 1, disregarded
-    ArrayList<Pair<ArrayRealVector, ArrayRealVector>> links; // <pos, velocity> first position is sticky
+    ArrayList<Pair<ArrayRealVector, ArrayRealVector>> links; // <pos, lpos> first position is sticky
     Turtle source;
     TurtleBody connected;
     World world;
@@ -18,7 +18,7 @@ public class Web {
         this.source = source;
         connected = null;
         links = new ArrayList<>();
-        links.add(new Pair<>(source.getPos().copy(), velocity.copy().combineToSelf(1, 1, source.getVelocity())));
+        links.add(new Pair<>(source.getPos(), velocity.copy().combineToSelf(1, 1, source.getPos())));
         world = source.getWorld();
     }
 

@@ -19,7 +19,7 @@ public class Config {
     public static int stringLengthLimit = 160;
     public static double stringTensileStrength = 0.5;
     public static double stringRestNodeDistance = 2;
-    public static double gravity = 10;
+    public static double gravity = 1;
     public static double stringFling = 24;
-    public static double minGravityDistance = 8;
+    public static double minGravityDistance = 1;
 }
