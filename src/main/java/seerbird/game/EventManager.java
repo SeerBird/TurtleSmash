@@ -10,7 +10,6 @@ import seerbird.game.output.audio.Sound;
 import seerbird.game.output.connection.Connector;
 import seerbird.game.output.ui.Button;
 import seerbird.game.output.ui.Menu;
-import seerbird.game.world.Turtle;
 import seerbird.game.world.Web;
 import seerbird.game.world.World;
 
@@ -159,10 +158,6 @@ public class EventManager {
 
     // World
     public void postStringFallOff(Web web) {
-
-    }
-
-    public void postTurtleBreak(Turtle t) {
 
     }
 

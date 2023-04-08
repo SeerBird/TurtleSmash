@@ -3,28 +3,29 @@ package seerbird.game.world;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
+import seerbird.game.world.bodies.Body;
 
 
-public class VPoint {
+public class VPoint implements Cloneable {
     ArrayRealVector pos;
     ArrayRealVector lpos;
     double mass;
-    World world;
+    Body parent;
 
-    public VPoint(World world, double mass, double x, double y) {
+    public VPoint(Body body, double mass, double x, double y) {
         pos = new ArrayRealVector(2);
         pos.setEntry(0, x);
         pos.setEntry(1, y);
         lpos = pos.copy();
         this.mass = mass;
-        this.world = world;
+        this.parent = body;
     }
 
-    public VPoint(World world, double mass, @NotNull ArrayRealVector pos) {
+    public VPoint(Body body, double mass, @NotNull ArrayRealVector pos) {
         this.pos = pos.copy();
         lpos = pos.copy();
         this.mass = mass;
-        this.world = world;
+        this.parent = body;
     }
 
     public void move() {
@@ -32,8 +33,20 @@ public class VPoint {
         lpos.combineToSelf(0, 1, pos);
     }
 
+    public void move(ArrayRealVector v) {
+        pos.combineToSelf(1, 1, v);
+    }
+
     public double getMass() {
         return this.mass;
+    }
+
+    public Body getParent() {
+        return parent;
+    }
+
+    public void setParent(Body p) {
+        this.parent = p;
     }
 
     public double getX() {
@@ -60,27 +73,27 @@ public class VPoint {
         this.pos.addToEntry(1, dy);
     }
 
-    public void teleport(ArrayRealVector displacement) {
-        pos.combineToSelf(1, 1, displacement);
-        lpos.combineToSelf(1, 1, displacement);
+    public void shift(ArrayRealVector v) {
+        pos.combineToSelf(1, 1, v);
+        lpos.combineToSelf(1, 1, v);
     }
 
-    public void move(double x, double y) {
+    public void accelerate(double x, double y) {
         pos.addToEntry(0, x);
         pos.addToEntry(1, y);
     }
 
-    public void move(RealVector a) {
-        pos.combineToSelf(1, 1, a);
+    public void accelerate(RealVector v) {
+        pos.combineToSelf(1, 1, v);
     }
 
-    public void accelerateMass(@NotNull ArrayRealVector a) {
-        pos.combineToSelf(1, 1 / this.mass, a);
+    public void accelerateMass(@NotNull RealVector v) {
+        lpos.combineToSelf(1, -1 / this.mass, v);
     }
 
     public void accelerateMass(double x, double y) {
-        pos.addToEntry(0, x / this.mass);
-        pos.addToEntry(1, y / this.mass);
+        lpos.addToEntry(0, -x / this.mass);
+        lpos.addToEntry(1, -y / this.mass);
     }
 
     public ArrayRealVector getPos() {
@@ -88,18 +101,30 @@ public class VPoint {
     }
 
     public ArrayRealVector getDistance(@NotNull VPoint b) {
-        return this.pos.copy().combineToSelf(-1, 1, b.getPos());
+        return parent.getWorld().getDistance(pos, b.getPos());
     }
 
     public ArrayRealVector getDistance(ArrayRealVector pos) {
         return this.pos.copy().combineToSelf(-1, 1, pos);
     }
 
-    public World getWorld() {
-        return this.world;
+    public Body getBody() {
+        return this.parent;
     }
 
     public ArrayRealVector getVelocity() {
-        return world.getBorderDistance(pos, lpos);
+        return parent.getWorld().getDistance(pos, lpos);
+    }
+
+    @Override
+    public VPoint clone() {
+        try {
+            VPoint clone = (VPoint) super.clone();
+            clone.lpos = this.lpos.copy();
+            clone.pos = this.pos.copy();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

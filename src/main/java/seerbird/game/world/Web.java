@@ -8,6 +8,7 @@ import seerbird.game.Config;
 import java.util.ArrayList;
 
 public class Web {
+    /*
     // nodes have mass 1, disregarded
     ArrayList<Pair<ArrayRealVector, ArrayRealVector>> links; // <pos, lpos> first position is sticky
     Turtle source;
@@ -102,4 +103,6 @@ public class Web {
             //get deaded
         }
     }
+
+     */
 }

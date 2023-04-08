@@ -1,5 +1,6 @@
 package seerbird.game.world.constraints;
 
+import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import seerbird.game.CONSTANTS;
 import seerbird.game.world.VPoint;
@@ -22,11 +23,32 @@ public class DistanceConstraint implements Constraint {
         if (Math.abs(displacement) > CONSTANTS.constraintTolerance) {
             distance.mapMultiply(displacement / norm);
             double inertia = p2.getMass() / (p1.getMass() + p2.getMass());
-            p1.move(distance.mapMultiply(displacement / norm * inertia));
-            p2.move(distance.mapMultiply(displacement / norm * (inertia - 1)));
+            p1.accelerate(distance.mapMultiply(displacement / norm * inertia));
+            p2.accelerate(distance.mapMultiply(displacement / norm * (inertia - 1)));
             return false;
         } else {
             return true;
         }
+    }
+
+    @Override
+    public DistanceConstraint clone() {
+        try {
+            DistanceConstraint clone = (DistanceConstraint) super.clone();
+            clone.p1 = p1.clone();
+            clone.p2 = p2.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    public Pair<VPoint, VPoint> getPoints() {
+        return new Pair<>(p1, p2);
+    }
+
+    public void move(ArrayRealVector v) {
+        getPoints().getKey().accelerate(v);
+        getPoints().getValue().accelerate(v);
     }
 }

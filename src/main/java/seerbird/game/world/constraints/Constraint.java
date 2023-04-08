@@ -1,5 +1,6 @@
 package seerbird.game.world.constraints;
 
-public interface Constraint {
+public interface Constraint extends Cloneable {
     boolean satisfy();
+    Constraint clone();
 }
