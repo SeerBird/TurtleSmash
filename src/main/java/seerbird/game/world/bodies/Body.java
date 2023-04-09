@@ -3,7 +3,6 @@ package seerbird.game.world.bodies;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
-import seerbird.game.math.Compute;
 import seerbird.game.world.CollisionData;
 import seerbird.game.world.VPoint;
 import seerbird.game.world.World;
@@ -11,8 +10,6 @@ import seerbird.game.world.constraints.Constraint;
 import seerbird.game.world.constraints.DistanceConstraint;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Body {
     ArrayList<VPoint> points;
@@ -20,6 +17,8 @@ public class Body {
     World world;
     ArrayRealVector shift;
     ArrayRealVector acceleration;
+    double relevance;
+    static double defaultRelevance = 1;
 
     public Body(@NotNull World world) {
         points = new ArrayList<>();
@@ -28,6 +27,7 @@ public class Body {
         acceleration = new ArrayRealVector(2);
         shift = new ArrayRealVector(2);
         world.getBodies().add(this);
+        relevance = 20;
     }
 
     public void addPoint(VPoint p) {
@@ -72,6 +72,10 @@ public class Body {
         return world;
     }
 
+    public double getRelevance() {
+        return relevance;
+    }
+
     public ArrayList<VPoint> getPoints() {
         return points;
     }
@@ -108,6 +112,19 @@ public class Body {
         res.add(new Pair<>(min, minp));
         res.add(new Pair<>(max, maxp));
         return res;
+    }
+    public void stop() {
+        for (VPoint p : points) {
+            p.stop();
+        }
+    }
+
+    public void decreaseRelevance(double decrease) {
+        relevance -= decrease;
+    }
+
+    public void resetRelevance() {
+        relevance = defaultRelevance;
     }
 
     public void collide(@NotNull CollisionData collision) { //disregards point mass

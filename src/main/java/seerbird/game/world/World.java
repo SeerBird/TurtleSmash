@@ -5,7 +5,7 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 import seerbird.game.Config;
 import seerbird.game.EventManager;
-import seerbird.game.math.Compute;
+import seerbird.game.math.Maths;
 import seerbird.game.world.bodies.Body;
 import seerbird.game.world.bodies.Box;
 import seerbird.game.world.constraints.DistanceConstraint;
@@ -27,23 +27,14 @@ public class World {
     }
 
 
-    public void update() {
-        boolean nulls = true;
-        while (nulls) {
-            nulls = bodies.remove(null);
-        }
-        nulls = true;
-        while (nulls) {
-            nulls = graviBodies.remove(null);
-        }
-        nulls = true;
-        while (nulls) {
-            nulls = webs.remove(null);
-        }
+    public void update() { // make it all multiplied by dt
         //any required magic is done before movement
 
+        //OPTIMISE THROUGH ITERATORS
+        fadeBodies(); // remove irrelevant stuff
         //move it all
         for (Body b : bodies) {
+            wrapAround(b);
             b.move();
         }
         //constraints and collisions
@@ -56,8 +47,7 @@ public class World {
     }
 
     public void testgen() {
-        new Box(this, new ArrayRealVector(new Double[]{0.0, 0.0}), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
-        new Box(this, new ArrayRealVector(new Double[]{200.0, 100.0}), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        new Box(this, new ArrayRealVector(new Double[]{400.0, 400.0}), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
     }
 
     public EventManager getHandler() {
@@ -158,7 +148,7 @@ public class World {
             }
             if (collided && collisionEdge != null) {// unnecessary collisionEdge check? shows a warning, I could leave the warning be as it is unrealistic
                 {
-                    if (Compute.areClockwise(collisionEdge.getEdge1().getPos(), collisionEdge.getEdge2().getPos(), collisionVertex.getPos())) {
+                    if (Maths.areClockwise(collisionEdge.getEdge1().getPos(), collisionEdge.getEdge2().getPos(), collisionVertex.getPos())) {
                         minDistance *= -1;
                     }
                 }// flip distance so that the axis direction is from vertex to edge
@@ -181,17 +171,58 @@ public class World {
         }
     }
 
-    public void wrapAround(Body b) {
-
+    public void wrapAround(@NotNull Body b) {
+        ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
+        ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
+        if (projectionX.get(0).getKey() > Config.WIDTH) {
+            b.shift(new ArrayRealVector(new Double[]{-projectionX.get(1).getKey(), 0.0}));
+        } else if (projectionX.get(1).getKey() < 0) {
+            b.shift(new ArrayRealVector(new Double[]{Config.WIDTH - projectionX.get(0).getKey(), 0.0}));
+        }
+        if (projectionY.get(0).getKey() > Config.HEIGHT) {
+            b.shift(new ArrayRealVector(new Double[]{0.0, -projectionY.get(1).getKey()}));
+        } else if (projectionY.get(1).getKey() < 0) {
+            b.shift(new ArrayRealVector(new Double[]{0.0, Config.HEIGHT - projectionY.get(0).getKey() - 1}));
+        }
     }
 
-    public ArrayRealVector getDistance(@NotNull ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
+    public void fadeBodies() {
+        ListIterator<Body> iter = bodies.listIterator();
+        while (iter.hasNext()) {
+            Body b = iter.next();
+            ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
+            ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
+            boolean gone = false;
+            if (projectionX.get(0).getKey() > Config.WIDTH) {
+                b.decreaseRelevance(1 / 60.0);
+                gone = true;
+            } else if (projectionX.get(1).getKey() < 0) {
+                b.decreaseRelevance(1 / 60.0);
+                gone = true;
+            }
+            if (projectionY.get(0).getKey() > Config.HEIGHT) {
+                b.decreaseRelevance(1 / 60.0);
+                gone = true;
+            } else if (projectionY.get(1).getKey() < 0) {
+                b.decreaseRelevance(1 / 60.0);
+                gone = true;
+            }
+            if (!gone) {
+                b.resetRelevance();
+            }
+            if (b.getRelevance() <= 0) {
+                iter.remove();
+            }
+        }
+    }
+
+    public ArrayRealVector getBorderDistance(@NotNull ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
         double x1 = pos1.getEntry(0);
         double y1 = pos1.getEntry(1);
-        return getDistance(x1, y1, pos2);
+        return getBorderDistance(x1, y1, pos2);
     }
 
-    public ArrayRealVector getDistance(double x1, double y1, @NotNull ArrayRealVector pos2) {
+    public ArrayRealVector getBorderDistance(double x1, double y1, @NotNull ArrayRealVector pos2) {
         double x2 = pos2.getEntry(0);
         double y2 = pos2.getEntry(1);
         double dx;
@@ -217,11 +248,14 @@ public class World {
         return new ArrayRealVector(new Double[]{dx, dy});
     }
 
-    public ArrayRealVector getSimpleDistance(ArrayRealVector pos1, ArrayRealVector pos2) {
+    public ArrayRealVector getDistance(ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
         return pos2.copy().combineToSelf(1, -1, pos1);
     }
 
     public Body getPlayer() {
-        return bodies.get(0);
+        if (bodies.size() != 0) {
+            return bodies.get(0);
+        }
+        return null;
     }
 }

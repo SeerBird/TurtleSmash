@@ -29,9 +29,9 @@ public class VPoint implements Cloneable {
     }
 
     public void move() {
-        ArrayRealVector temp=pos.copy();
+        ArrayRealVector temp = pos.copy();
         pos.combineToSelf(2, -1, lpos);
-        lpos=temp;
+        lpos = temp;
     }
 
     public void move(RealVector v) {
@@ -102,7 +102,7 @@ public class VPoint implements Cloneable {
     }
 
     public ArrayRealVector getDistance(@NotNull VPoint b) {
-        return parent.getWorld().getSimpleDistance(pos, b.getPos());
+        return parent.getWorld().getDistance(pos, b.getPos());
     }
 
     public ArrayRealVector getDistance(ArrayRealVector pos) {
@@ -127,5 +127,9 @@ public class VPoint implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    public void stop() {
+        lpos = pos.copy();
     }
 }

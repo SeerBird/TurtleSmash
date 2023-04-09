@@ -12,6 +12,7 @@ import seerbird.game.output.ui.Button;
 import seerbird.game.output.ui.Menu;
 import seerbird.game.world.Web;
 import seerbird.game.world.World;
+import seerbird.game.world.bodies.Body;
 
 import java.awt.*;
 import java.awt.event.ComponentEvent;
@@ -99,29 +100,25 @@ public class EventManager {
         }
         if (gameState == GameState.Game) {
             if (mousePressEvents.get(1) != null) {
-                ArrayRealVector dist = world.getPlayer().getPoints().get(0).getDistance(mousepos);
-                world.getPlayer().shift(dist);
+                Body player = world.getPlayer();
+                if (player != null) {
+                    ArrayRealVector dist = player.getPoints().get(0).getDistance(mousepos);
+                    player.getPoints().get(0).move(dist);
+                    //player.stop();
+                }
             }
             if (mouseReleaseEvents.get(1) != null) {
                 mousePressEvents.remove(1);
                 mouseReleaseEvents.remove(1);
             }
-            if (keyPressedEvents.get(KeyEvent.VK_P)) {
+            if (keyPressedEvents.get(KeyEvent.VK_SPACE)) {
                 paused ^= true;
+                keyPressedEvents.put(KeyEvent.VK_SPACE, false);
+            }
+            if (keyPressedEvents.get(KeyEvent.VK_P)) {
+                world.testgen();
                 keyPressedEvents.put(KeyEvent.VK_P, false);
             }
-            /*
-            if (keyPressedEvents.get(KeyEvent.VK_SPACE)) {
-                ArrayRealVector dist = world.getPlayer().getPoints().get(0).getDistance(mousepos);
-                world.getPlayer().accelerate((ArrayRealVector) dist.mapMultiplyToSelf(0.001));
-                keyPressedEvents.put(KeyEvent.VK_SPACE, false);
-            }
-            if (keyReleasedEvents.get(KeyEvent.VK_SPACE)) {
-                paused ^= true;
-                keyPressedEvents.put(KeyEvent.VK_SPACE, false);
-                keyReleasedEvents.put(KeyEvent.VK_SPACE, false);
-            }
-            */
         } else if (gameState == GameState.Menu) {
 
         }
