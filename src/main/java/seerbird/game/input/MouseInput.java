@@ -42,6 +42,7 @@ public class MouseInput extends MouseAdapter{
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        win.getHandler().postMouseMoveEvent(e);
     }
 
     @Override

@@ -11,18 +11,23 @@ import seerbird.game.world.constraints.Constraint;
 import seerbird.game.world.constraints.DistanceConstraint;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Body implements Cloneable {
+public class Body {
     ArrayList<VPoint> points;
     ArrayList<DistanceConstraint> edges;
     World world;
     ArrayRealVector shift;
     ArrayRealVector acceleration;
 
-    public Body(World world) {
+    public Body(@NotNull World world) {
         points = new ArrayList<>();
         edges = new ArrayList<>();
         this.world = world;
+        acceleration = new ArrayRealVector(2);
+        shift = new ArrayRealVector(2);
+        world.getBodies().add(this);
     }
 
     public void addPoint(VPoint p) {
@@ -38,7 +43,7 @@ public class Body implements Cloneable {
         for (VPoint p : points) {
             p.shift(shift);
             p.accelerate(acceleration);
-        }
+        }//maybe merging the loops is okay
         shift.set(0);
         acceleration.set(0);
         //move
@@ -75,6 +80,10 @@ public class Body implements Cloneable {
         return edges;
     }
 
+    public void delete() {
+        world.getBodies().remove(this);
+    }
+
     public ArrayList<Pair<Double, VPoint>> project(@NotNull ArrayRealVector axis) {//returns minimum to maximum
         double norm = axis.getNorm();
         if (norm != 1.0) {
@@ -104,9 +113,6 @@ public class Body implements Cloneable {
     public void collide(@NotNull CollisionData collision) { //disregards point mass
         ArrayRealVector overlap = collision.getOverlap().copy(); //possibly unnecessary copy and therefore declaration
         ArrayRealVector edge = collision.getEdge1().getDistance(collision.getEdge2());
-        if (Compute.areClockwise(collision.getEdge1().getPos(), collision.getEdge2().getPos(), collision.getVertex().getPos())) {
-            overlap.mapMultiplyToSelf(-1);
-        }
         double edgeX = collision.getEdge2().getX() - collision.getEdge1().getX();
         double edgeY = collision.getEdge2().getY() - collision.getEdge1().getY();
         // should be 0 to 1, indicating where between edge1 and edge2 the vertex projection is
@@ -116,29 +122,9 @@ public class Body implements Cloneable {
         } else {
             double scaleFactor = 1 / (Math.pow(placement, 2) + Math.pow(1 - placement, 2)); // normalising factor
             // I like to move it, move it
-            collision.getVertex().accelerate(overlap.mapMultiply(0.5));
-            collision.getEdge1().accelerate(overlap.mapMultiply(-0.5 * scaleFactor * (1 - placement)));
-            collision.getEdge2().accelerate(overlap.mapMultiply(-0.5 * scaleFactor * placement));
-        }
-    }
-
-    @Override
-    public Body clone() {
-        try {
-            Body clone = (Body) super.clone();
-            clone.points.clear();
-            clone.edges.clear();
-            clone.acceleration = acceleration.copy();
-            clone.shift = shift.copy();
-            for (VPoint p : points) {
-                clone.points.add(p.clone());
-            }
-            for (DistanceConstraint e : edges) {
-                clone.edges.add(e.clone());
-            }
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+            collision.getVertex().move(overlap.mapMultiply(0.5));
+            collision.getEdge1().move(overlap.mapMultiply(-0.5 * scaleFactor * (1 - placement)));
+            collision.getEdge2().move(overlap.mapMultiply(-0.5 * scaleFactor * placement));
         }
     }
 }

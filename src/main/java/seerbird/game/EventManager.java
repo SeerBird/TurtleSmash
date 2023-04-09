@@ -98,16 +98,24 @@ public class EventManager {
             resizeEvent = null;
         }
         if (gameState == GameState.Game) {
-            if (keyPressedEvents.get(KeyEvent.VK_SPACE)) {
-                //ArrayRealVector dist = world.getPlayer().getDistance(mousepos);
-                //world.getPlayer().makeString((ArrayRealVector) dist.mapMultiply(Config.stringFling / dist.getNorm()));
-                keyPressedEvents.put(KeyEvent.VK_SPACE, false);
+            if (mousePressEvents.get(1) != null) {
+                ArrayRealVector dist = world.getPlayer().getPoints().get(0).getDistance(mousepos);
+                world.getPlayer().shift(dist);
+            }
+            if (mouseReleaseEvents.get(1) != null) {
+                mousePressEvents.remove(1);
+                mouseReleaseEvents.remove(1);
             }
             if (keyPressedEvents.get(KeyEvent.VK_P)) {
                 paused ^= true;
                 keyPressedEvents.put(KeyEvent.VK_P, false);
             }
             /*
+            if (keyPressedEvents.get(KeyEvent.VK_SPACE)) {
+                ArrayRealVector dist = world.getPlayer().getPoints().get(0).getDistance(mousepos);
+                world.getPlayer().accelerate((ArrayRealVector) dist.mapMultiplyToSelf(0.001));
+                keyPressedEvents.put(KeyEvent.VK_SPACE, false);
+            }
             if (keyReleasedEvents.get(KeyEvent.VK_SPACE)) {
                 paused ^= true;
                 keyPressedEvents.put(KeyEvent.VK_SPACE, false);

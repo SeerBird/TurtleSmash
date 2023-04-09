@@ -6,8 +6,11 @@ import seerbird.game.Config;
 import seerbird.game.EventManager;
 import seerbird.game.output.ui.IElement;
 import seerbird.game.output.ui.Menu;
+import seerbird.game.world.VPoint;
 import seerbird.game.world.Web;
 import seerbird.game.world.World;
+import seerbird.game.world.bodies.Body;
+import seerbird.game.world.constraints.DistanceConstraint;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -47,6 +50,9 @@ public class Renderer {
         for (Web w : world.getWebs()) {
             drawWeb(g, w);
         }
+        for (Body b : world.getBodies()) {
+            drawBody(g, b);
+        }
 
         //turtles and shells
         BufferedImage bodyImage;
@@ -56,6 +62,16 @@ public class Renderer {
     private void drawWeb(@NotNull Graphics g, @NotNull Web w) {
 
 
+    }
+
+    private void drawBody(@NotNull Graphics g, @NotNull Body b) {
+        g.setColor(Color.red);
+        for (VPoint p : b.getPoints()) {
+            g.fillRect((int) p.getX()-5, (int) p.getY()-5, 10, 10);
+        }
+        for (DistanceConstraint e : b.getEdges()) {
+            g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
+        }
     }
 
     public void drawImage(@NotNull Graphics g, @NotNull Menu menu) { // get all the visible objects, effects, and particles on an image

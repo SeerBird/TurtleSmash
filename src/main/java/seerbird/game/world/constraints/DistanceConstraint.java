@@ -46,6 +46,12 @@ public class DistanceConstraint implements Constraint {
     public Pair<VPoint, VPoint> getPoints() {
         return new Pair<>(p1, p2);
     }
+    public VPoint getEdge1(){
+        return p1;
+    }
+    public VPoint getEdge2(){
+        return p2;
+    }
 
     public void move(ArrayRealVector v) {
         getPoints().getKey().accelerate(v);

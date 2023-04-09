@@ -22,4 +22,5 @@ public class Config {
     public static double gravity = 1;
     public static double stringFling = 24;
     public static double minGravityDistance = 1;
+    public static double noReturnTime = 10; //seconds
 }
