@@ -8,21 +8,22 @@ import seerbird.game.EventManager;
 import seerbird.game.math.Maths;
 import seerbird.game.world.bodies.Body;
 import seerbird.game.world.bodies.Box;
+import seerbird.game.world.bodies.Star;
 import seerbird.game.world.constraints.DistanceConstraint;
 
 import java.util.*;
 
 public class World {
     ArrayList<Body> bodies;
-    ArrayList<Web> webs;
-    ArrayList<Body> graviBodies;
+    ArrayList<Body> toRemove;
+    ArrayList<Body> toAdd;
     EventManager handler;
 
     public World(EventManager handler) {
         this.handler = handler;
         bodies = new ArrayList<>();
-        webs = new ArrayList<>();
-        graviBodies = new ArrayList<>();
+        toAdd = new ArrayList<>();
+        toRemove = new ArrayList<>();
         testgen();
     }
 
@@ -30,12 +31,11 @@ public class World {
     public void update() { // make it all multiplied by dt
         //any required magic is done before movement
 
-        //OPTIMISE THROUGH ITERATORS
-        fadeBodies(); // remove irrelevant stuff
         //move it all
         for (Body b : bodies) {
-            wrapAround(b);
-            b.move();
+            fadeBodies(b); // remove irrelevant
+            wrapAround(b); // teleport through border
+            b.move(); // keep moving based on last update
         }
         //constraints and collisions
         for (Body b : bodies) {
@@ -44,10 +44,18 @@ public class World {
                 collide(collision);
             }
         }
+        //remove and add bodies
+        for (Body b : toRemove) {
+            bodies.remove(b);
+        }
+        bodies.addAll(toAdd);
+        toRemove.clear();
+        toAdd.clear();
     }
 
     public void testgen() {
-        new Box(this, new ArrayRealVector(new Double[]{400.0, 400.0}), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        //new Box(this, new ArrayRealVector(new Double[]{400.0, 400.0}), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        new Star(this,new ArrayRealVector(new Double[]{400.0, 400.0}));
     }
 
     public EventManager getHandler() {
@@ -58,8 +66,12 @@ public class World {
         return this.bodies;
     }
 
-    public ArrayList<Web> getWebs() {
-        return this.webs;
+    public void deleteBody(Body b) {
+        toRemove.add(b);
+    }
+
+    public void addBody(Body b) {
+        toAdd.add(b);
     }
 
     void collide(@NotNull CollisionData collision) {
@@ -186,35 +198,32 @@ public class World {
         }
     }
 
-    public void fadeBodies() {
-        ListIterator<Body> iter = bodies.listIterator();
-        while (iter.hasNext()) {
-            Body b = iter.next();
-            ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
-            ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
-            boolean gone = false;
-            if (projectionX.get(0).getKey() > Config.WIDTH) {
-                b.decreaseRelevance(1 / 60.0);
-                gone = true;
-            } else if (projectionX.get(1).getKey() < 0) {
-                b.decreaseRelevance(1 / 60.0);
-                gone = true;
-            }
-            if (projectionY.get(0).getKey() > Config.HEIGHT) {
-                b.decreaseRelevance(1 / 60.0);
-                gone = true;
-            } else if (projectionY.get(1).getKey() < 0) {
-                b.decreaseRelevance(1 / 60.0);
-                gone = true;
-            }
-            if (!gone) {
-                b.resetRelevance();
-            }
-            if (b.getRelevance() <= 0) {
-                iter.remove();
-            }
+    public void fadeBodies(@NotNull Body b) {
+        ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
+        ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
+        boolean gone = false;
+        if (projectionX.get(0).getKey() > Config.WIDTH) {
+            b.decreaseRelevance(1 / 60.0);
+            gone = true;
+        } else if (projectionX.get(1).getKey() < 0) {
+            b.decreaseRelevance(1 / 60.0);
+            gone = true;
+        }
+        if (projectionY.get(0).getKey() > Config.HEIGHT) {
+            b.decreaseRelevance(1 / 60.0);
+            gone = true;
+        } else if (projectionY.get(1).getKey() < 0) {
+            b.decreaseRelevance(1 / 60.0);
+            gone = true;
+        }
+        if (!gone) {
+            b.resetRelevance();
+        }
+        if (b.getRelevance() <= 0) {
+            deleteBody(b);
         }
     }
+
 
     public ArrayRealVector getBorderDistance(@NotNull ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
         double x1 = pos1.getEntry(0);

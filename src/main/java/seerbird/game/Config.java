@@ -9,7 +9,9 @@ public class Config {
     public static final int TILE_SIZE = 24;
     public static final int CAMERA_DISTANCE = 24;
     public static final int CRASH_FRAME_DELAY = 600;
-    public static Color BACKGROUND = new Color(65, 130, 65, 200);
+    public static Color BACKGROUND = new Color(64, 128, 0, 255);
+    public static Color POINTS = new Color(0, 30, 234, 255);
+    public static Color EDGES = new Color(196, 36, 0, 255);
     public static double turtleMass = 50;
     public static double shellMass = 3;
     public static double turtleCollisionElasticity = 1;

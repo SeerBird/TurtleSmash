@@ -9,6 +9,7 @@ import seerbird.game.world.World;
 import seerbird.game.world.constraints.Constraint;
 import seerbird.game.world.constraints.DistanceConstraint;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Body {
@@ -19,6 +20,7 @@ public class Body {
     ArrayRealVector acceleration;
     double relevance;
     static double defaultRelevance = 1;
+    public Color color;
 
     public Body(@NotNull World world) {
         points = new ArrayList<>();
@@ -26,8 +28,13 @@ public class Body {
         this.world = world;
         acceleration = new ArrayRealVector(2);
         shift = new ArrayRealVector(2);
-        world.getBodies().add(this);
+        world.addBody(this); // might be unnecessary here, could be done outside
         relevance = 20;
+        color = Color.getHSBColor((float) Math.random(), 1, 1);
+    }
+
+    public void addEdge(VPoint p1, VPoint p2) {
+        addEdge(new DistanceConstraint(p1, p2, p1.getDistance(p2).getNorm()));
     }
 
     public void addPoint(VPoint p) {
@@ -84,10 +91,6 @@ public class Body {
         return edges;
     }
 
-    public void delete() {
-        world.getBodies().remove(this);
-    }
-
     public ArrayList<Pair<Double, VPoint>> project(@NotNull ArrayRealVector axis) {//returns minimum to maximum
         double norm = axis.getNorm();
         if (norm != 1.0) {
@@ -113,10 +116,15 @@ public class Body {
         res.add(new Pair<>(max, maxp));
         return res;
     }
+
     public void stop() {
         for (VPoint p : points) {
             p.stop();
         }
+    }
+
+    public void delete() {
+        world.deleteBody(this);
     }
 
     public void decreaseRelevance(double decrease) {

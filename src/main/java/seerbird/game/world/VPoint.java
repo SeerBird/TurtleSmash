@@ -102,7 +102,7 @@ public class VPoint implements Cloneable {
     }
 
     public ArrayRealVector getDistance(@NotNull VPoint b) {
-        return parent.getWorld().getDistance(pos, b.getPos());
+        return parent.getWorld().getDistance(pos, b.getPos()); // could be world-independent? just geometry if I don't have borderDistance
     }
 
     public ArrayRealVector getDistance(ArrayRealVector pos) {

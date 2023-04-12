@@ -45,17 +45,10 @@ public class Renderer {
         g.setColor(Config.BACKGROUND);
         g.fillRect(0, 0, width, height);
 
-        // webs
-        g.setColor(Color.WHITE);
-        for (Web w : world.getWebs()) {
-            drawWeb(g, w);
-        }
+        // bodies
         for (Body b : world.getBodies()) {
             drawBody(g, b);
         }
-
-        //turtles and shells
-        BufferedImage bodyImage;
         g.dispose();
     }
 
@@ -65,12 +58,13 @@ public class Renderer {
     }
 
     private void drawBody(@NotNull Graphics g, @NotNull Body b) {
-        g.setColor(Color.red);
-        for (VPoint p : b.getPoints()) {
-            g.fillRect((int) p.getX()-5, (int) p.getY()-5, 10, 10);
-        }
+        g.setColor(b.color);
         for (DistanceConstraint e : b.getEdges()) {
             g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
+        }
+        g.setColor(Config.POINTS);
+        for (VPoint p : b.getPoints()) {
+            g.fillRect((int) p.getX()-3, (int) p.getY()-3, 6, 6);
         }
     }
 
