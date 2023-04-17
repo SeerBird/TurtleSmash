@@ -23,8 +23,8 @@ public class DistanceConstraint implements Constraint {
         if (Math.abs(displacement) > CONSTANTS.constraintTolerance) {
             distance.mapMultiply(displacement / norm);
             double inertia = p2.getMass() / (p1.getMass() + p2.getMass());
-            p1.accelerate(distance.mapMultiply(displacement / norm * inertia));
-            p2.accelerate(distance.mapMultiply(displacement / norm * (inertia - 1)));
+            p1.move(distance.mapMultiply(displacement / norm * inertia));
+            p2.move(distance.mapMultiply(displacement / norm * (inertia - 1)));
             return false;
         } else {
             return true;
@@ -54,7 +54,7 @@ public class DistanceConstraint implements Constraint {
     }
 
     public void move(ArrayRealVector v) {
-        getPoints().getKey().accelerate(v);
-        getPoints().getValue().accelerate(v);
+        getPoints().getKey().move(v);
+        getPoints().getValue().move(v);
     }
 }

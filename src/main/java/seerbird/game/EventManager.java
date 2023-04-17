@@ -4,6 +4,7 @@ package seerbird.game;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 import seerbird.game.input.MenuClickEvent;
+import seerbird.game.input.MouseInput;
 import seerbird.game.output.GameWindow;
 import seerbird.game.output.Renderer;
 import seerbird.game.output.audio.Sound;
@@ -43,14 +44,6 @@ public class EventManager {
     public final Map<Integer, Boolean> USED_KEYS = Map.ofEntries(entry(KeyEvent.VK_W, false), entry(KeyEvent.VK_A, false), entry(KeyEvent.VK_S, false), entry(KeyEvent.VK_D, false), entry(KeyEvent.VK_SPACE, false), entry(KeyEvent.VK_SHIFT, false), entry(KeyEvent.VK_CONTROL, false), entry(KeyEvent.VK_P, false));
 
     public EventManager() {
-        gameState = GameState.Game; // SHOULD BE MENU
-        menu = new Menu(this);
-        sound = new Sound();
-        world = new World(this);
-        win = new GameWindow(this);
-        cam = new Renderer(this);
-        connector = new Connector();
-
         // same thing. wtf.
         keyPressedEvents = new HashMap<>();
         keyReleasedEvents = new HashMap<>();
@@ -60,9 +53,19 @@ public class EventManager {
         keyReleasedEvents.putAll(USED_KEYS);
         mousepos = new ArrayRealVector(new Double[]{(double) MouseInfo.getPointerInfo().getLocation().x, (double) MouseInfo.getPointerInfo().getLocation().y});
         paused = false;
+
+
+        gameState = GameState.Game; // SHOULD BE MENU
+        menu = new Menu(this);
+        sound = new Sound();
+        world = new World(this);
+        win = new GameWindow(this);
+        cam = new Renderer(this);
+        connector = new Connector();
     }
 
     public void terminate() {
+        // you think you can stop me?
     }
 
     public void out() {
@@ -102,12 +105,12 @@ public class EventManager {
             if (mousePressEvents.get(1) != null) {
                 Body player = world.getPlayer();
                 if (player != null) {
-                    ArrayRealVector dist = player.getPoints().get(0).getDistance(mousepos);
-                    player.getPoints().get(0).move(dist);
-                    //player.stop();
+                    ArrayRealVector dist = world.getDistance(player.getCenter(), mousepos);
+                    player.shift(dist);
+                    player.stop();
                 }
             }
-            if (mouseReleaseEvents.get(1) != null) {
+            if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
                 mousePressEvents.remove(1);
                 mouseReleaseEvents.remove(1);
             }
@@ -131,6 +134,10 @@ public class EventManager {
 
     public void postKeyPressedEvent(@NotNull KeyEvent e) {
         keyPressedEvents.put(e.getKeyCode(), true);
+    }
+
+    public ArrayRealVector getMousepos() {
+        return mousepos;
     }
 
     public void postKeyReleasedEvent(@NotNull KeyEvent e) {

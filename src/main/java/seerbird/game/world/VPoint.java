@@ -38,6 +38,15 @@ public class VPoint implements Cloneable {
         pos.combineToSelf(1, 1, v);
     }
 
+    public void accelerate(RealVector v) {
+        lpos.combineToSelf(1, -1, v);
+    }
+
+    public void shift(ArrayRealVector v) {
+        pos.combineToSelf(1, 1, v);
+        lpos.combineToSelf(1, 1, v);
+    }
+
     public double getMass() {
         return this.mass;
     }
@@ -74,18 +83,9 @@ public class VPoint implements Cloneable {
         this.pos.addToEntry(1, dy);
     }
 
-    public void shift(ArrayRealVector v) {
-        pos.combineToSelf(1, 1, v);
-        lpos.combineToSelf(1, 1, v);
-    }
-
     public void accelerate(double x, double y) {
         pos.addToEntry(0, x);
         pos.addToEntry(1, y);
-    }
-
-    public void accelerate(RealVector v) {
-        pos.combineToSelf(1, 1, v);
     }
 
     public void accelerateMass(@NotNull RealVector v) {

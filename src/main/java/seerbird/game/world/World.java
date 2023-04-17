@@ -30,12 +30,14 @@ public class World {
 
     public void update() { // make it all multiplied by dt
         //any required magic is done before movement
-
+        //gravity
+        gravitate();
         //move it all
         for (Body b : bodies) {
             fadeBodies(b); // remove irrelevant
-            wrapAround(b); // teleport through border
+
             b.move(); // keep moving based on last update
+            //wrapAround(b); // teleport through border
         }
         //constraints and collisions
         for (Body b : bodies) {
@@ -54,8 +56,8 @@ public class World {
     }
 
     public void testgen() {
-        //new Box(this, new ArrayRealVector(new Double[]{400.0, 400.0}), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
-        new Star(this,new ArrayRealVector(new Double[]{400.0, 400.0}));
+        new Box(this, handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        //new Star(this,new ArrayRealVector(new Double[]{400.0, 400.0}));
     }
 
     public EventManager getHandler() {
@@ -79,6 +81,23 @@ public class World {
             collision.vertex.getParent().collide(collision);
         }
         //sounds, particles, and other stuff
+    }
+
+    void gravitate() {
+        for (int i = 0; i < bodies.size(); i++) {
+            Body b1 = bodies.get(i);
+            if (b1.gravitates()) {
+                for (int j = i + 1; j < bodies.size(); j++) {
+                    Body b2 = bodies.get(j);
+                    if (b2.gravitates()) {
+                        ArrayRealVector force = b1.getDistance(b2);
+                        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3)*100);
+                        b1.accelerate(force.mapMultiply(b2.getMass()));
+                        b2.accelerate(force.mapMultiply(-b1.getMass()));
+                    }
+                }
+            }
+        }
     }
 
     ArrayList<CollisionData> checkCollisions(@NotNull Body b1) { // separating axis theorem, only works for convex shapes

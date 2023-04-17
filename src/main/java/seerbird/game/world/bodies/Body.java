@@ -2,6 +2,7 @@ package seerbird.game.world.bodies;
 
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 import seerbird.game.world.CollisionData;
 import seerbird.game.world.VPoint;
@@ -16,54 +17,56 @@ public class Body {
     ArrayList<VPoint> points;
     ArrayList<DistanceConstraint> edges;
     World world;
-    ArrayRealVector shift;
+    ArrayRealVector movement;
     ArrayRealVector acceleration;
     double relevance;
     static double defaultRelevance = 1;
     public Color color;
+    boolean gravitates;
+    double mass;
+    ArrayRealVector center;
+    boolean centerMoved;
 
     public Body(@NotNull World world) {
         points = new ArrayList<>();
         edges = new ArrayList<>();
         this.world = world;
         acceleration = new ArrayRealVector(2);
-        shift = new ArrayRealVector(2);
+        movement = new ArrayRealVector(2);
+        center = new ArrayRealVector(2);
         world.addBody(this); // might be unnecessary here, could be done outside
         relevance = 20;
         color = Color.getHSBColor((float) Math.random(), 1, 1);
-    }
-
-    public void addEdge(VPoint p1, VPoint p2) {
-        addEdge(new DistanceConstraint(p1, p2, p1.getDistance(p2).getNorm()));
-    }
-
-    public void addPoint(VPoint p) {
-        points.add(p);
-    }
-
-    public void addEdge(DistanceConstraint e) {
-        edges.add(e);
+        gravitates = true;
+        mass = 0;
+        centerMoved = true;
     }
 
     public void move() {
         //forces and stuff? probably outside
         for (VPoint p : points) {
-            p.shift(shift);
             p.accelerate(acceleration);
+            p.move(movement);
         }//maybe merging the loops is okay
-        shift.set(0);
+        movement.set(0);
         acceleration.set(0);
         //move
         for (VPoint p : points) {
             p.move();
         }
+        centerMoved = true;
     }
 
     public void shift(ArrayRealVector v) {
-        shift.combineToSelf(1, 1, v);
+        movement.combineToSelf(1, 1, v);
+        acceleration.combineToSelf(1, -1, v);
     }
 
-    public void accelerate(ArrayRealVector v) {
+    public void move(ArrayRealVector v) {
+        movement.combineToSelf(1, 1, v);
+    }
+
+    public void accelerate(RealVector v) {
         acceleration.combineToSelf(1, 1, v);
     }
 
@@ -83,12 +86,66 @@ public class Body {
         return relevance;
     }
 
+    public double getMass() {
+        return mass;
+    }
+
+    public ArrayRealVector getCenter() {
+        if (centerMoved) {
+            mass = 0;
+            center.set(0);
+            for (VPoint p : points) {
+                mass += p.getMass();
+                center.combineToSelf(1, p.getMass(), p.getPos());
+            }
+            center.mapMultiplyToSelf(1 / mass);
+            centerMoved = false;
+        }
+        return center.copy();
+    }
+
+    public void refreshMass() {
+        mass = 0;
+        center.set(0);
+        for (VPoint p : points) {
+            mass += p.getMass();
+            center.combineToSelf(1, p.getMass(), p.getPos());
+        }
+        center.mapMultiplyToSelf(1 / mass);
+        centerMoved = false;
+    }
+
+    public void addPoint(VPoint p) {
+        points.add(p);
+        centerMoved = true;
+    }
+
+    public void addEdge(VPoint p1, VPoint p2) {
+        addEdge(new DistanceConstraint(p1, p2, p1.getDistance(p2).getNorm()));
+    }
+
+    public ArrayRealVector getDistance(@NotNull Body b) {
+        return world.getDistance(getCenter(), b.getCenter());
+    }
+
+    public ArrayRealVector getDistance(@NotNull ArrayRealVector p) {
+        return world.getDistance(getCenter(), p);
+    }
+
+    public boolean gravitates() {
+        return gravitates;
+    }
+
     public ArrayList<VPoint> getPoints() {
         return points;
     }
 
     public ArrayList<DistanceConstraint> getEdges() { // remember to override in webs not to collide with stuck parts
         return edges;
+    }
+
+    public void addEdge(DistanceConstraint e) {
+        edges.add(e);
     }
 
     public ArrayList<Pair<Double, VPoint>> project(@NotNull ArrayRealVector axis) {//returns minimum to maximum
@@ -142,14 +199,10 @@ public class Body {
         double edgeY = collision.getEdge2().getY() - collision.getEdge1().getY();
         // should be 0 to 1, indicating where between edge1 and edge2 the vertex projection is
         double placement = (edge.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (collision.getVertex().getX() - collision.getEdge1().getX()) / (edgeX) : (collision.getVertex().getY() - collision.getEdge1().getY()) / (edgeY) : 0.5;
-        if (placement < 0 || placement > 1) {
-            boolean guck = true;
-        } else {
-            double scaleFactor = 1 / (Math.pow(placement, 2) + Math.pow(1 - placement, 2)); // normalising factor
-            // I like to move it, move it
-            collision.getVertex().move(overlap.mapMultiply(0.5));
-            collision.getEdge1().move(overlap.mapMultiply(-0.5 * scaleFactor * (1 - placement)));
-            collision.getEdge2().move(overlap.mapMultiply(-0.5 * scaleFactor * placement));
-        }
+        double scaleFactor = 1 / (Math.pow(placement, 2) + Math.pow(1 - placement, 2)); // normalising factor
+        // I like to move it, move it
+        collision.getVertex().move(overlap.mapMultiply(0.5));
+        collision.getEdge1().move(overlap.mapMultiply(-0.5 * scaleFactor * (1 - placement)));
+        collision.getEdge2().move(overlap.mapMultiply(-0.5 * scaleFactor * placement));
     }
 }

@@ -14,21 +14,22 @@ public class Box extends Body {
         VPoint p2 = new VPoint(this, 1, pos.combine(1, 1, side1));
         VPoint p3 = new VPoint(this, 1, pos.combine(1, 1, side2));
         VPoint p4 = new VPoint(this, 1, pos.combine(1, 1, side1).combine(1, 1, side2));
-        edges.add(new DistanceConstraint(p1, p2, p1.getDistance(p2).getNorm()));
-        edges.add(new DistanceConstraint(p1, p3, p1.getDistance(p3).getNorm()));
-        edges.add(new DistanceConstraint(p2, p4, p2.getDistance(p4).getNorm()));
-        edges.add(new DistanceConstraint(p3, p4, p3.getDistance(p4).getNorm()));
-        edges.add(new DistanceConstraint(p1, p4, p1.getDistance(p4).getNorm()));
-        edges.add(new DistanceConstraint(p2, p3, p2.getDistance(p3).getNorm()));
-        points.add(p1);
-        points.add(p2);
-        points.add(p3);
-        points.add(p4);
+        addEdge(new DistanceConstraint(p1, p2, p1.getDistance(p2).getNorm()));
+        addEdge(new DistanceConstraint(p1, p3, p1.getDistance(p3).getNorm()));
+        addEdge(new DistanceConstraint(p2, p4, p2.getDistance(p4).getNorm()));
+        addEdge(new DistanceConstraint(p3, p4, p3.getDistance(p4).getNorm()));
+        addEdge(new DistanceConstraint(p1, p4, p1.getDistance(p4).getNorm()));
+        addEdge(new DistanceConstraint(p2, p3, p2.getDistance(p3).getNorm()));
+        addPoint(p1);
+        addPoint(p2);
+        addPoint(p3);
+        addPoint(p4);
+        refreshMass();
     }
 
     @Override
     public ArrayList<DistanceConstraint> getEdges() {
-        ArrayList<DistanceConstraint> sides=new ArrayList<>();
+        ArrayList<DistanceConstraint> sides = new ArrayList<>();
         sides.add(edges.get(0));
         sides.add(edges.get(1));
         sides.add(edges.get(2));

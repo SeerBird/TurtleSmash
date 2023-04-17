@@ -8,8 +8,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-public class MouseInput extends MouseAdapter{
+public class MouseInput extends MouseAdapter {
     GameWindow win;
+    public static final int LEFT = 1;
+    public static final int MID = 2;
+    public static final int RIGHT = 3;
 
     public MouseInput(GameWindow win) {
         this.win = win;
