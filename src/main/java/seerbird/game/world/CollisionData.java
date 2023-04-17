@@ -21,6 +21,9 @@ public class CollisionData {
     public VPoint getEdge2(){
         return edge.getPoints().getValue();
     }
+    public DistanceConstraint getEdge(){
+        return edge;
+    }
 
     public VPoint getVertex() {
         return vertex;

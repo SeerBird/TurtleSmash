@@ -33,7 +33,7 @@ public class Star extends Body {
         addEdge(p5,p1);
     }
     @Override
-    public ArrayList<DistanceConstraint> getEdges() {
+    public ArrayList<DistanceConstraint> getSides() {
         ArrayList<DistanceConstraint> sides=new ArrayList<>();
         sides.add(edges.get(0));
         sides.add(edges.get(1));

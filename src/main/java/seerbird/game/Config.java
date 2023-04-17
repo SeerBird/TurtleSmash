@@ -14,13 +14,10 @@ public class Config {
     public static Color EDGES = new Color(196, 36, 0, 255);
     public static double turtleMass = 50;
     public static double shellMass = 3;
-    public static double turtleCollisionElasticity = 1;
-    public static double shellCollisionElasticity = 1;
-    public static double turtleShellCollisionElasticity = 1;
     public static int stringLimit = 3;
-    public static int stringLengthLimit = 160;
+    public static int stringLengthLimit = 40;
     public static double stringTensileStrength = 0.5;
-    public static double stringRestNodeDistance = 2;
+    public static double stringRestNodeDistance = 6;
     public static double gravity = 1;
     public static double stringFling = 24;
     public static double minGravityDistance = 1;

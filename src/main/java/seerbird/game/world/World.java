@@ -8,7 +8,7 @@ import seerbird.game.EventManager;
 import seerbird.game.math.Maths;
 import seerbird.game.world.bodies.Body;
 import seerbird.game.world.bodies.Box;
-import seerbird.game.world.bodies.Star;
+import seerbird.game.world.bodies.Web;
 import seerbird.game.world.constraints.DistanceConstraint;
 
 import java.util.*;
@@ -24,7 +24,6 @@ public class World {
         bodies = new ArrayList<>();
         toAdd = new ArrayList<>();
         toRemove = new ArrayList<>();
-        testgen();
     }
 
 
@@ -56,8 +55,9 @@ public class World {
     }
 
     public void testgen() {
-        new Box(this, handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        Box b = new Box(this, handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
         //new Star(this,new ArrayRealVector(new Double[]{400.0, 400.0}));
+        new Web(this, b.getPoints().get(0), new ArrayRealVector(new Double[]{-20.0, -20.0}));
     }
 
     public EventManager getHandler() {
@@ -77,8 +77,14 @@ public class World {
     }
 
     void collide(@NotNull CollisionData collision) {
-        if (collision.vertex.getParent().getClass() == Box.class && collision.edge.getPoints().getKey().getParent().getClass() == Box.class) {
-            collision.vertex.getParent().collide(collision);
+        Body b1 = collision.getVertex().getParent();
+        Body b2 = collision.getEdge1().getParent();
+        if (b1.getClass() == Web.class) {
+            b1.collide(collision);
+        } else if (b2.getClass() == Web.class) {
+            b2.collide(collision);
+        } else {
+            b1.collide(collision);
         }
         //sounds, particles, and other stuff
     }
@@ -91,7 +97,7 @@ public class World {
                     Body b2 = bodies.get(j);
                     if (b2.gravitates()) {
                         ArrayRealVector force = b1.getDistance(b2);
-                        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3)*100);
+                        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3) * 10);
                         b1.accelerate(force.mapMultiply(b2.getMass()));
                         b2.accelerate(force.mapMultiply(-b1.getMass()));
                     }
@@ -106,7 +112,7 @@ public class World {
         DistanceConstraint collisionEdge = null;
         VPoint collisionVertex = null;
         //locals
-        ArrayList<DistanceConstraint> edges1 = b1.getEdges(); // not necessarily all DistanceConstraints of a body?
+        ArrayList<DistanceConstraint> edges1 = b1.getSides(); // not necessarily all DistanceConstraints of a body?
         ArrayList<DistanceConstraint> edges2;
         ArrayList<CollisionData> collisions = new ArrayList<>();
         double minDistance; // from vertex to edge in the direction of the axis
@@ -116,11 +122,11 @@ public class World {
         DistanceConstraint edge;
 
         for (Body b2 : bodies) {
-            if (b2 == b1) {
+            if (b2 == b1 || (b2.getClass() == Web.class && b1.getClass() == Web.class)) {
                 continue;
-            } // don't collide with yourself ;)
+            } // don't collide with yourself ;) and webs pass through each other, thankfully
             minDistance = Double.MAX_VALUE;
-            edges2 = b2.getEdges();
+            edges2 = b2.getSides();
             double distance; // between the two projections. collision on negative values
             boolean collided = true;
             for (int i = 0; i < edges1.size() + edges2.size(); i++) {
@@ -220,24 +226,27 @@ public class World {
     public void fadeBodies(@NotNull Body b) {
         ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
         ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
-        boolean gone = false;
+        //boolean gone = false;
         if (projectionX.get(0).getKey() > Config.WIDTH) {
             b.decreaseRelevance(1 / 60.0);
-            gone = true;
+            //gone = true;
         } else if (projectionX.get(1).getKey() < 0) {
             b.decreaseRelevance(1 / 60.0);
-            gone = true;
+            //gone = true;
         }
         if (projectionY.get(0).getKey() > Config.HEIGHT) {
             b.decreaseRelevance(1 / 60.0);
-            gone = true;
+            //gone = true;
         } else if (projectionY.get(1).getKey() < 0) {
             b.decreaseRelevance(1 / 60.0);
-            gone = true;
+            //gone = true;
         }
+        /*
         if (!gone) {
             b.resetRelevance();
         }
+
+         */
         if (b.getRelevance() <= 0) {
             deleteBody(b);
         }

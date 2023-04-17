@@ -43,7 +43,6 @@ public class Body {
     }
 
     public void move() {
-        //forces and stuff? probably outside
         for (VPoint p : points) {
             p.accelerate(acceleration);
             p.move(movement);
@@ -140,7 +139,11 @@ public class Body {
         return points;
     }
 
-    public ArrayList<DistanceConstraint> getEdges() { // remember to override in webs not to collide with stuck parts
+    public ArrayList<DistanceConstraint> getSides() { // remember to override in webs not to collide with stuck parts
+        return edges;
+    }
+
+    final public ArrayList<DistanceConstraint> getEdges() {
         return edges;
     }
 

@@ -7,9 +7,9 @@ import seerbird.game.EventManager;
 import seerbird.game.output.ui.IElement;
 import seerbird.game.output.ui.Menu;
 import seerbird.game.world.VPoint;
-import seerbird.game.world.Web;
 import seerbird.game.world.World;
 import seerbird.game.world.bodies.Body;
+import seerbird.game.world.bodies.Web;
 import seerbird.game.world.constraints.DistanceConstraint;
 
 import java.awt.*;
@@ -59,7 +59,7 @@ public class Renderer {
 
     private void drawBody(@NotNull Graphics g, @NotNull Body b) {
         g.setColor(b.color);
-        for (DistanceConstraint e : b.getEdges()) {
+        for (DistanceConstraint e : b.getSides()) {
             g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
         }
         g.setColor(Config.POINTS);

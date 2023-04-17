@@ -11,9 +11,9 @@ import seerbird.game.output.audio.Sound;
 import seerbird.game.output.connection.Connector;
 import seerbird.game.output.ui.Button;
 import seerbird.game.output.ui.Menu;
-import seerbird.game.world.Web;
 import seerbird.game.world.World;
 import seerbird.game.world.bodies.Body;
+import seerbird.game.world.bodies.Web;
 
 import java.awt.*;
 import java.awt.event.ComponentEvent;
@@ -51,7 +51,7 @@ public class EventManager {
         mouseReleaseEvents = new HashMap<>();
         keyPressedEvents.putAll(USED_KEYS);
         keyReleasedEvents.putAll(USED_KEYS);
-        mousepos = new ArrayRealVector(new Double[]{(double) MouseInfo.getPointerInfo().getLocation().x, (double) MouseInfo.getPointerInfo().getLocation().y});
+        mousepos = new ArrayRealVector(new Double[]{400.0, 400.0});
         paused = false;
 
 
