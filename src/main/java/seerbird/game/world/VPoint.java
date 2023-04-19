@@ -47,6 +47,10 @@ public class VPoint implements Cloneable {
         lpos.combineToSelf(1, 1, v);
     }
 
+    public void setPos(@NotNull ArrayRealVector v) {
+        pos = v.copy();
+    }
+
     public double getMass() {
         return this.mass;
     }
@@ -118,7 +122,7 @@ public class VPoint implements Cloneable {
     }
 
     @Override
-    public VPoint clone() {
+    public VPoint clone() { //eh
         try {
             VPoint clone = (VPoint) super.clone();
             clone.lpos = this.lpos.copy();
@@ -127,6 +131,14 @@ public class VPoint implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    public double project(@NotNull ArrayRealVector axis) {
+        if (axis.getNorm() != 1) {
+            return getPos().dotProduct(axis.mapMultiply(1 / axis.getNorm()));
+        }
+        return getPos().dotProduct(axis);
+
     }
 
     public void stop() {

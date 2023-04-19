@@ -58,11 +58,11 @@ public class Renderer {
     }
 
     private void drawBody(@NotNull Graphics g, @NotNull Body b) {
-        g.setColor(b.color);
-        for (DistanceConstraint e : b.getSides()) {
+        g.setColor(b.edgeColor);
+        for (DistanceConstraint e : b.getEdges()) {
             g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
         }
-        g.setColor(Config.POINTS);
+        g.setColor(b.pointColor);
         for (VPoint p : b.getPoints()) {
             g.fillRect((int) p.getX()-3, (int) p.getY()-3, 6, 6);
         }

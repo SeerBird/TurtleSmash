@@ -14,6 +14,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class Body {
+    public Color pointColor;
     ArrayList<VPoint> points;
     ArrayList<DistanceConstraint> edges;
     World world;
@@ -21,7 +22,7 @@ public class Body {
     ArrayRealVector acceleration;
     double relevance;
     static double defaultRelevance = 1;
-    public Color color;
+    public Color edgeColor;
     boolean gravitates;
     double mass;
     ArrayRealVector center;
@@ -36,7 +37,8 @@ public class Body {
         center = new ArrayRealVector(2);
         world.addBody(this); // might be unnecessary here, could be done outside
         relevance = 20;
-        color = Color.getHSBColor((float) Math.random(), 1, 1);
+        edgeColor = Color.getHSBColor((float) Math.random(), 1, 1);
+        pointColor = Color.getHSBColor((float) Math.random(), 1, 1);
         gravitates = true;
         mass = 0;
         centerMoved = true;

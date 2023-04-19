@@ -5,6 +5,7 @@ import seerbird.game.world.VPoint;
 import seerbird.game.world.World;
 import seerbird.game.world.constraints.DistanceConstraint;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Box extends Body {
@@ -25,6 +26,7 @@ public class Box extends Body {
         addPoint(p3);
         addPoint(p4);
         refreshMass();
+        pointColor = Color.CYAN;
     }
 
     @Override

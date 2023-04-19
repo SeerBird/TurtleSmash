@@ -55,9 +55,9 @@ public class World {
     }
 
     public void testgen() {
-        Box b = new Box(this, handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        Box b = new Box(this, handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 10.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
         //new Star(this,new ArrayRealVector(new Double[]{400.0, 400.0}));
-        new Web(this, b.getPoints().get(0), new ArrayRealVector(new Double[]{-20.0, -20.0}));
+        //new Web(this, b.getPoints().get(3), new ArrayRealVector(new Double[]{20.0, 20.0}));
     }
 
     public EventManager getHandler() {
@@ -76,19 +76,6 @@ public class World {
         toAdd.add(b);
     }
 
-    void collide(@NotNull CollisionData collision) {
-        Body b1 = collision.getVertex().getParent();
-        Body b2 = collision.getEdge1().getParent();
-        if (b1.getClass() == Web.class) {
-            b1.collide(collision);
-        } else if (b2.getClass() == Web.class) {
-            b2.collide(collision);
-        } else {
-            b1.collide(collision);
-        }
-        //sounds, particles, and other stuff
-    }
-
     void gravitate() {
         for (int i = 0; i < bodies.size(); i++) {
             Body b1 = bodies.get(i);
@@ -104,6 +91,17 @@ public class World {
                 }
             }
         }
+    }
+
+    void collide(@NotNull CollisionData collision) {
+        Body b1 = collision.getVertex().getParent();
+        Body b2 = collision.getEdge1().getParent();
+        if (b1.getClass() == Web.class) {
+            b1.collide(collision);
+        } else {
+            b2.collide(collision);
+        }//webs take priority
+        //sounds, particles, and other stuff
     }
 
     ArrayList<CollisionData> checkCollisions(@NotNull Body b1) { // separating axis theorem, only works for convex shapes
@@ -137,7 +135,7 @@ public class World {
                         edge = edges2.get(i - edges1.size());
                     }
                 }// iterates through edges of both bodies
-                axis = edge.getPoints().getKey().getDistance(edge.getPoints().getValue()); // first vertex to second
+                axis = edge.getEdge1().getDistance(edge.getEdge2()); // first vertex to second
                 {
                     double x = axis.getEntry(0);
                     axis.setEntry(0, axis.getEntry(1));
@@ -148,11 +146,52 @@ public class World {
                     projection1 = b1.project(axis);
                     projection2 = b2.project(axis);
                 }//get projections of both bodies onto the axis, in the form of <projection value, corresponding VPoint>
+                VPoint potentialVertex;
                 {
-                    if (projection2.get(0).getKey() > projection1.get(0).getKey()) { // min2>min1
-                        distance = Math.max(0, projection1.get(1).getKey() - projection2.get(0).getKey()); // positive on collision
+                    double min1 = projection1.get(0).getKey();
+                    double max1 = projection1.get(1).getKey();
+                    double min2 = projection2.get(0).getKey();
+                    double max2 = projection2.get(1).getKey();
+                    boolean minOf2Greater = min2 > min1;
+                    boolean maxOf2Greater = max2 > max1;
+                    boolean owner2 = edge.getEdge1().getParent() == b2;
+                    if (minOf2Greater ^ maxOf2Greater) {// one inside the other
+                        if (Math.abs(max2 - min1) < Math.abs(max1 - min2)) { //min1 to max2 is shorter
+                            if (owner2) {
+                                potentialVertex = projection1.get(0).getValue();
+                                distance = max2 - min1;
+                            } else {
+                                potentialVertex = projection2.get(1).getValue();
+                                distance = min1 - max2;
+                            }
+                        } else {//min2 to max1 is shorter
+                            if (owner2) {
+                                potentialVertex = projection1.get(1).getValue();
+                                distance = min2 - max1;
+                            } else {
+                                potentialVertex = projection2.get(0).getValue();
+                                distance = max1 - min2;
+                            }
+                        }//get the shortest distance
                     } else {
-                        distance = Math.min(0, projection1.get(0).getKey() - projection2.get(1).getKey()); // negative on collision
+                        if (minOf2Greater) {
+                            if (owner2) {
+                                potentialVertex = projection1.get(1).getValue();
+                                distance = Math.min(0, min2 - max1);
+                            } else {
+                                potentialVertex = projection2.get(0).getValue();
+                                distance = Math.max(0, max1 - min2);
+                            }
+                        }// 2 after 1
+                        else {
+                            if (owner2) {
+                                potentialVertex = projection1.get(0).getValue();
+                                distance = Math.max(0, max2 - min1);
+                            } else {
+                                potentialVertex = projection2.get(1).getValue();
+                                distance = Math.min(0, min1 - max2);
+                            }
+                        }//1 after 2
                     }
                 }// get signed overlap of the projections. overlap is counted b2->b1
                 if (distance != 0) {
@@ -160,23 +199,7 @@ public class World {
                         minDistance = distance;
                         collisionEdge = edge;
                         collisionAxis = axis;
-                        {
-                            if (edge.getPoints().getKey().getParent() == b1) {
-                                if (distance < 0) {
-                                    collisionVertex = projection2.get(0).getValue();
-                                } else {
-                                    collisionVertex = projection2.get(1).getValue();
-                                    minDistance *= -1;
-                                }
-                            } else {
-                                if (distance < 0) {
-                                    collisionVertex = projection1.get(0).getValue();
-                                    minDistance *= -1;
-                                } else {
-                                    collisionVertex = projection1.get(1).getValue();
-                                }
-                            }
-                        } // get collision vertex and make the distance be from vertex to edge on the axis
+                        collisionVertex = potentialVertex;
                     }
                 } else {
                     collided = false;
@@ -184,12 +207,12 @@ public class World {
                 } // no collision
             }
             if (collided && collisionEdge != null) {// unnecessary collisionEdge check? shows a warning, I could leave the warning be as it is unrealistic
-                {
-                    if (Maths.areClockwise(collisionEdge.getEdge1().getPos(), collisionEdge.getEdge2().getPos(), collisionVertex.getPos())) {
-                        minDistance *= -1;
-                    }
-                }// flip distance so that the axis direction is from vertex to edge
-                collisions.add(new CollisionData(collisionVertex, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
+                // check ^something^  *starts crying*
+                axis = collisionEdge.getEdge1().getDistance(collisionEdge.getEdge2());
+                double vertexProjection = collisionVertex.project(axis);
+                if (vertexProjection > collisionEdge.getEdge1().project(axis) && vertexProjection < collisionEdge.getEdge2().project(axis)) {
+                    collisions.add(new CollisionData(collisionVertex, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
+                }
             }
         }
         return collisions;
