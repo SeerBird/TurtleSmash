@@ -197,7 +197,7 @@ public class Body {
         relevance = defaultRelevance;
     }
 
-    public void collide(@NotNull CollisionData collision) { //disregards point mass
+    public void collide(@NotNull CollisionData collision) { //I can play with elasticity here - accelerate vs move
         ArrayRealVector overlap = collision.getOverlap().copy(); //possibly unnecessary copy and therefore declaration
         ArrayRealVector edge = collision.getEdge1().getDistance(collision.getEdge2());
         double edgeX = collision.getEdge2().getX() - collision.getEdge1().getX();
@@ -206,8 +206,15 @@ public class Body {
         double placement = (edge.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (collision.getVertex().getX() - collision.getEdge1().getX()) / (edgeX) : (collision.getVertex().getY() - collision.getEdge1().getY()) / (edgeY) : 0.5;
         double scaleFactor = 1 / (Math.pow(placement, 2) + Math.pow(1 - placement, 2)); // normalising factor
         // I like to move it, move it
-        collision.getVertex().move(overlap.mapMultiply(0.5));
-        collision.getEdge1().move(overlap.mapMultiply(-0.5 * scaleFactor * (1 - placement)));
-        collision.getEdge2().move(overlap.mapMultiply(-0.5 * scaleFactor * placement));
+        double elasticity = 1;
+        collision.getVertex().accelerate(overlap.mapMultiply(0.25 * elasticity));
+        collision.getEdge1().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * (1 - placement) * elasticity));
+        collision.getEdge2().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
+        elasticity = 1 - elasticity;
+        if (elasticity != 0) {
+            collision.getVertex().move(overlap.mapMultiply(0.25 * elasticity));
+            collision.getEdge1().move(overlap.mapMultiply(-0.25 * scaleFactor * (1 - placement) * elasticity));
+            collision.getEdge2().move(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
+        }
     }
 }

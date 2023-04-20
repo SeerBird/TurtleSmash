@@ -55,7 +55,7 @@ public class World {
     }
 
     public void testgen() {
-        Box b = new Box(this, handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 10.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        Box b = new Box(this, handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
         //new Star(this,new ArrayRealVector(new Double[]{400.0, 400.0}));
         //new Web(this, b.getPoints().get(3), new ArrayRealVector(new Double[]{20.0, 20.0}));
     }
