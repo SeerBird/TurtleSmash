@@ -72,7 +72,7 @@ public class Renderer {
         g.setColor(Color.black);
         g.fillRect(0, 0, width, height);
         for (IElement e : menu.getElements()) {
-            g.drawImage(e.getImage(), Math.round(e.getPos().x), Math.round(e.getPos().y), null);
+            g.drawImage(e.getImage(), (int) Math.round(e.getPos().getEntry(0)), (int) Math.round(e.getPos().getEntry(0)), null);
         }
         g.dispose();
     }

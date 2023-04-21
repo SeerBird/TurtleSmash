@@ -2,7 +2,7 @@
   <artifact type="jar" name="TurtleSmash_Client:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/TurtleSmash_Client_jar</output-path>
     <root id="archive" name="TurtleSmash_Client.jar">
-      <element id="module-output" name="TurtleSmash_Client" />
+      <element id="module-output" name="TurtleSmash" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-base/18.0.2/javafx-base-18.0.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-base/18.0.2/javafx-base-18.0.2-win.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jetbrains/annotations/24.0.1/annotations-24.0.1.jar" path-in-jar="/" />

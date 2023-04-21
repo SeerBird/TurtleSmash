@@ -207,10 +207,9 @@ public class World {
                 } // no collision
             }
             if (collided && collisionEdge != null) {// unnecessary collisionEdge check? shows a warning, I could leave the warning be as it is unrealistic
-                // check ^something^  *starts crying*
                 axis = collisionEdge.getEdge1().getDistance(collisionEdge.getEdge2());
                 double vertexProjection = collisionVertex.project(axis);
-                if (vertexProjection > collisionEdge.getEdge1().project(axis) && vertexProjection < collisionEdge.getEdge2().project(axis)) {
+                if (vertexProjection > collisionEdge.getEdge1().project(axis) && vertexProjection < collisionEdge.getEdge2().project(axis)) {// might be unnecessary
                     collisions.add(new CollisionData(collisionVertex, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
                 }
             }

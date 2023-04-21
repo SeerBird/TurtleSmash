@@ -1,7 +1,8 @@
 package seerbird.game.output.ui;
 
+import org.apache.commons.math3.linear.ArrayRealVector;
+
 import javax.imageio.ImageIO;
-import javax.vecmath.Vector2f;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -9,7 +10,7 @@ import java.net.URL;
 
 public class Button extends IElement {
     private Runnable action;
-    private final Vector2f speed;
+    private final ArrayRealVector speed;
     private final BufferedImage unpressedImage;
     private final BufferedImage pressedImage;
     URL unpressedURL;
@@ -32,7 +33,7 @@ public class Button extends IElement {
         }
         this.action = action;
         pressed = false;
-        speed = new Vector2f(0, 0);
+        speed = new ArrayRealVector();
         shape = getArea(unpressedImage, 255);
     }
 
@@ -65,18 +66,20 @@ public class Button extends IElement {
 
     public void accelerate(int direction) {
         if (direction == 0) {
-            this.speed.y -= 1;
+            this.speed.addToEntry(1, -1);
         } else if (direction == 1) {
-            this.speed.x += 1;
+            this.speed.addToEntry(0, 1);
         } else if (direction == 2) {
-            this.speed.y += 1;
+            this.speed.addToEntry(1, 1);
+            ;
         } else {
-            this.speed.x -= 1;
+            this.speed.addToEntry(0, -1);
+            ;
         }
     }
 
     public void setPos(int x, int y) {
-        this.pos.x = x;
-        this.pos.y = y;
+        this.pos.setEntry(0, x);
+        this.pos.setEntry(1, y);
     }
 }

@@ -1,20 +1,21 @@
 package seerbird.game.output.ui;
 
-import javax.vecmath.Vector2f;
+import org.apache.commons.math3.linear.ArrayRealVector;
+
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 
 public class IElement {
-    Vector2f pos;
+    ArrayRealVector pos;
     Shape shape;
 
     public IElement(float x, float y) {
-        pos = new Vector2f(0, 0);
+        pos = new ArrayRealVector(2);
     }
 
     public boolean press(float x, float y) {
-        return shape.contains(x - pos.x, y - pos.y);
+        return shape.contains(x - pos.getEntry(0), y - pos.getEntry(1));
     }
 
     public void release() {
@@ -40,7 +41,7 @@ public class IElement {
         return area;
     }
 
-    public Vector2f getPos() {
+    public ArrayRealVector getPos() {
         return pos;
     }
 }
