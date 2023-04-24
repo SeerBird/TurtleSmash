@@ -6,4 +6,8 @@ public class ServerPacket {
     public ServerPacket(String message) {
         this.message = message;
     }
+
+    public ServerPacket() {
+        message = "";
+    }
 }

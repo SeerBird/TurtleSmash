@@ -5,4 +5,7 @@ public class ClientPacket {
     public ClientPacket(String message){
         this.message=message;
     }
+    public ClientPacket(){
+        message="";
+    }
 }

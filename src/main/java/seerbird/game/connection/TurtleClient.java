@@ -5,6 +5,8 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import java.io.IOException;
+
 public class TurtleClient {
     Client client;
 
@@ -14,6 +16,11 @@ public class TurtleClient {
         kryo.register(ClientPacket.class);
         kryo.register(ServerPacket.class);
         client.start();
+        try {
+            client.connect(5000, "localhost", 5455);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         client.addListener(new Listener() {
             public void received(Connection connection, Object object) {
                 if (object instanceof ServerPacket response) {
