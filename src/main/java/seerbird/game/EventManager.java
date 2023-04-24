@@ -3,7 +3,6 @@ package seerbird.game;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
-import seerbird.game.connection.TurtleClient;
 import seerbird.game.input.MenuClickEvent;
 import seerbird.game.input.MouseInput;
 import seerbird.game.output.GameWindow;
@@ -31,7 +30,7 @@ public class EventManager {
     World world;
     Renderer cam;
     Menu menu;
-    TurtleClient connection;
+    Connector connector;
     // idk what this has become, seems dodgy
     private final Map<Integer, Boolean> keyPressedEvents;
     private final Map<Integer, Boolean> keyReleasedEvents;
@@ -62,7 +61,7 @@ public class EventManager {
         world = new World(this);
         win = new GameWindow(this);
         cam = new Renderer(this);
-        connection = new TurtleClient();
+        connector = new Connector();
     }
 
     public void terminate() {
@@ -103,7 +102,7 @@ public class EventManager {
             resizeEvent = null;
         }
         if (gameState == GameState.Game) {
-            if (mousePressEvents.get(MouseInput.LEFT) != null) {
+            if (mousePressEvents.get(1) != null) {
                 Body player = world.getPlayer();
                 if (player != null) {
                     ArrayRealVector dist = world.getDistance(player.getCenter(), mousepos);
@@ -122,10 +121,6 @@ public class EventManager {
             if (keyPressedEvents.get(KeyEvent.VK_P)) {
                 world.testgen();
                 keyPressedEvents.put(KeyEvent.VK_P, false);
-            }
-            if (keyPressedEvents.get(KeyEvent.VK_S)) {
-                connection.send("boi");
-                keyPressedEvents.put(KeyEvent.VK_S, false);
             }
         } else if (gameState == GameState.Menu) {
 
