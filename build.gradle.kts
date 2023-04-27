@@ -42,7 +42,7 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 implementation(compose.desktop.currentOs)
                 implementation("org.apache.commons:commons-math3:3.0")
-                implementation("com.esotericsoftware:kryonet:2.22.0-RC1")
+                //implementation("com.esotericsoftware:kryonet:2.22.0-RC1")
             }
         }
     }
