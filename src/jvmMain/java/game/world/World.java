@@ -3,7 +3,6 @@ package game.world;
 import game.Config;
 import game.EventManager;
 import game.math.Maths;
-import game.world.CollisionData;
 import game.world.bodies.Body;
 import game.world.bodies.Box;
 import game.world.bodies.Web;
@@ -12,7 +11,7 @@ import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
 
 public class World {
     ArrayList<Body> bodies;

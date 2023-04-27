@@ -12,11 +12,13 @@ import game.world.bodies.Body;
 import game.world.bodies.Web;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.Map.entry;
 

@@ -6,9 +6,7 @@ pluginManagement {
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven("https://maven.hq.hydraulic.software")
-
     }
-
 
     plugins {
         kotlin("multiplatform").version(extra["kotlin.version"] as String)
@@ -17,4 +15,3 @@ pluginManagement {
 }
 
 rootProject.name = "TurtleSmash"
-

@@ -3,7 +3,7 @@ package game;
 public class MainLoop {
     static boolean run;
 
-    public static void start() {
+    public static void run() {
         run = true;
         int minFrameTime = 1000000000 / CONSTANTS.MAX_FRAMERATE; // nano
         EventManager manager = new EventManager();

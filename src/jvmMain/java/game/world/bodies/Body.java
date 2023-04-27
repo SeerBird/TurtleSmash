@@ -1,8 +1,8 @@
 package game.world.bodies;
 
-import game.world.World;
 import game.world.CollisionData;
 import game.world.VPoint;
+import game.world.World;
 import game.world.constraints.DistanceConstraint;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;

@@ -6,11 +6,11 @@ import game.EventManager;
 import game.input.KeyboardInput;
 import game.input.MouseInput;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferStrategy;
-import javax.swing.JFrame;
 
 public class GameWindow extends JFrame {
     private final KeyboardInput keyboard;

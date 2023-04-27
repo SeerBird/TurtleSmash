@@ -3,6 +3,7 @@ package game.input;
 import game.Config;
 import game.output.GameWindow;
 import org.jetbrains.annotations.NotNull;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
