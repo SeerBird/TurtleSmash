@@ -1,2 +1,2 @@
 cd output
-caddy file-server --browse --listen :8899
+caddy file-server --browse --listen :3000
