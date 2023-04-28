@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: seerbird.game.Main
-Automatic-Module-Name: TurtleSmash
-
