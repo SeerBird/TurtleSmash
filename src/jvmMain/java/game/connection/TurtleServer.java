@@ -17,12 +17,6 @@ public class TurtleServer {
         Kryo kryo = server.getKryo();
         kryo.register(ClientPacket.class);
         kryo.register(ServerPacket.class);
-        server.start();
-        try {
-            server.bind(5455);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to bind to port");
-        }
         server.addListener(new Listener() {
             public void received(Connection connection, Object object) {
                 if (object instanceof ClientPacket request) {
@@ -34,4 +28,16 @@ public class TurtleServer {
             }
         });
     }
+    public void start(){
+        server.start();
+        try {
+            server.bind(5455,8828);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to bind to port");
+        }
+    }
+    public Connection[] getConnections(){
+        return server.getConnections();
+    }
+
 }

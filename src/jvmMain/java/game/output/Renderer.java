@@ -64,17 +64,19 @@ public class Renderer {
         }
         g.setColor(b.pointColor);
         for (VPoint p : b.getPoints()) {
-            g.fillRect((int) p.getX()-3, (int) p.getY()-3, 6, 6);
+            g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
         }
     }
 
-    public void drawImage(@NotNull Graphics g, @NotNull TurtleMenu menu) { // get all the visible objects, effects, and particles on an image
-        g.setColor(Color.black);
-        g.fillRect(0, 0, width, height);
-        for (IElement e : menu.getElements()) {
-            g.drawImage(e.getImage(), (int) Math.round(e.getPos().getEntry(0)), (int) Math.round(e.getPos().getEntry(0)), null);
+    public void drawImage(@NotNull Graphics g, @NotNull TurtleMenu menu) {
+        if (menu.isOpen()) {
+            g.setColor(Color.black);
+            g.fillRect(0, 0, width, height);
+            for (IElement e : menu.getElements()) {
+                g.drawImage(e.getImage(), (int) Math.round(e.getPos().getEntry(0)), (int) Math.round(e.getPos().getEntry(0)), null);
+            }
+            g.dispose();
         }
-        g.dispose();
     }
 
     public void resize(int width, int height) {

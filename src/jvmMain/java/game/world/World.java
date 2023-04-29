@@ -12,6 +12,8 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.concurrent.RunnableFuture;
+import java.util.function.Function;
 
 public class World {
     ArrayList<Body> bodies;

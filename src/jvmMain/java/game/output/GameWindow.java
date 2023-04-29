@@ -24,12 +24,12 @@ public class GameWindow extends JFrame {
         this.handler = handler;
         setIgnoreRepaint(true);
         setVisible(true);
-        this.setLocation(400,10);
+        this.setLocation(400, 10);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                handler.postWindowResizeEvent(e);
+                handler.getRenderer().resize(e.getComponent().getWidth(), e.getComponent().getHeight());
             }
         });
 
@@ -63,7 +63,9 @@ public class GameWindow extends JFrame {
         return this.keyboard;
     }
 
-    public MouseInput getMouse() {return this.mouse;}
+    public MouseInput getMouse() {
+        return this.mouse;
+    }
 
     public void redraw(Image img) {
         /*

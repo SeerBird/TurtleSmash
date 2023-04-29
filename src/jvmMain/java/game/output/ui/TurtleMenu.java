@@ -10,10 +10,12 @@ public class TurtleMenu {
     private ArrayList<IElement> elements;
     private IElement pressed;
     EventManager handler;
+    private boolean open;
 
     public TurtleMenu(EventManager handler) {
         this.handler = handler;
         elements = new ArrayList<IElement>();
+        open = false;
 
         // Add elements
         elements.add(new Button(200, 200, () -> System.out.println("Maboi")));
@@ -27,6 +29,13 @@ public class TurtleMenu {
                 break;
             }
         }
+    }
+
+    public void toggleOpen() {
+        open ^= true;
+    }
+    public boolean isOpen(){
+        return open;
     }
 
     public void release() {
@@ -49,8 +58,8 @@ public class TurtleMenu {
 
     public Button getElement(int i) {
         IElement butt = elements.get(i);
-        if(butt instanceof Button) {
-            return (Button)butt;
+        if (butt instanceof Button) {
+            return (Button) butt;
         }
         return null;
     }

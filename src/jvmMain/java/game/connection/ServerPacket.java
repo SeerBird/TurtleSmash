@@ -1,7 +1,7 @@
 package game.connection;
 
 
-public class ServerPacket {
+public class ServerPacket extends Packet{
     String message;
 
     public ServerPacket(String message) {
