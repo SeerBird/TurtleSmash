@@ -1,5 +1,8 @@
 package game;
 
+import com.esotericsoftware.kryonet.Connection;
+import game.connection.InputInfo;
+import game.connection.ServerPacket;
 import game.connection.TurtleClient;
 import game.connection.TurtleServer;
 import game.input.MenuClickEvent;
@@ -10,6 +13,7 @@ import game.output.audio.Sound;
 import game.output.ui.TurtleMenu;
 import game.world.World;
 import game.world.bodies.Body;
+import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
@@ -18,16 +22,17 @@ import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Map.entry;
-
 public class EventManager {
     GameWindow win;
     Sound sound;
-    World world;
+    final World world;
+    ArrayList<Player> players;
     Renderer renderer;
     TurtleMenu menu;
     TurtleServer server;
@@ -43,37 +48,47 @@ public class EventManager {
     private final HashMap<Integer, MouseEvent> mouseReleaseEvents;
     private MouseEvent mouseMoveEvent;
     ArrayRealVector mousepos;
-    public final Map<Integer, Boolean> USED_KEYS = Map.ofEntries(entry(KeyEvent.VK_W, false), entry(KeyEvent.VK_A, false), entry(KeyEvent.VK_S, false), entry(KeyEvent.VK_D, false), entry(KeyEvent.VK_SPACE, false), entry(KeyEvent.VK_SHIFT, false), entry(KeyEvent.VK_CONTROL, false), entry(KeyEvent.VK_P, false));
+    //iterate, idiot
+    //test
+    ArrayList<InetAddress> potential;
+    private ArrayList<Player> removedPlayers;
 
     public EventManager() {
-        // same thing. wtf.
-        keyPressedEvents = new HashMap<>();
-        keyReleasedEvents = new HashMap<>();
-        mousePressEvents = new HashMap<>();
-        mouseReleaseEvents = new HashMap<>();
-        keyPressedEvents.putAll(USED_KEYS);
-        keyReleasedEvents.putAll(USED_KEYS);
-        mousepos = new ArrayRealVector(new Double[]{400.0, 400.0});
-
-
+        //important stuff
         jobs = new ArrayList<>();
         toAdd = new ArrayList<>();
         toRemove = new ArrayList<>();
         menu = new TurtleMenu(this);
         sound = new Sound();
         world = new World(this);
-        win = new GameWindow(this);
         renderer = new Renderer(this);
+        win = new GameWindow(this);
         server = new TurtleServer(this);
         connection = new TurtleClient(this);
-    }
+        players = new ArrayList<>(); // player 0 is local
+        removedPlayers = new ArrayList<>();
 
-    public void terminate() {
-        // you think you can stop me?
-    }
-    private ArrayList<Runnable> storedJobs;
-    public void pause(){
+        // weird inputs
+        keyPressedEvents = new HashMap<>();
+        keyReleasedEvents = new HashMap<>();
+        mousePressEvents = new HashMap<>();
+        mouseReleaseEvents = new HashMap<>();
+        for (int i = 0x30; i <= 0xE3; i++) {
+            keyPressedEvents.put(i, false);
+            keyReleasedEvents.put(i, false);
+        }
+        mousepos = new ArrayRealVector(new Double[]{400.0, 400.0});
 
+        //test
+        potential = new ArrayList<>();
+
+        //starting state
+        addJob(this::handleMenuInput);
+        addJob(menu::update);
+        addJob(world::update);
+        addJob(this::getGameInput);
+        addJob(this::handlePlayers);
+        players.add(new Player(this));
     }
 
     public void out() {
@@ -84,16 +99,16 @@ public class EventManager {
 
     public void update() {
         {
-            for (Runnable job : toRemove) {
+            for (Runnable job : toAdd) {
                 if (!jobs.contains(job)) {
                     jobs.add(job);
                 }
             }
-            toRemove.clear();
-            for (Runnable job : toAdd) {
+            toAdd.clear();
+            for (Runnable job : toRemove) {
                 jobs.remove(job);
             }
-            toAdd.clear();
+            toRemove.clear();
         }// remove and add jobs
         for (Runnable job : jobs) {
             job.run();
@@ -108,22 +123,40 @@ public class EventManager {
         toRemove.remove(job);
     }
 
+    //Jobs
+
     private void handleMenuInput() {
-
-    }
-
-    private void handleGameInput() {
-        if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            Body player = world.getPlayer();
-            if (player != null) {
-                ArrayRealVector dist = world.getDistance(player.getCenter(), mousepos);
-                player.shift(dist);
-                player.stop();
+        if (keyPressedEvents.get(KeyEvent.VK_U)) {
+            keyPressedEvents.put(KeyEvent.VK_U, false);
+            connection.startDiscoveringHosts();
+            addJob(this::checkLAN);
+        }
+        if (keyPressedEvents.get(KeyEvent.VK_1)) {
+            keyPressedEvents.put(KeyEvent.VK_1, false);
+            if (potential.size() != 0) {
+                connection.connect(potential.get(0));//blocks, make this into a thread
+                addJob(this::sendInput);
             }
         }
+        if (keyPressedEvents.get(KeyEvent.VK_H)) {
+            keyPressedEvents.put(KeyEvent.VK_H, false);
+            server.start();
+            addJob(this::broadcastWorld);
+        }
+    }
+
+    private void getGameInput() {
+        if (mousePressEvents.get(MouseInput.LEFT) != null) {
+            players.get(0).flingWeb(mousepos);
+        }
         if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
-            mousePressEvents.remove(1);
-            mouseReleaseEvents.remove(1);
+            mousePressEvents.put(MouseInput.LEFT, null);
+            mouseReleaseEvents.put(MouseInput.LEFT, null);
+        }
+        /*
+        if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
+            mousePressEvents.remove(MouseInput.LEFT);
+            mouseReleaseEvents.remove(MouseInput.LEFT);
         }
         if (keyPressedEvents.get(KeyEvent.VK_SPACE)) {
             keyPressedEvents.put(KeyEvent.VK_SPACE, false);
@@ -132,17 +165,85 @@ public class EventManager {
             world.testgen();
             keyPressedEvents.put(KeyEvent.VK_P, false);
         }
+         */
+    }
+
+    private void sendInput() {
+        connection.send(players.get(0).input);
+    }
+
+    private void handlePlayers() {
+        for (Player ghost : removedPlayers) {
+            players.remove(ghost);
+        }
+        InputInfo input;
+        for (Player player : players) {
+            input = player.getInput();
+            Body body;
+            if ((body = player.getBody()) != null) {
+                if (input.webFling != null) {
+                    body.shift(body.getDistance(mousepos));
+                }
+            }
+            input.reset();
+        }
+    }
+
+    private void broadcastWorld() {//ServerPacket should be assembled piece by piece
+        server.sendToAll(new ServerPacket(world));
     }
 
     private void checkLAN() {
-
+        ArrayList<InetAddress> servers = connection.getHosts();
+        if (servers != null) {
+            if (servers.size() == 0) {
+                // make a sad face
+            } else {
+                potential = servers;
+            }
+            removeJob(this::checkLAN);
+            connection.resetHosts();
+        }
     }
 
-    public void post(AWTEvent e) {
-
+    public void terminate() {
+        // you think you can stop me?
     }
+
+    public void togglePause() {
+        if (jobs.contains((Runnable) world::update)) {
+            jobs.remove((Runnable) world::update);
+        } else {
+            jobs.add(world::update);
+        }
+    }
+
+    //Simple stuff
+    public void addPlayer(Connection connection) {
+        Player dupe = null;
+        for (Player player : players) {
+            if (player.getConnection() != null) {
+                if (player.getConnection().getRemoteAddressTCP() == connection.getRemoteAddressTCP()) {
+                    if (dupe == null) {
+                        dupe = player;
+                    } else {
+                        removePlayer(player);
+                    }
+                }
+            }
+        }
+        if (dupe == null) {// low readability?
+            dupe = new Player(this);
+            players.add(dupe);
+        }
+        dupe.setConnection(connection);
+    }
+
+    private void removePlayer(Player player) {
+        removedPlayers.add(player);
+    }
+
     // Input
-
     public void postKeyPressedEvent(@NotNull KeyEvent e) {
         keyPressedEvents.put(e.getKeyCode(), true);
     }
@@ -189,5 +290,20 @@ public class EventManager {
 
     public Renderer getRenderer() {
         return this.renderer;
+    }
+
+    public void setWorld(World world) {
+        synchronized (this.world) {
+            this.world.set(world);
+        }
+    }
+
+    public Player getPlayer(Connection connection) {
+        for (Player player : players) {
+            if (player.getConnection() == connection) {
+                return player;
+            }
+        }
+        return null;
     }
 }

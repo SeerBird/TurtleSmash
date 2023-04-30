@@ -23,35 +23,31 @@ public class TurtleClient {
         LANServers = new ArrayList<>();
         client = new Client(99999999, 999999999);
         Kryo kryo = client.getKryo();
-        kryo.register(ClientPacket.class);
-        kryo.register(ServerPacket.class);
+        for (Class _class : Packet.usedClasses) {
+            kryo.register(_class);
+        }
         client.addListener(new Listener() {
             public void received(Connection connection, Object object) {
                 if (object instanceof ServerPacket response) {
-                    System.out.println(response.message);
-                    send("ba".concat(response.message));
+                    handler.setWorld(response.world);
                 }
             }
         });
     }
 
-    public void connect(InetAddress server) {
+    public void connect(InetAddress server) {//threadify
         client.start();
         try {
-            client.connect(5000, server, Config.TCPPort, Config.UDPPort);
+            client.connect(500, server, Config.TCPPort, Config.UDPPort);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-    public void send(String message) {
-        client.sendTCP(new ClientPacket(message));
+    public void send(InputInfo input) {
+        client.sendTCP(new ClientPacket(input));//disconnect if server disconnects?
     }
 
-    public void send(World world) {
-
-    }
-    private void discoverHosts(){
+    private void discoverHosts() {
         LANServers = (ArrayList<InetAddress>) client.discoverHosts(Config.UDPPort, 5000);
     }
 
@@ -61,5 +57,9 @@ public class TurtleClient {
 
     public ArrayList<InetAddress> getHosts() {//copy?
         return LANServers;
+    }
+
+    public void resetHosts() {
+        LANServers = null;
     }
 }

@@ -34,7 +34,7 @@ public class Button extends IElement {
         }
         this.action = action;
         pressed = false;
-        speed = new ArrayRealVector();
+        speed = new ArrayRealVector(2);
         shape = getArea(unpressedImage, 255);
     }
 

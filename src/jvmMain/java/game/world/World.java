@@ -28,6 +28,10 @@ public class World {
         toRemove = new ArrayList<>();
     }
 
+    public World() {
+
+    }
+
 
     public void update() { // make it all multiplied by dt
         //any required magic is done before movement
@@ -318,5 +322,15 @@ public class World {
             return bodies.get(0);
         }
         return null;
+    }
+
+    public void set(@NotNull World world) {
+        this.bodies = world.getBodies();
+        if (world.toAdd.size() != 0) {
+            this.toAdd = world.toAdd;
+        }
+        if (world.toRemove.size() != 0) {
+            this.toRemove = world.toRemove;
+        }
     }
 }

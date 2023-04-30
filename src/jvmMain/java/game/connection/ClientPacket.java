@@ -1,11 +1,15 @@
 package game.connection;
 
 public class ClientPacket extends Packet{
-    String message;
-    public ClientPacket(String message){
-        this.message=message;
+    InputInfo input;
+    public ClientPacket(InputInfo input){
+        this.input=input;
     }
     public ClientPacket(){
-        message="";
+
+    }
+
+    public InputInfo getInput() {
+        return input;
     }
 }
