@@ -1,4 +1,5 @@
 import org.jetbrains.compose.compose
+import org.jetbrains.kotlin.fir.expressions.builder.buildArgumentList
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 plugins {
@@ -42,7 +43,8 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 implementation(compose.desktop.currentOs)
                 implementation("org.apache.commons:commons-math3:3.0")
-                implementation("com.esotericsoftware:kryonet:2.22.0-RC1")
+                implementation("com.esotericsoftware:kryonet:2.22.0-RC1")//remove
+                implementation ("io.netty:netty-all:4.1.24.Final")
             }
         }
     }
@@ -59,6 +61,7 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "MainKt"
+        jvmArgs("--add-opens=java.desktop/java.awt=ALL-UNNAMED")
     }
 }
 
@@ -68,6 +71,9 @@ configurations.all {
         // https://github.com/JetBrains/compose-jb/issues/1404#issuecomment-1146894731
         attribute(Attribute.of("ui", String::class.java), "awt")
     }
+}
+tasks.compileJava{
+    options.compilerArgs.add("-verbose")
 }
 
 dependencies {

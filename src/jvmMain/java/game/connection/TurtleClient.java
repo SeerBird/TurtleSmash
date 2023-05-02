@@ -38,7 +38,7 @@ public class TurtleClient {
     public void connect(InetAddress server) {//threadify
         client.start();
         try {
-            client.connect(500, server, Config.TCPPort, Config.UDPPort);
+            client.connect(5000, server, Config.TCPPort, Config.UDPPort);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -48,7 +48,7 @@ public class TurtleClient {
     }
 
     private void discoverHosts() {
-        LANServers = (ArrayList<InetAddress>) client.discoverHosts(Config.UDPPort, 5000);
+        LANServers = (ArrayList<InetAddress>) client.discoverHosts(Config.UDPPort, 500);
     }
 
     public void startDiscoveringHosts() {

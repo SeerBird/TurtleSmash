@@ -13,16 +13,13 @@ import game.output.audio.Sound;
 import game.output.ui.TurtleMenu;
 import game.world.World;
 import game.world.bodies.Body;
-import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +51,17 @@ public class EventManager {
     private ArrayList<Player> removedPlayers;
 
     public EventManager() {
+        // weird inputs
+        keyPressedEvents = new HashMap<>();
+        keyReleasedEvents = new HashMap<>();
+        mousePressEvents = new HashMap<>();
+        mouseReleaseEvents = new HashMap<>();
+        for (int i = 0x30; i <= 0xE3; i++) {
+            keyPressedEvents.put(i, false);
+            keyReleasedEvents.put(i, false);
+        }
+        mousepos = new ArrayRealVector(new Double[]{400.0, 400.0});
+
         //important stuff
         jobs = new ArrayList<>();
         toAdd = new ArrayList<>();
@@ -67,17 +75,6 @@ public class EventManager {
         connection = new TurtleClient(this);
         players = new ArrayList<>(); // player 0 is local
         removedPlayers = new ArrayList<>();
-
-        // weird inputs
-        keyPressedEvents = new HashMap<>();
-        keyReleasedEvents = new HashMap<>();
-        mousePressEvents = new HashMap<>();
-        mouseReleaseEvents = new HashMap<>();
-        for (int i = 0x30; i <= 0xE3; i++) {
-            keyPressedEvents.put(i, false);
-            keyReleasedEvents.put(i, false);
-        }
-        mousepos = new ArrayRealVector(new Double[]{400.0, 400.0});
 
         //test
         potential = new ArrayList<>();
