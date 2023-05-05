@@ -14,6 +14,7 @@ import game.output.ui.TurtleMenu;
 import game.world.World;
 import game.world.bodies.Body;
 import game.world.bodies.Web;
+import io.netty.channel.socket.SocketChannel;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
@@ -125,7 +126,7 @@ public class EventManager {
     private void handleMenuInput() {
         if (keyPressedEvents.get(KeyEvent.VK_U)) {
             keyPressedEvents.put(KeyEvent.VK_U, false);
-            connection.startDiscoveringHosts();
+            connection.discoverHosts();
             addJob(this::checkLAN);
         }
         if (keyPressedEvents.get(KeyEvent.VK_1)) {
@@ -137,7 +138,11 @@ public class EventManager {
         }
         if (keyPressedEvents.get(KeyEvent.VK_H)) {
             keyPressedEvents.put(KeyEvent.VK_H, false);
-            server.start();
+            try {
+                server.start();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             addJob(this::broadcastWorld);
         }
     }
@@ -187,7 +192,10 @@ public class EventManager {
     }
 
     private void broadcastWorld() {//ServerPacket should be assembled piece by piece
-        server.sendToAll(new ServerPacket(world));
+        ServerPacket packet=new ServerPacket(world);
+        for(Player player: players){//potential for sending different info
+            player.send(packet);
+        }
     }
 
     private void checkLAN() {
@@ -216,11 +224,11 @@ public class EventManager {
     }
 
     //Simple stuff
-    public void addPlayer(Connection connection) {
+    public Player addPlayer(SocketChannel channel) {
         Player dupe = null;
         for (Player player : players) {
-            if (player.getConnection() != null) {
-                if (player.getConnection().getRemoteAddressTCP() == connection.getRemoteAddressTCP()) {
+            if (player.getChannel() != null) {
+                if (player.getChannel().remoteAddress() == channel.remoteAddress()) {
                     if (dupe == null) {
                         dupe = player;
                     } else {
@@ -233,7 +241,8 @@ public class EventManager {
             dupe = new Player(this);
             players.add(dupe);
         }
-        dupe.setConnection(connection);
+        dupe.setChannel(channel);
+        return dupe;
     }
 
     private void removePlayer(Player player) {
@@ -297,7 +306,7 @@ public class EventManager {
 
     public Player getPlayer(Connection connection) {
         for (Player player : players) {
-            if (player.getConnection() == connection) {
+            if (player.getChannel() == connection) {
                 return player;
             }
         }

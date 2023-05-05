@@ -1,5 +1,7 @@
 package game;
 
+import java.net.*;
+
 public class CONSTANTS {
     public static final int MAX_FRAMERATE = 60;
     public static final String HOST = "localhost";

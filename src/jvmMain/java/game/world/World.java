@@ -2,7 +2,7 @@ package game.world;
 
 import game.Config;
 import game.EventManager;
-import game.math.Maths;
+import game.util.Maths;
 import game.world.bodies.Body;
 import game.world.bodies.Box;
 import game.world.bodies.Web;
@@ -12,8 +12,6 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.concurrent.RunnableFuture;
-import java.util.function.Function;
 
 public class World {
     ArrayList<Body> bodies;
