@@ -1,6 +1,8 @@
-package game.connection;
+package game.connection.packets;
 
-public class ClientPacket extends Packet{
+import game.input.InputInfo;
+
+public class ClientPacket extends Packet {
     InputInfo input;
     public ClientPacket(InputInfo input){
         this.input=input;

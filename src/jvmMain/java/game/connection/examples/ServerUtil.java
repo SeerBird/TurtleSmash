@@ -1,5 +1,6 @@
-package game.connection.tests;
+package game.connection.examples;
 
+import game.util.Multiplayer;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -17,13 +18,5 @@ public final class ServerUtil {
     private ServerUtil() {
     }
 
-    public static SslContext buildSslContext() throws CertificateException, SSLException {
-        if (!SSL) {
-            return null;
-        }
-        SelfSignedCertificate ssc = new SelfSignedCertificate();
-        return SslContextBuilder
-                .forServer(ssc.certificate(), ssc.privateKey())
-                .build();
-    }
+
 }

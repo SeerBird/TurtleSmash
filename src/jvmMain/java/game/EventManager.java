@@ -1,10 +1,12 @@
 package game;
 
 import com.esotericsoftware.kryonet.Connection;
-import game.connection.InputInfo;
-import game.connection.ServerPacket;
-import game.connection.TurtleClient;
-import game.connection.TurtleServer;
+import game.connection.ClientUDP;
+import game.connection.ServerUDP;
+import game.input.InputInfo;
+import game.connection.packets.ServerPacket;
+import game.connection.ClientTCP;
+import game.connection.ServerTCP;
 import game.input.MenuClickEvent;
 import game.input.MouseInput;
 import game.output.GameWindow;
@@ -33,8 +35,10 @@ public class EventManager {
     ArrayList<Player> players;
     Renderer renderer;
     TurtleMenu menu;
-    TurtleServer server;
-    TurtleClient connection;
+    ServerTCP tcpServer;
+    ClientTCP tcpClient;
+    ClientUDP udpClient;
+    ServerUDP udpServer;
     ArrayList<Runnable> jobs;
     ArrayList<Runnable> toRemove;
     ArrayList<Runnable> toAdd;
@@ -72,8 +76,6 @@ public class EventManager {
         world = new World(this);
         renderer = new Renderer(this);
         win = new GameWindow(this);
-        server = new TurtleServer(this);
-        connection = new TurtleClient(this);
         players = new ArrayList<>(); // player 0 is local
         removedPlayers = new ArrayList<>();
 
@@ -126,24 +128,19 @@ public class EventManager {
     private void handleMenuInput() {
         if (keyPressedEvents.get(KeyEvent.VK_U)) {
             keyPressedEvents.put(KeyEvent.VK_U, false);
-            connection.discoverHosts();
-            addJob(this::checkLAN);
+            udpServer = new ServerUDP();
+            udpServer.setServerStatus("bababoi");
+            udpServer.start();
+            addJob(udpServer::broadcastToLan);
         }
         if (keyPressedEvents.get(KeyEvent.VK_1)) {
             keyPressedEvents.put(KeyEvent.VK_1, false);
-            if (potential.size() != 0) {
-                connection.connect(potential.get(0));//blocks, make this into a thread
-                addJob(this::sendInput);
-            }
+            udpClient = new ClientUDP();
+            udpClient.start();
         }
         if (keyPressedEvents.get(KeyEvent.VK_H)) {
             keyPressedEvents.put(KeyEvent.VK_H, false);
-            try {
-                server.start();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            addJob(this::broadcastWorld);
+            System.out.println(udpClient.getServers());
         }
     }
 
@@ -171,7 +168,7 @@ public class EventManager {
     }
 
     private void sendInput() {
-        connection.send(players.get(0).input);
+        tcpClient.send(players.get(0).input);
     }
 
     private void handlePlayers() {
@@ -192,22 +189,9 @@ public class EventManager {
     }
 
     private void broadcastWorld() {//ServerPacket should be assembled piece by piece
-        ServerPacket packet=new ServerPacket(world);
-        for(Player player: players){//potential for sending different info
+        ServerPacket packet = new ServerPacket(world);
+        for (Player player : players) {//potential for sending different info
             player.send(packet);
-        }
-    }
-
-    private void checkLAN() {
-        ArrayList<InetAddress> servers = connection.getHosts();
-        if (servers != null) {
-            if (servers.size() == 0) {
-                // make a sad face
-            } else {
-                potential = servers;
-            }
-            removeJob(this::checkLAN);
-            connection.resetHosts();
         }
     }
 

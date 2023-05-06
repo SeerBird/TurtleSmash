@@ -1,6 +1,7 @@
-package game.connection;
+package game.connection.packets;
 
 
+import game.connection.packets.Packet;
 import game.world.World;
 
 public class ServerPacket extends Packet {

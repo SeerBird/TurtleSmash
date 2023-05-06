@@ -1,3 +1,0 @@
-fun main() {
-    ObjectEchoServer.run()
-}

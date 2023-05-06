@@ -1,9 +1,8 @@
 package game;
 
-import com.esotericsoftware.kryonet.Connection;
-import game.connection.ClientPacket;
-import game.connection.InputInfo;
-import game.connection.ServerPacket;
+import game.connection.packets.ClientPacket;
+import game.input.InputInfo;
+import game.connection.packets.ServerPacket;
 import game.world.bodies.Body;
 import game.world.bodies.Box;
 import io.netty.channel.socket.SocketChannel;

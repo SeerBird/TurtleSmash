@@ -1,18 +1,13 @@
-package game.connection.tests;
+package game.connection.handlers;
 
-import com.esotericsoftware.kryonet.Server;
 import game.Player;
-import game.connection.ClientPacket;
+import game.connection.packets.ClientPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-/**
- * Handles both client-side and server-side handler depending on which
- * constructor was called.
- */
-public class ServerPlayerHandler extends ChannelInboundHandlerAdapter {
+public class ServerTcpHandler extends ChannelInboundHandlerAdapter {
     Player player;
-    public ServerPlayerHandler(Player player){
+    public ServerTcpHandler(Player player){
         this.player=player;
     }
 

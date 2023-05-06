@@ -1,4 +1,4 @@
-package game.connection;
+package game.input;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 

@@ -1,4 +1,4 @@
-package game.connection;
+package game.connection.packets;
 
 import game.world.VPoint;
 import game.world.World;
