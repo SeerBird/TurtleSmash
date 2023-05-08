@@ -1,20 +1,16 @@
 package game.connection;
 
-import game.CONSTANTS;
-import game.Config;
 import game.EventManager;
-import game.connection.handlers.ServerTcpHandler;
-import game.connection.examples.ServerUtil;
+import game.connection.handlers.ExceptionHandler;
+import game.connection.handlers.GObjectDecoder;
+import game.connection.handlers.GObjectEncoder;
+import game.connection.handlers.ServerPlayerHandler;
 import game.util.Multiplayer;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
@@ -22,23 +18,21 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
-import io.netty.util.CharsetUtil;
 
 import javax.net.ssl.SSLException;
-import java.net.InetSocketAddress;
 import java.security.cert.CertificateException;
 
 
-public class ServerTCP  extends Thread {
+public class ServerTCP extends Thread {
     EventManager handler;
 
     public ServerTCP(EventManager handler) {
         this.handler = handler;
     }
-    ChannelGroup tcpChannels;
-    static final int PORT = Integer.parseInt(System.getProperty("port", String.valueOf(CONSTANTS.TCP_PORT)));
 
-    public synchronized void start(){
+    ChannelGroup tcpChannels;
+
+    public synchronized void run() {
         // Configure SSL.
         final SslContext sslCtx;
         try {
@@ -62,20 +56,23 @@ public class ServerTCP  extends Thread {
                             }
                             pipe.addLast(
                                     new ObjectEncoder(),
-                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-                                    new ServerTcpHandler(handler.addPlayer(ch)));
-                            //super.channelActive(ctx);
+                                    new GObjectDecoder(1048576, ClassResolvers.cacheDisabled(null)),
+                                    new ServerPlayerHandler(handler.addPlayer(ch)),
+                                    new ExceptionHandler(handler)
+                            );
                         }
+
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
                             tcpChannels.add(ctx.channel());
-                            //super.channelActive(ctx);
+                            super.channelActive(ctx);
+                            ctx.write("hoohoo");
                         }
                     });
 
             // Bind and start to accept incoming connections.
             try {
-                b.bind(PORT).sync().channel().closeFuture().sync();
+                b.bind(Multiplayer.TCPPort).sync().channel().closeFuture().sync();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

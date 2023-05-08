@@ -6,11 +6,11 @@ import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
 
-public class VPoint implements Cloneable {
+public class VPoint {
     ArrayRealVector pos;
     ArrayRealVector lpos;
     double mass;
-    Body parent;
+    transient Body parentBody;
 
     public VPoint(Body body, double mass, double x, double y) {
         pos = new ArrayRealVector(2);
@@ -18,14 +18,14 @@ public class VPoint implements Cloneable {
         pos.setEntry(1, y);
         lpos = pos.copy();
         this.mass = mass;
-        this.parent = body;
+        this.parentBody = body;
     }
 
     public VPoint(Body body, double mass, @NotNull ArrayRealVector pos) {
         this.pos = pos.copy();
         lpos = pos.copy();
         this.mass = mass;
-        this.parent = body;
+        this.parentBody = body;
     }
 
     public void move() {
@@ -55,12 +55,12 @@ public class VPoint implements Cloneable {
         return this.mass;
     }
 
-    public Body getParent() {
-        return parent;
+    public Body getParentBody() {
+        return parentBody;
     }
 
-    public void setParent(Body p) {
-        this.parent = p;
+    public void setParentBody(Body p) {
+        this.parentBody = p;
     }
 
     public double getX() {
@@ -106,7 +106,7 @@ public class VPoint implements Cloneable {
     }
 
     public ArrayRealVector getDistance(@NotNull VPoint b) {
-        return parent.getWorld().getDistance(pos, b.getPos()); // could be game.world-independent? just geometry if I don't have borderDistance
+        return parentBody.getParentWorld().getDistance(pos, b.getPos()); // could be game.world-independent? just geometry if I don't have borderDistance
     }
 
     public ArrayRealVector getDistance(ArrayRealVector pos) {
@@ -114,15 +114,14 @@ public class VPoint implements Cloneable {
     }
 
     public Body getBody() {
-        return this.parent;
+        return this.parentBody;
     }
 
     public ArrayRealVector getVelocity() {
-        return parent.getWorld().getDistance(pos, lpos);
+        return parentBody.getParentWorld().getDistance(pos, lpos);
     }
 
-    @Override
-    public VPoint clone() { //eh
+    public VPoint copy(Body parent) { //eh
         try {
             VPoint clone = (VPoint) super.clone();
             clone.lpos = this.lpos.copy();

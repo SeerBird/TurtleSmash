@@ -9,19 +9,16 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class Body {
-    public Color pointColor;
     ArrayList<VPoint> points;
     ArrayList<DistanceConstraint> edges;
-    World world;
+    transient World parentWorld;
     ArrayRealVector movement;
     ArrayRealVector acceleration;
     double relevance;
     static double defaultRelevance = 5;
-    public Color edgeColor;
     boolean gravitates;
     double mass;
     ArrayRealVector center;
@@ -30,14 +27,14 @@ public class Body {
     public Body(@NotNull World world) {
         points = new ArrayList<>();
         edges = new ArrayList<>();
-        this.world = world;
+        this.parentWorld = world;
         acceleration = new ArrayRealVector(2);
         movement = new ArrayRealVector(2);
         center = new ArrayRealVector(2);
         world.addBody(this); // might be unnecessary here, could be done outside
         relevance = 20;
-        edgeColor = Color.getHSBColor((float) Math.random(), 1, 1);
-        pointColor = Color.getHSBColor((float) Math.random(), 1, 1);
+        //edgeColor = Color.getHSBColor((float) Math.random(), 1, 1);
+        //pointColor = Color.getHSBColor((float) Math.random(), 1, 1);
         gravitates = true;
         mass = 0;
         centerMoved = true;
@@ -78,8 +75,8 @@ public class Body {
         return satisfied;
     }
 
-    public World getWorld() {
-        return world;
+    public World getParentWorld() {
+        return parentWorld;
     }
 
     public double getRelevance() {
@@ -125,11 +122,11 @@ public class Body {
     }
 
     public ArrayRealVector getDistance(@NotNull Body b) {
-        return world.getDistance(getCenter(), b.getCenter());
+        return parentWorld.getDistance(getCenter(), b.getCenter());
     }
 
     public ArrayRealVector getDistance(@NotNull ArrayRealVector p) {
-        return world.getDistance(getCenter(), p);
+        return parentWorld.getDistance(getCenter(), p);
     }
 
     public boolean gravitates() {
@@ -150,6 +147,9 @@ public class Body {
 
     public void addEdge(DistanceConstraint e) {
         edges.add(e);
+    }
+    public void setParent(World parent){
+        this.parentWorld =parent;
     }
 
     public ArrayList<Pair<Double, VPoint>> project(@NotNull ArrayRealVector axis) {//returns minimum to maximum
@@ -185,7 +185,7 @@ public class Body {
     }
 
     public void delete() {
-        world.deleteBody(this);
+        parentWorld.deleteBody(this);
     }
 
     public void decreaseRelevance(double decrease) {
@@ -216,4 +216,33 @@ public class Body {
             collision.getEdge2().move(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
         }
     }
+
+    public void checkPointParent() {
+        for(VPoint p:points){
+            p.setParentBody(this);
+        }
+        for(DistanceConstraint e:edges){
+            e.getEdge2().setParentBody(this);
+            e.getEdge1().setParentBody(this);
+        }
+    }
+/*
+    public Body copy(World parent) {
+        Body b = new Body(parent);
+
+    }
+
+    private void addMesh(ArrayList<VPoint> p, ArrayList<DistanceConstraint> e, VPoint start, Body parent) {
+        if (!p.contains(start)) {
+            for (DistanceConstraint edge : edges) {
+                if (edge.getEdge1() == start) {
+                    VPoint copy = start.copy(parent);
+
+                } else if (edge.getEdge2() == start) {
+
+                }
+            }
+        }
+    }
+ */
 }

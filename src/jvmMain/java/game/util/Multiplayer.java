@@ -1,6 +1,7 @@
 package game.util;
 
 import game.CONSTANTS;
+import game.Config;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -39,7 +40,7 @@ public class Multiplayer {
                 .build();
     }
     public static final boolean SSL = System.getProperty("ssl") != null;
-    public static final String localhost = System.getProperty("host", CONSTANTS.HOST);
-    public static final int TCPPort = Integer.parseInt(System.getProperty("tcpport", "8007"));
-    public static final int UDPPort = Integer.parseInt(System.getProperty("udpport", "8007"));
+    public static final String localhost = System.getProperty("host", "127.0.0.1");
+    public static final int TCPPort = Integer.parseInt(System.getProperty("tcpport", String.valueOf(Config.TCPPort)));
+    public static final int UDPPort = Integer.parseInt(System.getProperty("udpport", "54777"));
 }

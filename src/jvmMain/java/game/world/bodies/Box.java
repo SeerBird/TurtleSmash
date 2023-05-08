@@ -26,7 +26,6 @@ public class Box extends Body {
         addPoint(p3);
         addPoint(p4);
         refreshMass();
-        pointColor = Color.CYAN;
     }
 
     @Override

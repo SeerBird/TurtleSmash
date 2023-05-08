@@ -9,7 +9,6 @@ import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class Web extends Body {
@@ -30,8 +29,6 @@ public class Web extends Body {
         points.get(0).accelerate(velocity);
         attached = true;
         isGrowing = true;
-        pointColor = Color.red;
-        edgeColor = Color.orange;
     }
 
     @Override
@@ -119,7 +116,7 @@ public class Web extends Body {
 
     @Override
     public void collide(@NotNull CollisionData collision) {
-        if (collision.getVertex().getParent() == this) {
+        if (collision.getVertex().getParentBody() == this) {
             ArrayRealVector edge = collision.getEdge1().getDistance(collision.getEdge2());
             double edgeX = collision.getEdge2().getX() - collision.getEdge1().getX();
             double edgeY = collision.getEdge2().getY() - collision.getEdge1().getY();

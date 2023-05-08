@@ -3,6 +3,7 @@ package game.connection;
 import game.CONSTANTS;
 import game.Config;
 import game.connection.handlers.ServerUDPHandler;
+import game.util.Multiplayer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -49,11 +50,12 @@ public class ServerUDP extends Thread {
     public void broadcastToLan() {//maybe it doesn't interrupt? see tomorrow
         if (udpChannel != null) {
             udpChannel.writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(serverStatus, CharsetUtil.UTF_8),
-                    new InetSocketAddress("255.255.255.255", CONSTANTS.UDP_PORT)));
+                    new InetSocketAddress("255.255.255.255", Multiplayer.UDPPort)));
+
         }
     }
 
     public void setServerStatus(String serverStatus) {
-        this.serverStatus = serverStatus;
+        this.serverStatus = Multiplayer.localIp + "/" + Multiplayer.TCPPort + "/" + serverStatus;
     }
 }

@@ -2,6 +2,8 @@ package game.connection;
 
 import game.CONSTANTS;
 import game.connection.handlers.ClientUDPHandler;
+import game.connection.packets.data.ServerStatus;
+import game.util.Multiplayer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -14,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
 public class ClientUDP extends Thread {
-    Map<String, Long> servers;
+    Map<InetAddress, ServerStatus> servers;
 
     public ClientUDP() {
         servers = Collections.synchronizedMap(new HashMap<>());
@@ -31,7 +33,7 @@ public class ClientUDP extends Thread {
                     .handler(new ClientUDPHandler(servers));
             // Bind and start to accept incoming connections.
             try {
-                Channel ch = b.bind(CONSTANTS.UDP_PORT).sync().channel();
+                Channel ch = b.bind(Multiplayer.UDPPort).sync().channel();
                 ch.closeFuture().sync(); //remove sync?
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -41,7 +43,7 @@ public class ClientUDP extends Thread {
         }
     }
 
-    public Set<String> getServers() {
-        return servers.keySet();
+    public ArrayList<ServerStatus> getServers() {
+        return new ArrayList<>(servers.values());
     }
 }

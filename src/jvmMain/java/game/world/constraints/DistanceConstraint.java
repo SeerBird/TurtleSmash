@@ -31,18 +31,6 @@ public class DistanceConstraint implements Constraint {
         }
     }
 
-    @Override
-    public DistanceConstraint clone() {
-        try {
-            DistanceConstraint clone = (DistanceConstraint) super.clone();
-            clone.p1 = p1.clone();
-            clone.p2 = p2.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
-
     public Pair<VPoint, VPoint> getPoints() {
         return new Pair<>(p1, p2);
     }

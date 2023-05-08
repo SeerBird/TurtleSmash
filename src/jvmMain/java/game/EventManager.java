@@ -3,6 +3,7 @@ package game;
 import com.esotericsoftware.kryonet.Connection;
 import game.connection.ClientUDP;
 import game.connection.ServerUDP;
+import game.connection.packets.data.ServerStatus;
 import game.input.InputInfo;
 import game.connection.packets.ServerPacket;
 import game.connection.ClientTCP;
@@ -27,18 +28,21 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class EventManager {
     GameWindow win;
     Sound sound;
     final World world;
-    ArrayList<Player> players;
+    boolean serverUpdate;
+    final ArrayList<Player> players;
     Renderer renderer;
     TurtleMenu menu;
     ServerTCP tcpServer;
     ClientTCP tcpClient;
     ClientUDP udpClient;
     ServerUDP udpServer;
+    final ServerPacket lastPacket;
     ArrayList<Runnable> jobs;
     ArrayList<Runnable> toRemove;
     ArrayList<Runnable> toAdd;
@@ -78,6 +82,7 @@ public class EventManager {
         win = new GameWindow(this);
         players = new ArrayList<>(); // player 0 is local
         removedPlayers = new ArrayList<>();
+        lastPacket = new ServerPacket();
 
         //test
         potential = new ArrayList<>();
@@ -131,7 +136,10 @@ public class EventManager {
             udpServer = new ServerUDP();
             udpServer.setServerStatus("bababoi");
             udpServer.start();
+            tcpServer = new ServerTCP(this);
+            tcpServer.start();
             addJob(udpServer::broadcastToLan);
+            addJob(this::broadcastWorld);
         }
         if (keyPressedEvents.get(KeyEvent.VK_1)) {
             keyPressedEvents.put(KeyEvent.VK_1, false);
@@ -140,7 +148,13 @@ public class EventManager {
         }
         if (keyPressedEvents.get(KeyEvent.VK_H)) {
             keyPressedEvents.put(KeyEvent.VK_H, false);
-            System.out.println(udpClient.getServers());
+            ArrayList<ServerStatus> LANServers = udpClient.getServers();
+            if (!LANServers.isEmpty()) {
+                System.out.println(LANServers.get(0));
+                tcpClient = new ClientTCP(this, LANServers.get(0));
+                tcpClient.start();
+                addJob(this::getPacket);
+            }
         }
     }
 
@@ -190,8 +204,10 @@ public class EventManager {
 
     private void broadcastWorld() {//ServerPacket should be assembled piece by piece
         ServerPacket packet = new ServerPacket(world);
-        for (Player player : players) {//potential for sending different info
-            player.send(packet);
+        synchronized (players) {
+            for (Player player : players) {//potential for sending different info
+                player.send(packet);
+            }
         }
     }
 
@@ -212,7 +228,7 @@ public class EventManager {
         Player dupe = null;
         for (Player player : players) {
             if (player.getChannel() != null) {
-                if (player.getChannel().remoteAddress() == channel.remoteAddress()) {
+                if (player.getChannel().remoteAddress().getAddress() == channel.remoteAddress().getAddress()) {
                     if (dupe == null) {
                         dupe = player;
                     } else {
@@ -282,18 +298,17 @@ public class EventManager {
         return this.renderer;
     }
 
-    public void setWorld(World world) {
-        synchronized (this.world) {
-            this.world.set(world);
+    public void getPacket() {
+        synchronized (lastPacket) {
+            if(serverUpdate){
+                this.world.set(lastPacket.world);
+                serverUpdate=false;
+            }
         }
     }
 
-    public Player getPlayer(Connection connection) {
-        for (Player player : players) {
-            if (player.getChannel() == connection) {
-                return player;
-            }
-        }
-        return null;
+    public void receive(ServerPacket packet) {
+        lastPacket.set(packet);
+        serverUpdate=true;
     }
 }

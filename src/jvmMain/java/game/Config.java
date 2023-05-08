@@ -3,7 +3,6 @@ package game;
 import java.awt.*;
 
 public class Config {
-    public static final int UDPPort =8828;
     public static final int TCPPort=5455;
     public static final int WIDTH = 800;
     public static final int HEIGHT = 800;

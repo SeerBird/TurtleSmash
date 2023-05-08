@@ -17,7 +17,7 @@ public class World {
     ArrayList<Body> bodies;
     ArrayList<Body> toRemove;
     ArrayList<Body> toAdd;
-    EventManager handler;
+    transient EventManager handler;
 
     public World(EventManager handler) {
         this.handler = handler;
@@ -98,8 +98,8 @@ public class World {
     }
 
     void collide(@NotNull CollisionData collision) {
-        Body b1 = collision.getVertex().getParent();
-        Body b2 = collision.getEdge1().getParent();
+        Body b1 = collision.getVertex().getParentBody();
+        Body b2 = collision.getEdge1().getParentBody();
         if (b1.getClass() == Web.class) {
             b1.collide(collision);
         } else {
@@ -158,7 +158,7 @@ public class World {
                     double max2 = projection2.get(1).getKey();
                     boolean minOf2Greater = min2 > min1;
                     boolean maxOf2Greater = max2 > max1;
-                    boolean owner2 = edge.getEdge1().getParent() == b2;
+                    boolean owner2 = edge.getEdge1().getParentBody() == b2;
                     if (minOf2Greater ^ maxOf2Greater) {// one inside the other
                         if (Math.abs(max2 - min1) < Math.abs(max1 - min2)) { //min1 to max2 is shorter
                             if (owner2) {
@@ -322,13 +322,11 @@ public class World {
         return null;
     }
 
-    public void set(@NotNull World world) {
-        this.bodies = world.getBodies();
-        if (world.toAdd.size() != 0) {
-            this.toAdd = world.toAdd;
-        }
-        if (world.toRemove.size() != 0) {
-            this.toRemove = world.toRemove;
+    public void set(World target){
+        bodies=target.bodies;
+        for(Body b:bodies){
+            b.setParent(this);
+            b.checkPointParent();
         }
     }
 }
