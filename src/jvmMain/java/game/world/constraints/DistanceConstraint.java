@@ -45,4 +45,8 @@ public class DistanceConstraint implements Constraint {
         getPoints().getKey().move(v);
         getPoints().getValue().move(v);
     }
+
+    public double getDistance() {
+        return rest_d;
+    }
 }

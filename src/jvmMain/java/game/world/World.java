@@ -327,6 +327,7 @@ public class World {
         for(Body b:bodies){
             b.setParent(this);
             b.checkPointParent();
+            b.restoreEdgesFromImage();
         }
     }
 }

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class Body {
     ArrayList<VPoint> points;
     ArrayList<DistanceConstraint> edges;
+    ArrayList<Pair<Pair<Integer,Integer>,Double>> edgesImage;
     transient World parentWorld;
     ArrayRealVector movement;
     ArrayRealVector acceleration;
@@ -27,6 +28,7 @@ public class Body {
     public Body(@NotNull World world) {
         points = new ArrayList<>();
         edges = new ArrayList<>();
+        edgesImage=new ArrayList<>();
         this.parentWorld = world;
         acceleration = new ArrayRealVector(2);
         movement = new ArrayRealVector(2);
@@ -216,6 +218,12 @@ public class Body {
             collision.getEdge2().move(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
         }
     }
+    public void updateEdgesImage(){
+        edgesImage.clear();
+        for(DistanceConstraint e:edges){
+            edgesImage.add(new Pair<>(new Pair<>(points.indexOf(e.getEdge1()),points.indexOf(e.getEdge2())),e.getDistance()));
+        }
+    }
 
     public void checkPointParent() {
         for(VPoint p:points){
@@ -224,6 +232,13 @@ public class Body {
         for(DistanceConstraint e:edges){
             e.getEdge2().setParentBody(this);
             e.getEdge1().setParentBody(this);
+        }
+    }
+
+    public void restoreEdgesFromImage() {
+        edges.clear();
+        for(Pair<Pair<Integer,Integer>,Double> e:edgesImage){
+            edges.add(new DistanceConstraint(points.get(e.getKey().getKey()),points.get(e.getKey().getValue()),e.getValue()));
         }
     }
 /*

@@ -37,6 +37,7 @@ public class ExceptionHandler extends ChannelDuplexHandler {
                 if (!future.isSuccess()) {
                     // Handle write exception here...
                     Throwable failureCause = future.cause();
+                    System.out.println(failureCause.getMessage());
                 }
             }
         }));

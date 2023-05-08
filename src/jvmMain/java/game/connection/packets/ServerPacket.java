@@ -3,6 +3,7 @@ package game.connection.packets;
 
 import game.connection.packets.Packet;
 import game.world.World;
+import game.world.bodies.Body;
 import org.jetbrains.annotations.NotNull;
 
 public class ServerPacket extends Packet {
@@ -11,6 +12,9 @@ public class ServerPacket extends Packet {
 
     public ServerPacket(World world) {
         this.world=new World();
+        for(Body b:world.getBodies()){
+            b.updateEdgesImage();
+        }
         this.world.set(world);
     }
 

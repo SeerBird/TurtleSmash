@@ -33,7 +33,7 @@ import java.util.Set;
 public class EventManager {
     GameWindow win;
     Sound sound;
-    final World world;
+    World world;
     boolean serverUpdate;
     final ArrayList<Player> players;
     Renderer renderer;
@@ -150,7 +150,6 @@ public class EventManager {
             keyPressedEvents.put(KeyEvent.VK_H, false);
             ArrayList<ServerStatus> LANServers = udpClient.getServers();
             if (!LANServers.isEmpty()) {
-                System.out.println(LANServers.get(0));
                 tcpClient = new ClientTCP(this, LANServers.get(0));
                 tcpClient.start();
                 addJob(this::getPacket);
@@ -210,6 +209,19 @@ public class EventManager {
             }
         }
     }
+    public void getPacket() {
+        synchronized (lastPacket) {
+            if(serverUpdate){
+                this.world.set(lastPacket.world);
+                serverUpdate=false;
+            }
+        }
+    }
+
+    public void receive(ServerPacket packet) {
+        lastPacket.set(packet);
+        serverUpdate=true;
+    }
 
     public void terminate() {
         // you think you can stop me?
@@ -237,7 +249,7 @@ public class EventManager {
                 }
             }
         }
-        if (dupe == null) {// low readability?
+        if (dupe == null) {
             dupe = new Player(this);
             players.add(dupe);
         }
@@ -296,19 +308,5 @@ public class EventManager {
 
     public Renderer getRenderer() {
         return this.renderer;
-    }
-
-    public void getPacket() {
-        synchronized (lastPacket) {
-            if(serverUpdate){
-                this.world.set(lastPacket.world);
-                serverUpdate=false;
-            }
-        }
-    }
-
-    public void receive(ServerPacket packet) {
-        lastPacket.set(packet);
-        serverUpdate=true;
     }
 }
