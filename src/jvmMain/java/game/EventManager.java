@@ -153,10 +153,12 @@ public class EventManager {
                 tcpClient.start();
                 addJob(this::handleServerPacket);
             }
+            addJob(this::sendClientPacket);
         }
     }
 
     private void getGameInput() {
+        players.get(0).getInput().reset();
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
             players.get(0).flingWeb(mousepos);
         }
@@ -189,10 +191,9 @@ public class EventManager {
             Body body;
             if ((body = player.getBody()) != null) {
                 if (input.teleport != null) {
-                    body.shift(body.getDistance(mousepos));
+                    body.shift(body.getDistance(input.teleport));
                 }
             }
-            input.reset();
         }
     }
     //Server only
@@ -205,22 +206,24 @@ public class EventManager {
             }
         }
     }
+
     //Client only
     private void sendClientPacket() {
         tcpClient.send(players.get(0).input);
     }
+
     public void handleServerPacket() {
         synchronized (lastPacket) {
-            if(serverUpdate){
+            if (serverUpdate) {
                 this.world.set(lastPacket.world);
-                serverUpdate=false;
+                serverUpdate = false;
             }
         }
     }
 
     public void receiveServerPacket(ServerPacket packet) {
         lastPacket.set(packet);
-        serverUpdate=true;
+        serverUpdate = true;
     }
 
     public void terminate() {
@@ -296,10 +299,12 @@ public class EventManager {
             mousepos.setEntry(1, e.getPoint().y);
         }
     }
+
     //getters
     public Renderer getRenderer() {
         return this.renderer;
     }
+
     public World getWorld() {
         return this.world;
     }

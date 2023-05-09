@@ -1,5 +1,6 @@
 package game.connection;
 
+import com.google.gson.Gson;
 import game.EventManager;
 import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ClientTcpHandler;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 
 public class ClientTCP extends Thread {
     EventManager handler;
+    Gson gson;
     ArrayList<InetAddress> LANServers;
     Channel channel;
     ServerStatus target;
@@ -33,6 +35,7 @@ public class ClientTCP extends Thread {
         this.handler = handler;
         LANServers = new ArrayList<>();
         this.target = target;
+        gson=new Gson();
     }
 
     public void run() {
@@ -77,6 +80,7 @@ public class ClientTCP extends Thread {
     }
 
     public void send(InputInfo input) {
-        channel.writeAndFlush(new ClientPacket(input));
+        if(channel!=null){
+        channel.writeAndFlush(gson.toJson(new ClientPacket(input)));}
     }
 }
