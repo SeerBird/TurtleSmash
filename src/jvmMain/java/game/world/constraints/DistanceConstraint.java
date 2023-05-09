@@ -1,6 +1,6 @@
 package game.world.constraints;
 
-import game.CONSTANTS;
+import game.util.CONSTANTS;
 import game.world.VPoint;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;

@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Packet implements Serializable{//unnecessary?
+public class Packet{//unnecessary?
 
     public enum Markers {
         Start,

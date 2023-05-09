@@ -71,22 +71,6 @@ public class VPoint {
         return this.pos.getEntry(1);
     }
 
-    public void setX(double x) {
-        this.pos.setEntry(0, x);
-    }
-
-    public void setY(double y) {
-        this.pos.setEntry(1, y);
-    }
-
-    public void addToX(double dx) {
-        this.pos.addToEntry(0, dx);
-    }
-
-    public void addToY(double dy) {
-        this.pos.addToEntry(1, dy);
-    }
-
     public void accelerate(double x, double y) {
         pos.addToEntry(0, x);
         pos.addToEntry(1, y);
@@ -109,10 +93,6 @@ public class VPoint {
         return parentBody.getParentWorld().getDistance(pos, b.getPos()); // could be game.world-independent? just geometry if I don't have borderDistance
     }
 
-    public ArrayRealVector getDistance(ArrayRealVector pos) {
-        return this.pos.copy().combineToSelf(-1, 1, pos);
-    }
-
     public Body getBody() {
         return this.parentBody;
     }
@@ -121,23 +101,11 @@ public class VPoint {
         return parentBody.getParentWorld().getDistance(pos, lpos);
     }
 
-    public VPoint copy(Body parent) { //eh
-        try {
-            VPoint clone = (VPoint) super.clone();
-            clone.lpos = this.lpos.copy();
-            clone.pos = this.pos.copy();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+    public double project(@NotNull ArrayRealVector normalizedAxis) {
+        if (normalizedAxis.getNorm() != 1) { // remove this if clause
+            return getPos().dotProduct(normalizedAxis.mapMultiply(1 / normalizedAxis.getNorm()));
         }
-    }
-
-    public double project(@NotNull ArrayRealVector axis) {
-        if (axis.getNorm() != 1) {
-            return getPos().dotProduct(axis.mapMultiply(1 / axis.getNorm()));
-        }
-        return getPos().dotProduct(axis);
-
+        return getPos().dotProduct(normalizedAxis);
     }
 
     public void stop() {

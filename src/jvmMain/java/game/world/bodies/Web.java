@@ -123,10 +123,8 @@ public class Web extends Body {
             // should be 0 to 1, indicating where between edge1 and edge2 the vertex projection is
             double placement = (edge.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (collision.getVertex().getX() - collision.getEdge1().getX()) / (edgeX) : (collision.getVertex().getY() - collision.getEdge1().getY()) / (edgeY) : 0.5;
             collision.getVertex().setPos(collision.getEdge1().getPos().combine(1,1,edge.mapMultiply(placement)));
-            addEdge(collision.getEdge1(), collision.getVertex());
-            stuckEdges.set(stuckEdges.size() - 1, true);
-            addEdge(collision.getEdge1(), collision.getVertex());
-            stuckEdges.set(stuckEdges.size() - 1, true);
+            parentWorld.addConstraint(collision.getEdge1(), collision.getVertex());
+            parentWorld.addConstraint(collision.getEdge2(), collision.getVertex());//unchecked
         }
     }
 

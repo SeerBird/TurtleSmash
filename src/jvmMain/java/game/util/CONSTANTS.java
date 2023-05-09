@@ -1,6 +1,4 @@
-package game;
-
-import java.net.*;
+package game.util;
 
 public class CONSTANTS {//dispose of this
     public static final int MAX_FRAMERATE = 60;

@@ -1,6 +1,5 @@
 package game;
 
-import com.esotericsoftware.kryonet.Connection;
 import game.connection.ClientUDP;
 import game.connection.ServerUDP;
 import game.connection.packets.data.ServerStatus;
@@ -16,7 +15,6 @@ import game.output.audio.Sound;
 import game.output.ui.TurtleMenu;
 import game.world.World;
 import game.world.bodies.Body;
-import game.world.bodies.Web;
 import io.netty.channel.socket.SocketChannel;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
@@ -28,9 +26,10 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.logging.Logger;
 
 public class EventManager {
+    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     GameWindow win;
     Sound sound;
     World world;
@@ -139,7 +138,7 @@ public class EventManager {
             tcpServer = new ServerTCP(this);
             tcpServer.start();
             addJob(udpServer::broadcastToLan);
-            addJob(this::broadcastWorld);
+            addJob(this::broadcastServerPacket);
         }
         if (keyPressedEvents.get(KeyEvent.VK_1)) {
             keyPressedEvents.put(KeyEvent.VK_1, false);
@@ -152,7 +151,7 @@ public class EventManager {
             if (!LANServers.isEmpty()) {
                 tcpClient = new ClientTCP(this, LANServers.get(0));
                 tcpClient.start();
-                addJob(this::getPacket);
+                addJob(this::handleServerPacket);
             }
         }
     }
@@ -180,10 +179,6 @@ public class EventManager {
          */
     }
 
-    private void sendInput() {
-        tcpClient.send(players.get(0).input);
-    }
-
     private void handlePlayers() {
         for (Player ghost : removedPlayers) {
             players.remove(ghost);
@@ -193,15 +188,16 @@ public class EventManager {
             input = player.getInput();
             Body body;
             if ((body = player.getBody()) != null) {
-                if (input.webFling != null) {
+                if (input.teleport != null) {
                     body.shift(body.getDistance(mousepos));
                 }
             }
             input.reset();
         }
     }
+    //Server only
 
-    private void broadcastWorld() {//ServerPacket should be assembled piece by piece
+    private void broadcastServerPacket() {//ServerPacket should be assembled piece by piece
         ServerPacket packet = new ServerPacket(world);
         synchronized (players) {
             for (Player player : players) {//potential for sending different info
@@ -209,7 +205,11 @@ public class EventManager {
             }
         }
     }
-    public void getPacket() {
+    //Client only
+    private void sendClientPacket() {
+        tcpClient.send(players.get(0).input);
+    }
+    public void handleServerPacket() {
         synchronized (lastPacket) {
             if(serverUpdate){
                 this.world.set(lastPacket.world);
@@ -218,7 +218,7 @@ public class EventManager {
         }
     }
 
-    public void receive(ServerPacket packet) {
+    public void receiveServerPacket(ServerPacket packet) {
         lastPacket.set(packet);
         serverUpdate=true;
     }
@@ -296,17 +296,14 @@ public class EventManager {
             mousepos.setEntry(1, e.getPoint().y);
         }
     }
-
-    // World
-    public void postStringFallOff(Web web) {
-
+    //getters
+    public Renderer getRenderer() {
+        return this.renderer;
     }
-
     public World getWorld() {
         return this.world;
     }
 
-    public Renderer getRenderer() {
-        return this.renderer;
-    }
+    // World
+
 }

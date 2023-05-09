@@ -7,12 +7,15 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 
+import java.net.BindException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Logger;
 
 public class ClientUDPHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     Map<InetAddress, ServerStatus> servers;
 
     public ClientUDPHandler(Map<InetAddress, ServerStatus> servers) {
@@ -38,4 +41,12 @@ public class ClientUDPHandler extends SimpleChannelInboundHandler<DatagramPacket
         }
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        if(cause instanceof BindException){
+            logger.warning(cause.getMessage());
+        }else{
+            super.exceptionCaught(ctx,cause);
+        }
+    }
 }

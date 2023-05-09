@@ -7,10 +7,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.serialization.ClassResolver;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 
-public class GObjectDecoder extends ObjectDecoder {
+public class ClientDecoder extends ObjectDecoder {
     Gson gson;
 
-    public GObjectDecoder(int maxObjectSize, ClassResolver classResolver) {
+    public ClientDecoder(int maxObjectSize, ClassResolver classResolver) {
         super(maxObjectSize, classResolver);
         gson = new Gson();
     }
@@ -18,7 +18,7 @@ public class GObjectDecoder extends ObjectDecoder {
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
         Object msg = super.decode(ctx, in);
-        if(msg instanceof String){
+        if(msg instanceof String||msg==null){
             return gson.fromJson((String) msg, ServerPacket.class);
         } else{
             return msg;

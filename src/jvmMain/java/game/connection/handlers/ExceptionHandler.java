@@ -4,8 +4,11 @@ import game.EventManager;
 import io.netty.channel.*;
 
 import java.net.SocketAddress;
+import java.net.SocketException;
+import java.util.logging.Logger;
 
 public class ExceptionHandler extends ChannelDuplexHandler {
+    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     EventManager handler;
     public ExceptionHandler(EventManager handler){
         this.handler=handler;
@@ -13,7 +16,9 @@ public class ExceptionHandler extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        System.out.println("I got a boo boo: " + cause.getMessage());
+        if(cause instanceof SocketException){
+            logger.warning(cause.getMessage());
+        }
     }
 
     @Override

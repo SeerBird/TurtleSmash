@@ -22,6 +22,12 @@ public class ServerPlayerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        player.setChannel(null);
+    }
+
+    @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }

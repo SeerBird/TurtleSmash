@@ -1,8 +1,5 @@
 package game.connection;
 
-import game.CONSTANTS;
-import game.Config;
-import game.connection.handlers.ServerUDPHandler;
 import game.util.Multiplayer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;

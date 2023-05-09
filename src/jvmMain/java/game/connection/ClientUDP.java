@@ -1,6 +1,5 @@
 package game.connection;
 
-import game.CONSTANTS;
 import game.connection.handlers.ClientUDPHandler;
 import game.connection.packets.data.ServerStatus;
 import game.util.Multiplayer;
@@ -11,11 +10,13 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
+import java.net.BindException;
 import java.net.InetAddress;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Logger;
 
 public class ClientUDP extends Thread {
+    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     Map<InetAddress, ServerStatus> servers;
 
     public ClientUDP() {
@@ -31,12 +32,15 @@ public class ClientUDP extends Thread {
                     .channel(NioDatagramChannel.class)
                     .option(ChannelOption.SO_BROADCAST, true)
                     .handler(new ClientUDPHandler(servers));
-            // Bind and start to accept incoming connections.
             try {
                 Channel ch = b.bind(Multiplayer.UDPPort).sync().channel();
-                ch.closeFuture().sync(); //remove sync?
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                ch.closeFuture().sync();
+            } catch (Exception e) {
+                if (e instanceof BindException) {// the compiler is a gleecking liar
+                    logger.warning(e.getMessage());
+                } else {
+                    throw new RuntimeException(e);
+                }
             }
         } finally {
             udpGroup.shutdownGracefully();

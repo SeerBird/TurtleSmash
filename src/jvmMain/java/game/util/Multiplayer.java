@@ -1,6 +1,5 @@
 package game.util;
 
-import game.CONSTANTS;
 import game.Config;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;

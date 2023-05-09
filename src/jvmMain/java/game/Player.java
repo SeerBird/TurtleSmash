@@ -9,14 +9,15 @@ import game.world.bodies.Box;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.logging.Logger;
 
 public class Player {
     Box body; //should be turtle
     EventManager handler;
+    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     InputInfo input;
     SocketChannel channel;
     Gson gson;
@@ -46,11 +47,10 @@ public class Player {
 
     //Player Actions
     public void flingWeb(@NotNull ArrayRealVector target) {
-        input.webFling = target.copy();
+        input.teleport = target.copy();
     }
 
     public void receive(@NotNull ClientPacket packet) {
-        //unpack it here? seems harmless
         input = packet.getInput();
     }
 
@@ -61,11 +61,7 @@ public class Player {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     if(!future.isSuccess()){
-                        try {
-                            throw future.cause();
-                        } catch (Throwable e) {
-                            throw new RuntimeException(e);
-                        }
+                        logger.warning(future.cause().getMessage());
                     }
                 }
             });

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 public class Body {
     ArrayList<VPoint> points;
     ArrayList<DistanceConstraint> edges;
-    ArrayList<Pair<Pair<Integer,Integer>,Double>> edgesImage;
     transient World parentWorld;
     ArrayRealVector movement;
     ArrayRealVector acceleration;
@@ -28,7 +27,6 @@ public class Body {
     public Body(@NotNull World world) {
         points = new ArrayList<>();
         edges = new ArrayList<>();
-        edgesImage=new ArrayList<>();
         this.parentWorld = world;
         acceleration = new ArrayRealVector(2);
         movement = new ArrayRealVector(2);
@@ -188,7 +186,7 @@ public class Body {
 
     public void delete() {
         parentWorld.deleteBody(this);
-    }
+    }//ehhhhh
 
     public void decreaseRelevance(double decrease) {
         relevance -= decrease;
@@ -218,11 +216,12 @@ public class Body {
             collision.getEdge2().move(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
         }
     }
-    public void updateEdgesImage(){
-        edgesImage.clear();
+    public ArrayList<Pair<Pair<Integer,Integer>,Double>> getEdgesImage(){
+        ArrayList<Pair<Pair<Integer,Integer>,Double>> edgesImage= new ArrayList<>();
         for(DistanceConstraint e:edges){
             edgesImage.add(new Pair<>(new Pair<>(points.indexOf(e.getEdge1()),points.indexOf(e.getEdge2())),e.getDistance()));
         }
+        return edgesImage;
     }
 
     public void checkPointParent() {
@@ -235,29 +234,10 @@ public class Body {
         }
     }
 
-    public void restoreEdgesFromImage() {
+    public void restoreEdgesFromImage(ArrayList<Pair<Pair<Integer,Integer>,Double>> edgesImage) {
         edges.clear();
         for(Pair<Pair<Integer,Integer>,Double> e:edgesImage){
             edges.add(new DistanceConstraint(points.get(e.getKey().getKey()),points.get(e.getKey().getValue()),e.getValue()));
         }
     }
-/*
-    public Body copy(World parent) {
-        Body b = new Body(parent);
-
-    }
-
-    private void addMesh(ArrayList<VPoint> p, ArrayList<DistanceConstraint> e, VPoint start, Body parent) {
-        if (!p.contains(start)) {
-            for (DistanceConstraint edge : edges) {
-                if (edge.getEdge1() == start) {
-                    VPoint copy = start.copy(parent);
-
-                } else if (edge.getEdge2() == start) {
-
-                }
-            }
-        }
-    }
- */
 }

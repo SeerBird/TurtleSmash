@@ -23,6 +23,7 @@ public class GameWindow extends JFrame {
         // Basic functionality
         this.handler = handler;
         setIgnoreRepaint(true);
+        setResizable(false);
         setVisible(true);
         this.setLocation(400, 10);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
