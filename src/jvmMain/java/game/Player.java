@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import game.connection.packets.ClientPacket;
 import game.input.InputInfo;
 import game.connection.packets.ServerPacket;
+import game.util.Util;
 import game.world.bodies.Body;
 import game.world.bodies.Box;
 import io.netty.channel.ChannelFuture;
@@ -20,11 +21,9 @@ public class Player {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     InputInfo input;
     SocketChannel channel;
-    Gson gson;
 
     public Player(@NotNull EventManager handler) {
         this.handler = handler;
-        gson = new Gson();
         input = new InputInfo();
         body = new Box(handler.getWorld(), handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
     }
@@ -56,7 +55,7 @@ public class Player {
 
     public void send(ServerPacket packet) {
         if (channel != null) {
-            String json= gson.toJson(packet);
+            String json= Util.gson.toJson(packet);
             channel.writeAndFlush(json).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {

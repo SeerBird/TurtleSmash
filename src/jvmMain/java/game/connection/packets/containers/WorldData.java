@@ -1,4 +1,4 @@
-package game.connection.packets.data;
+package game.connection.packets.containers;
 
 import game.world.World;
 import game.world.bodies.Body;
@@ -12,7 +12,7 @@ public class WorldData {
     public ArrayList<Body> bodies;
     public ArrayList<Pair<ArrayList<Integer>, Double>> constraintsImage;
     public ArrayList<ArrayList<Pair<Pair<Integer,Integer>,Double>>> edgeImages;
-    public WorldData(@NotNull World world) {//unnecessary data
+    public WorldData(@NotNull World world) {//unnecessary containers
         bodies=new ArrayList<>();
         edgeImages=new ArrayList<>();
         ArrayList<Body> worldbodies;

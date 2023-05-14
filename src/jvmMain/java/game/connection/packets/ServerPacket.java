@@ -1,23 +1,27 @@
 package game.connection.packets;
-
-
-import game.connection.packets.Packet;
-import game.connection.packets.data.WorldData;
+import game.Player;
+import game.connection.packets.containers.LobbyData;
+import game.connection.packets.containers.WorldData;
 import game.world.World;
-import game.world.bodies.Body;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 
 public class ServerPacket extends Packet {
     public WorldData world;
+    public LobbyData lobby;
+    public transient boolean changed;
 
-    public ServerPacket(World world) {
+    public ServerPacket(World world, ArrayList<Player> players) {
         this.world=new WorldData(world);
+        lobby=new LobbyData(players);
     }
 
     public ServerPacket() {
     }
-
     public void set(@NotNull ServerPacket packet) {
         this.world=packet.world;
+        this.lobby=packet.lobby;
+        changed=true;
     }
 }

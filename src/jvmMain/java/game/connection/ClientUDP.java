@@ -1,7 +1,8 @@
 package game.connection;
 
+import game.Config;
 import game.connection.handlers.ClientUDPHandler;
-import game.connection.packets.data.ServerStatus;
+import game.connection.packets.containers.ServerStatus;
 import game.util.Multiplayer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -13,14 +14,14 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class ClientUDP extends Thread {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    Map<InetAddress, ServerStatus> servers;
+    private static final Map<InetAddress, ServerStatus> servers= new HashMap<>();
 
     public ClientUDP() {
-        servers = Collections.synchronizedMap(new HashMap<>());
     }
 
     @Override
@@ -47,7 +48,15 @@ public class ClientUDP extends Thread {
         }
     }
 
-    public ArrayList<ServerStatus> getServers() {
-        return new ArrayList<>(servers.values());
+    public Map<InetAddress, ServerStatus> getServers() {
+        HashMap<InetAddress, ServerStatus> activeServers = new HashMap<>();
+        for (ServerStatus status : servers.values()) {
+            if (System.nanoTime() - status.nanoTime < Config.discoveryNanoTimeout) {
+                activeServers.put(status.address, status);
+            }
+        }
+        servers.clear();
+        servers.putAll(activeServers);
+        return servers;
     }
 }

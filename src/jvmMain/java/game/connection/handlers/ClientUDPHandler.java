@@ -1,7 +1,6 @@
 package game.connection.handlers;
 
-import game.connection.ServerUDP;
-import game.connection.packets.data.ServerStatus;
+import game.connection.packets.containers.ServerStatus;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -11,7 +10,6 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
 public class ClientUDPHandler extends SimpleChannelInboundHandler<DatagramPacket> {
@@ -26,18 +24,22 @@ public class ClientUDPHandler extends SimpleChannelInboundHandler<DatagramPacket
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
         String message = msg.content().toString(CharsetUtil.UTF_8);
         try {
-            ServerStatus status = new ServerStatus();
+            ServerStatus status;
             InetAddress address = InetAddress.getByName(message.substring(0, message.indexOf("/")));
-            status.address = address;
-            String processed = message.substring(message.indexOf("/") + 1);
-            status.port = Integer.parseInt(processed.substring(0, processed.indexOf("/")));
+            if((status=servers.get(address))==null){
+                status = new ServerStatus();
+                status.address = address;
+                servers.put(address, status);
+            }
+            String processed = message.substring(message.indexOf("/") + 1); //5455/bababoi
+            status.port = Integer.parseInt(processed.substring(0, processed.indexOf("/"))); //
+            status.message = processed.substring(processed.indexOf("/")+1);
             status.nanoTime = System.nanoTime();
-            servers.put(address, status);
         } catch (UnknownHostException e) {
-            System.out.println("Unknown host in server status " + msg.content().toString(CharsetUtil.UTF_8));
+            logger.severe("Unknown host in server status " + msg.content().toString(CharsetUtil.UTF_8));
             System.out.println(e.getMessage()); // wtf is this... could try either way oh well
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("Malformed packet: " + msg.content().toString(CharsetUtil.UTF_8));
+            logger.severe("Malformed packet: " + msg.content().toString(CharsetUtil.UTF_8));
         }
     }
 

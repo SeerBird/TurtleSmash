@@ -33,8 +33,7 @@ public class Body {
         center = new ArrayRealVector(2);
         world.addBody(this); // might be unnecessary here, could be done outside
         relevance = 20;
-        //edgeColor = Color.getHSBColor((float) Math.random(), 1, 1);
-        //pointColor = Color.getHSBColor((float) Math.random(), 1, 1);
+
         gravitates = true;
         mass = 0;
         centerMoved = true;
@@ -205,7 +204,7 @@ public class Body {
         double placement = (edge.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (collision.getVertex().getX() - collision.getEdge1().getX()) / (edgeX) : (collision.getVertex().getY() - collision.getEdge1().getY()) / (edgeY) : 0.5;
         double scaleFactor = 1 / (Math.pow(placement, 2) + Math.pow(1 - placement, 2)); // normalising factor
         // I like to move it, move it
-        double elasticity = 1;
+        double elasticity = 0;
         collision.getVertex().accelerate(overlap.mapMultiply(0.25 * elasticity));
         collision.getEdge1().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * (1 - placement) * elasticity));
         collision.getEdge2().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));

@@ -1,41 +1,77 @@
 package game.output.ui;
 
 import game.EventManager;
-import game.input.MenuClickEvent;
+import game.GameState;
+import game.connection.packets.ServerPacket;
+import game.connection.packets.containers.ServerStatus;
+import game.output.ui.rectangles.GButton;
+import game.output.ui.rectangles.PlayerList;
+import game.output.ui.rectangles.ServerList;
+import org.apache.commons.math3.linear.ArrayRealVector;
 
-import java.awt.event.ActionEvent;
+import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 
 public class TurtleMenu {
-    private ArrayList<IElement> elements;
+    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private final ArrayList<IElement> elements;
+    private final HashMap<GameState, ArrayList<IElement>> menuPresets;
     private IElement pressed;
     EventManager handler;
-    private boolean open;
+    //cringe element references
+    final ServerList serverList;
+    final PlayerList playerList;
 
-    public TurtleMenu(EventManager handler) {
+    public TurtleMenu(EventManager handler, ServerPacket lastPacket, Map<InetAddress, ServerStatus> servers) {
         this.handler = handler;
-        elements = new ArrayList<IElement>();
-        open = false;
+        elements = new ArrayList<>();
+        menuPresets = new HashMap<>();
 
-        // Add elements
-        elements.add(new Button(200, 200, () -> System.out.println("Maboi")));
+        // Create the presets
+        // main
+        elements.add(new GButton(200, 200, 100, 100, handler::discover, "Discover"));// discover UDP
+        elements.add(new GButton(400, 200, 100, 100, handler::host, "Host"));// host UDP and open TCP server
+        menuPresets.put(GameState.main, new ArrayList<>(elements));
+        elements.clear();
+        //host
+        elements.add(new GButton(400, 200, 100, 100, handler::playServer, "Play"));
+        menuPresets.put(GameState.host, new ArrayList<>(elements));
+        elements.clear();
+        //connect
+        serverList = new ServerList(this, 200, 200, 600, 600, servers);
+        elements.add(serverList);
+        menuPresets.put(GameState.discover, new ArrayList<>(elements));
+        elements.clear();
+        //lobby
+        playerList = new PlayerList(100, 100, 600, 600, lastPacket);
+        elements.add(playerList);
+        menuPresets.put(GameState.lobby, new ArrayList<>(elements));
+        //playServer
+        menuPresets.put(GameState.playServer, new ArrayList<>(elements));
+        //playClient
+        menuPresets.put(GameState.playClient, new ArrayList<>(elements));
+        refreshGameState();
     }
 
-    public void press(float x, float y) {
+    public void press(ArrayRealVector pos) {
         for (IElement element : elements) {
-            if (element.press(x, y)) {
-                handler.postMenuClickEvent(new MenuClickEvent(element, ActionEvent.ACTION_PERFORMED));
+            if (element.press(pos)) {
                 pressed = element;
                 break;
             }
         }
     }
 
-    public void toggleOpen() {
-        open ^= true;
+    public GameState getState() {
+        return handler.getState();
     }
-    public boolean isOpen(){
-        return open;
+
+    public void refreshGameState() {
+        elements.clear();
+        elements.addAll(menuPresets.get(handler.getState()));
     }
 
     public void release() {
@@ -45,10 +81,13 @@ public class TurtleMenu {
     }
 
     public void update() {
-        for (IElement element : elements) {
-            if (element instanceof Button) {
-                ((Button) element).move();
+        for (IElement element : new ArrayList<>(elements)) {
+            if (element instanceof GButton) {
+
             }
+        }
+        if (handler.getState() == GameState.lobby) {
+            playerList.refresh();
         }
     }
 
@@ -56,11 +95,11 @@ public class TurtleMenu {
         return elements;
     }
 
-    public Button getElement(int i) {
-        IElement butt = elements.get(i);
-        if (butt instanceof Button) {
-            return (Button) butt;
-        }
-        return null;
+    public void popup(String message) {
+
+    }
+
+    public EventManager getHandler() {
+        return handler;
     }
 }

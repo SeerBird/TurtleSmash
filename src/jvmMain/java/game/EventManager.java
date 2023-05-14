@@ -2,16 +2,16 @@ package game;
 
 import game.connection.ClientUDP;
 import game.connection.ServerUDP;
-import game.connection.packets.data.ServerStatus;
+import game.connection.packets.containers.ServerStatus;
 import game.input.InputInfo;
 import game.connection.packets.ServerPacket;
 import game.connection.ClientTCP;
 import game.connection.ServerTCP;
-import game.input.MenuClickEvent;
 import game.input.MouseInput;
 import game.output.GameWindow;
 import game.output.Renderer;
 import game.output.audio.Sound;
+import game.output.ui.rectangles.Textbox;
 import game.output.ui.TurtleMenu;
 import game.world.World;
 import game.world.bodies.Body;
@@ -30,11 +30,12 @@ import java.util.logging.Logger;
 
 public class EventManager {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    GameState state;
     GameWindow win;
     Sound sound;
     World world;
-    boolean serverUpdate;
     final ArrayList<Player> players;
+    private final ArrayList<Player> removedPlayers;
     Renderer renderer;
     TurtleMenu menu;
     ServerTCP tcpServer;
@@ -48,15 +49,12 @@ public class EventManager {
     // idk what this has become, seems dodgy
     private final Map<Integer, Boolean> keyPressedEvents;
     private final Map<Integer, Boolean> keyReleasedEvents;
-    private MenuClickEvent menuClickEvent;
     private final HashMap<Integer, MouseEvent> mousePressEvents;
     private final HashMap<Integer, MouseEvent> mouseReleaseEvents;
     private MouseEvent mouseMoveEvent;
     ArrayRealVector mousepos;
     //iterate, idiot
     //test
-    ArrayList<InetAddress> potential;
-    private ArrayList<Player> removedPlayers;
 
     public EventManager() {
         // weird inputs
@@ -71,20 +69,20 @@ public class EventManager {
         mousepos = new ArrayRealVector(new Double[]{400.0, 400.0});
 
         //important stuff
+        state = GameState.main;
         jobs = new ArrayList<>();
         toAdd = new ArrayList<>();
         toRemove = new ArrayList<>();
-        menu = new TurtleMenu(this);
+        lastPacket = new ServerPacket();
+        udpServer = new ServerUDP();
+        udpClient = new ClientUDP();
+        menu = new TurtleMenu(this, lastPacket, udpClient.getServers());
         sound = new Sound();
         world = new World(this);
         renderer = new Renderer(this);
         win = new GameWindow(this);
         players = new ArrayList<>(); // player 0 is local
         removedPlayers = new ArrayList<>();
-        lastPacket = new ServerPacket();
-
-        //test
-        potential = new ArrayList<>();
 
         //starting state
         addJob(this::handleMenuInput);
@@ -117,6 +115,7 @@ public class EventManager {
         for (Runnable job : jobs) {
             job.run();
         }// get em done
+        lastPacket.changed = false;// put this somewhere else, looks ugly
     }
 
     public void addJob(Runnable job) {
@@ -124,61 +123,31 @@ public class EventManager {
     }
 
     public void removeJob(Runnable job) {
-        toRemove.remove(job);
+        toRemove.add(job);
     }
 
     //Jobs
 
     private void handleMenuInput() {
-        if (keyPressedEvents.get(KeyEvent.VK_U)) {
-            keyPressedEvents.put(KeyEvent.VK_U, false);
-            udpServer = new ServerUDP();
-            udpServer.setServerStatus("bababoi");
-            udpServer.start();
-            tcpServer = new ServerTCP(this);
-            tcpServer.start();
-            addJob(udpServer::broadcastToLan);
-            addJob(this::broadcastServerPacket);
+        if (mousePressEvents.get(MouseInput.LEFT) != null) {
+            menu.press(mousepos);
+            mousePressEvents.put(MouseInput.LEFT, null);
         }
-        if (keyPressedEvents.get(KeyEvent.VK_1)) {
-            keyPressedEvents.put(KeyEvent.VK_1, false);
-            udpClient = new ClientUDP();
-            udpClient.start();
-        }
-        if (keyPressedEvents.get(KeyEvent.VK_H)) {
-            keyPressedEvents.put(KeyEvent.VK_H, false);
-            ArrayList<ServerStatus> LANServers = udpClient.getServers();
-            if (!LANServers.isEmpty()) {
-                tcpClient = new ClientTCP(this, LANServers.get(0));
-                tcpClient.start();
-                addJob(this::handleServerPacket);
-            }
-            addJob(this::sendClientPacket);
+        if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
+            mouseReleaseEvents.put(MouseInput.LEFT, null);
+            menu.release();
         }
     }
 
     private void getGameInput() {
         players.get(0).getInput().reset();
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            players.get(0).flingWeb(mousepos);
+
         }
         if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
             mousePressEvents.put(MouseInput.LEFT, null);
             mouseReleaseEvents.put(MouseInput.LEFT, null);
         }
-        /*
-        if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
-            mousePressEvents.remove(MouseInput.LEFT);
-            mouseReleaseEvents.remove(MouseInput.LEFT);
-        }
-        if (keyPressedEvents.get(KeyEvent.VK_SPACE)) {
-            keyPressedEvents.put(KeyEvent.VK_SPACE, false);
-        }
-        if (keyPressedEvents.get(KeyEvent.VK_P)) {
-            world.testgen();
-            keyPressedEvents.put(KeyEvent.VK_P, false);
-        }
-         */
     }
 
     private void handlePlayers() {
@@ -199,7 +168,7 @@ public class EventManager {
     //Server only
 
     private void broadcastServerPacket() {//ServerPacket should be assembled piece by piece
-        ServerPacket packet = new ServerPacket(world);
+        ServerPacket packet = new ServerPacket(world, players);
         synchronized (players) {
             for (Player player : players) {//potential for sending different info
                 player.send(packet);
@@ -213,21 +182,97 @@ public class EventManager {
     }
 
     public void handleServerPacket() {
-        synchronized (lastPacket) {
-            if (serverUpdate) {
+        if (lastPacket.changed) {
+            synchronized (lastPacket) {
                 this.world.set(lastPacket.world);
-                serverUpdate = false;
             }
         }
     }
 
     public void receiveServerPacket(ServerPacket packet) {
         lastPacket.set(packet);
-        serverUpdate = true;
+    }
+
+    //States
+    public void host() {
+        state = GameState.host;
+        menu.refreshGameState();
+        udpServer = new ServerUDP();
+        udpServer.setServerStatus("bababoi");
+        udpServer.start();
+        tcpServer = new ServerTCP(this);
+        tcpServer.start();
+        addJob(udpServer::broadcastToLan);
+        addJob(this::broadcastServerPacket);
+    }
+
+    public void playServer() {
+        state = GameState.playServer;
+        menu.refreshGameState();
+        //start game in world
+    }
+
+    public void discover() {
+        state = GameState.discover;
+        menu.refreshGameState();
+        udpClient = new ClientUDP();
+        udpClient.start();
+    }
+
+    public void connect(ServerStatus server) {
+        state = GameState.lobby;
+        menu.refreshGameState();
+        tcpClient = new ClientTCP(this, server);
+        tcpClient.start();
+        addJob(this::handleServerPacket);
+        addJob(this::sendClientPacket);
+    }
+
+    public void playClient() {
+        state = GameState.playClient;
+        menu.refreshGameState();
+    }
+
+    public void disconnectClient() {
+        logger.info("Disconnected Client");
+        state = GameState.discover;
+        removeJob(this::sendClientPacket);
+        menu.refreshGameState();
+    }
+
+    Textbox textbox;
+
+    public void enterTextbox(Textbox textbox) {
+        this.textbox = textbox;
+        addJob(this::getTextInput);
+    }
+
+    public void leaveTextbox() {
+        removeJob(this::getTextInput);
+    }
+
+    private void getTextInput() {
+        //iterate through all text keys, get and reset pressed, check for shift and give the right letter to the textbox
     }
 
     public void terminate() {
         // you think you can stop me?
+    }
+
+    public void shutDownTCPServer() {
+        removeJob(this::broadcastServerPacket);
+    }
+
+    public void shutDownTCPClient(Throwable cause) {
+        removeJob(this::sendClientPacket);
+        //menu.toMainManu();
+        if (cause != null) {
+            menu.popup(cause.getMessage());
+        }
+    }
+
+    public Map<InetAddress, ServerStatus> getServers() {
+        return udpClient.getServers();
     }
 
     public void togglePause() {
@@ -280,10 +325,6 @@ public class EventManager {
     public void postWindowResizeEvent(ComponentEvent e) {
     }
 
-    public void postMenuClickEvent(MenuClickEvent e) {
-        menuClickEvent = e;
-    }
-
     public void postMousePressEvent(MouseEvent e) {
         mousePressEvents.put(e.getButton(), e);
     }
@@ -307,6 +348,10 @@ public class EventManager {
 
     public World getWorld() {
         return this.world;
+    }
+
+    public GameState getState() {
+        return state;
     }
 
     // World

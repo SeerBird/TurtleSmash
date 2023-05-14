@@ -2,10 +2,9 @@ package game.world;
 
 import game.Config;
 import game.EventManager;
-import game.connection.packets.data.WorldData;
+import game.connection.packets.containers.WorldData;
 import game.util.Maths;
 import game.world.bodies.Body;
-import game.world.bodies.Box;
 import game.world.bodies.Web;
 import game.world.constraints.Constraint;
 import game.world.constraints.DistanceConstraint;

@@ -30,7 +30,7 @@ public class Multiplayer {
         }
     }
     public static SslContext buildSslContext() throws CertificateException, SSLException {
-        if (!Multiplayer.SSL) {
+        if (!SSL) {
             return null;
         }
         SelfSignedCertificate ssc = new SelfSignedCertificate();
@@ -39,7 +39,7 @@ public class Multiplayer {
                 .build();
     }
     public static final boolean SSL = System.getProperty("ssl") != null;
-    public static final String localhost = System.getProperty("host", "127.0.0.1");
+    public static final String localhost = System.getProperty("host", "localhost");
     public static final int TCPPort = Integer.parseInt(System.getProperty("tcpport", String.valueOf(Config.TCPPort)));
     public static final int UDPPort = Integer.parseInt(System.getProperty("udpport", "54777"));
 }

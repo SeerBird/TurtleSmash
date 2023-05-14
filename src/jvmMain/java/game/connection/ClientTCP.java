@@ -6,7 +6,7 @@ import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ClientTcpHandler;
 import game.connection.handlers.ExceptionHandler;
 import game.connection.packets.ClientPacket;
-import game.connection.packets.data.ServerStatus;
+import game.connection.packets.containers.ServerStatus;
 import game.input.InputInfo;
 import game.util.Multiplayer;
 import io.netty.bootstrap.Bootstrap;
@@ -15,7 +15,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.ssl.SslContext;
 
@@ -27,13 +26,11 @@ import java.util.ArrayList;
 public class ClientTCP extends Thread {
     EventManager handler;
     Gson gson;
-    ArrayList<InetAddress> LANServers;
     Channel channel;
     ServerStatus target;
 
     public ClientTCP(EventManager handler, ServerStatus target) {
         this.handler = handler;
-        LANServers = new ArrayList<>();
         this.target = target;
         gson=new Gson();
     }
@@ -75,6 +72,7 @@ public class ClientTCP extends Thread {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
+            handler.disconnectClient();
             group.shutdownGracefully();
         }
     }

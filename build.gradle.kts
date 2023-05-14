@@ -43,7 +43,6 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 implementation(compose.desktop.currentOs)
                 implementation("org.apache.commons:commons-math3:3.0")
-                implementation("com.esotericsoftware:kryonet:2.22.0-RC1")//remove
                 implementation ("io.netty:netty-all:4.1.24.Final")
                 implementation ("com.google.code.gson:gson:2.10.1")
             }

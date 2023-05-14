@@ -28,6 +28,6 @@ public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
         super.channelInactive(ctx);
         ctx.disconnect();
         ctx.close();
-        logger.info("Disconnected from server");
+        logger.info("Channel inactive");
     }
 }
