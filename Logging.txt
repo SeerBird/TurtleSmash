@@ -1,8 +1,30 @@
-May 15, 2023 5:34:44 PM game.util.Logging setup
+May 15, 2023 9:16:49 PM game.util.Logging setup
 INFO: Set up logging
-May 15, 2023 5:34:45 PM game.connection.ServerTCP run
-INFO: Shutting down the TCP server
-May 15, 2023 5:34:52 PM game.connection.ServerTCP run
-INFO: Shutting down the TCP server
-May 15, 2023 5:35:00 PM game.connection.ServerTCP run
-INFO: Shutting down the TCP server
+May 15, 2023 9:16:52 PM game.connection.ClientUDP lambda$disconnect$1
+INFO: UDP listener closed
+May 15, 2023 9:16:54 PM game.connection.ClientUDP lambda$run$0
+INFO: UDP client off
+May 15, 2023 9:16:59 PM game.connection.ServerUDP run
+INFO: UDP server off
+May 15, 2023 9:16:59 PM game.connection.ServerTCP lambda$disconnect$2
+INFO: Disconnected TCP server
+May 15, 2023 9:16:59 PM game.connection.ServerUDP lambda$disconnect$0
+INFO: UDP broadcast channel closed
+May 15, 2023 9:17:01 PM game.connection.ServerTCP lambda$run$1
+INFO: TCP server off
+May 15, 2023 9:17:12 PM game.connection.ServerUDP lambda$disconnect$0
+INFO: UDP broadcast channel closed
+May 15, 2023 9:17:12 PM game.connection.ServerTCP lambda$disconnect$2
+INFO: Disconnected TCP server
+May 15, 2023 9:17:12 PM game.connection.ServerUDP run
+INFO: UDP server off
+May 15, 2023 9:17:14 PM game.connection.ServerTCP lambda$run$1
+INFO: TCP server off
+May 15, 2023 9:17:30 PM game.connection.ServerUDP lambda$disconnect$0
+INFO: UDP broadcast channel closed
+May 15, 2023 9:17:30 PM game.connection.ServerTCP lambda$disconnect$2
+INFO: Disconnected TCP server
+May 15, 2023 9:17:30 PM game.connection.ServerUDP run
+INFO: UDP server off
+May 15, 2023 9:17:33 PM game.connection.ServerTCP lambda$run$1
+INFO: TCP server off
