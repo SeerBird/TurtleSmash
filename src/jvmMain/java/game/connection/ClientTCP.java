@@ -72,8 +72,8 @@ public class ClientTCP extends Thread {
             throw new RuntimeException(e);
         } finally {
             handler.playToDiscover();
-            logger.info("Disconnected Client");
-            group.shutdownGracefully();
+            disconnect();
+            group.shutdownGracefully().addListener(future->logger.info("TCP client off"));
         }
     }
 
@@ -83,6 +83,6 @@ public class ClientTCP extends Thread {
     }
 
     public void disconnect() {
-        channel.disconnect();
+        channel.close().addListener(future->logger.info("TCP channel closed"));
     }
 }
