@@ -2,6 +2,7 @@ package game;
 
 import game.connection.ClientUDP;
 import game.connection.ServerUDP;
+import game.connection.packets.GameStartPacket;
 import game.connection.packets.containers.ServerStatus;
 import game.input.InputInfo;
 import game.connection.packets.ServerPacket;
@@ -44,8 +45,8 @@ public class EventManager {
     ServerUDP udpServer;
     final ServerPacket lastPacket;
     ArrayList<Runnable> jobs;
-    ArrayList<Runnable> toRemove;
-    ArrayList<Runnable> toAdd;
+    ArrayList<Job> toRemove;
+    ArrayList<Job> toAdd;
     // idk what this has become, seems dodgy
     private final Map<Integer, Boolean> keyPressedEvents;
     private final Map<Integer, Boolean> keyReleasedEvents;
@@ -53,24 +54,37 @@ public class EventManager {
     private final HashMap<Integer, MouseEvent> mouseReleaseEvents;
     private MouseEvent mouseMoveEvent;
     ArrayRealVector mousepos;
-    //iterate, idiot
-    //test
+
+    private enum Job {
+        sendClient,
+        sendServer,
+        handlePlayers,
+        menuInput,
+        broadcastLAN,
+        textInput,
+        handleServerPacket,
+        updateMenu,
+        gameInput,
+        updateWorld
+    }
+
+    private final HashMap<Job, Runnable> job;
 
     public EventManager() {
-        // weird inputs
+        // weird? inputs
         keyPressedEvents = new HashMap<>();
         keyReleasedEvents = new HashMap<>();
         mousePressEvents = new HashMap<>();
         mouseReleaseEvents = new HashMap<>();
-        for (int i = 0x30; i <= 0xE3; i++) {
+        for (int i = 0x10; i <= 0xE3; i++) {
             keyPressedEvents.put(i, false);
             keyReleasedEvents.put(i, false);
         }
         mousepos = new ArrayRealVector(new Double[]{400.0, 400.0});
 
         //important stuff
-        state = GameState.main;
         jobs = new ArrayList<>();
+        state = GameState.main;
         toAdd = new ArrayList<>();
         toRemove = new ArrayList<>();
         lastPacket = new ServerPacket();
@@ -84,12 +98,24 @@ public class EventManager {
         players = new ArrayList<>(); // player 0 is local
         removedPlayers = new ArrayList<>();
 
+        //jobs
+        job = new HashMap<>();
+        job.put(Job.sendClient, () -> this.sendClientPacket());
+        job.put(Job.broadcastLAN, () -> udpServer.broadcastToLan());
+        job.put(Job.updateWorld, () -> world.update());
+        job.put(Job.menuInput, () -> this.handleMenuInput());
+        job.put(Job.handlePlayers, () -> this.handlePlayers());
+        job.put(Job.sendServer, () -> this.broadcastServerPacket());
+        job.put(Job.handleServerPacket, () -> this.handleServerPacket());
+        job.put(Job.updateMenu, () -> menu.update());
+        job.put(Job.gameInput, () -> this.getGameInput());
+
         //starting state
-        addJob(this::handleMenuInput);
-        addJob(menu::update);
-        addJob(world::update);
-        addJob(this::getGameInput);
-        addJob(this::handlePlayers);
+        addJob(Job.menuInput);
+        addJob(Job.updateMenu);
+        addJob(Job.updateWorld);
+        addJob(Job.gameInput);
+        addJob(Job.handlePlayers);
         players.add(new Player(this));
     }
 
@@ -101,14 +127,12 @@ public class EventManager {
 
     public void update() {
         {
-            for (Runnable job : toAdd) {
-                if (!jobs.contains(job)) {
-                    jobs.add(job);
-                }
+            for (Job job : toAdd) {
+                jobs.add(this.job.get(job));
             }
             toAdd.clear();
-            for (Runnable job : toRemove) {
-                jobs.remove(job);
+            for (Job job : toRemove) {
+                jobs.remove(this.job.get(job));
             }
             toRemove.clear();
         }// remove and add jobs
@@ -118,11 +142,11 @@ public class EventManager {
         lastPacket.changed = false;// put this somewhere else, looks ugly
     }
 
-    public void addJob(Runnable job) {
+    public void addJob(Job job) {
         toAdd.add(job);
     }
 
-    public void removeJob(Runnable job) {
+    public void removeJob(Job job) {
         toRemove.add(job);
     }
 
@@ -130,19 +154,35 @@ public class EventManager {
 
     private void handleMenuInput() {
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            menu.press(mousepos);
-            mousePressEvents.put(MouseInput.LEFT, null);
+            if (menu.press(mousepos)) {
+                mousePressEvents.put(MouseInput.LEFT, null);
+            }
         }
         if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
-            mouseReleaseEvents.put(MouseInput.LEFT, null);
-            menu.release();
+            if (menu.release()) {
+                mouseReleaseEvents.put(MouseInput.LEFT, null);
+            }
+        }
+        if (keyPressedEvents.get(KeyEvent.VK_ESCAPE)) {
+            if (state == GameState.playClient) {
+                tcpClient.disconnect();
+            } else if (state == GameState.lobby) {
+                lobbyToDiscover();
+            } else if (state == GameState.discover) {
+                discoverToMain();
+            } else if (state == GameState.playServer) {
+                playToHost();
+            } else if (state == GameState.host) {
+                hostToMain();
+            }
+            keyPressedEvents.put(KeyEvent.VK_ESCAPE, false);
         }
     }
 
     private void getGameInput() {
         players.get(0).getInput().reset();
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
-
+            players.get(0).getInput().teleport = mousepos;//copy?
         }
         if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
             mousePressEvents.put(MouseInput.LEFT, null);
@@ -165,7 +205,6 @@ public class EventManager {
             }
         }
     }
-    //Server only
 
     private void broadcastServerPacket() {//ServerPacket should be assembled piece by piece
         ServerPacket packet = new ServerPacket(world, players);
@@ -176,12 +215,11 @@ public class EventManager {
         }
     }
 
-    //Client only
     private void sendClientPacket() {
         tcpClient.send(players.get(0).input);
     }
 
-    public void handleServerPacket() {
+    private void handleServerPacket() {
         if (lastPacket.changed) {
             synchronized (lastPacket) {
                 this.world.set(lastPacket.world);
@@ -202,14 +240,20 @@ public class EventManager {
         udpServer.start();
         tcpServer = new ServerTCP(this);
         tcpServer.start();
-        addJob(udpServer::broadcastToLan);
-        addJob(this::broadcastServerPacket);
+        addJob(Job.broadcastLAN);
+        addJob(Job.sendServer);
     }
 
     public void playServer() {
         state = GameState.playServer;
         menu.refreshGameState();
-        //start game in world
+        world.startGen();
+        GameStartPacket packet = new GameStartPacket();
+        synchronized (players) {
+            for (int i = 1; i < players.size(); i++) {//potential for sending different info
+                players.get(i).getChannel().writeAndFlush(packet);
+            }
+        }
     }
 
     public void discover() {
@@ -224,8 +268,8 @@ public class EventManager {
         menu.refreshGameState();
         tcpClient = new ClientTCP(this, server);
         tcpClient.start();
-        addJob(this::handleServerPacket);
-        addJob(this::sendClientPacket);
+        addJob(Job.handleServerPacket);
+        addJob(Job.sendClient);
     }
 
     public void playClient() {
@@ -233,10 +277,33 @@ public class EventManager {
         menu.refreshGameState();
     }
 
-    public void disconnectClient() {
-        logger.info("Disconnected Client");
+    public void playToDiscover() {
         state = GameState.discover;
-        removeJob(this::sendClientPacket);
+        removeJob(Job.sendClient);
+        menu.refreshGameState();
+    }
+
+    public void playToHost() {
+        state = GameState.host;
+        menu.refreshGameState();
+    }
+
+    public void hostToMain() {
+        state = GameState.main;
+        menu.refreshGameState();
+        removeJob(Job.broadcastLAN);
+        udpServer.disconnect();
+        tcpServer.disconnect();
+    }
+
+    private void lobbyToDiscover() {
+        state = GameState.discover;
+        menu.refreshGameState();
+    }
+
+    private void discoverToMain() {
+        state = GameState.main;
+        udpClient.disconnect();
         menu.refreshGameState();
     }
 
@@ -244,15 +311,19 @@ public class EventManager {
 
     public void enterTextbox(Textbox textbox) {
         this.textbox = textbox;
-        addJob(this::getTextInput);
+        addJob(Job.textInput);
     }
 
     public void leaveTextbox() {
-        removeJob(this::getTextInput);
+        removeJob(Job.textInput);
     }
 
     private void getTextInput() {
         //iterate through all text keys, get and reset pressed, check for shift and give the right letter to the textbox
+    }
+
+    public void refreshLAN() {
+        udpClient.getServers();
     }
 
     public void terminate() {
@@ -260,11 +331,11 @@ public class EventManager {
     }
 
     public void shutDownTCPServer() {
-        removeJob(this::broadcastServerPacket);
+        removeJob(Job.sendServer);
     }
 
     public void shutDownTCPClient(Throwable cause) {
-        removeJob(this::sendClientPacket);
+        removeJob(Job.sendClient);
         //menu.toMainManu();
         if (cause != null) {
             menu.popup(cause.getMessage());

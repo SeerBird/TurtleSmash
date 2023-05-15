@@ -9,6 +9,9 @@ import game.util.Multiplayer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.ChannelGroupFuture;
+import io.netty.channel.group.ChannelMatcher;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -17,21 +20,26 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.concurrent.GlobalEventExecutor;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 
 public class ServerTCP extends Thread {
     EventManager handler;
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    ChannelGroup tcpChannels;
+    Channel ch;
 
     public ServerTCP(EventManager handler) {
         this.handler = handler;
+        tcpChannels=new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     }
-
-    ChannelGroup tcpChannels;
 
     public synchronized void run() {
         // Configure SSL.
@@ -76,14 +84,20 @@ public class ServerTCP extends Thread {
 
             // Bind and start to accept incoming connections.
             try {
-                b.bind(Multiplayer.TCPPort).sync().channel().closeFuture().sync();
+                ch = b.bind(Multiplayer.TCPPort).sync().channel();
+                ch.closeFuture().sync();
             } catch (InterruptedException e) {
                 logger.severe(e.getMessage());
             }
         } finally {
-            logger.info("Shutting down the TCP server");
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
+            logger.info("TCP server off");
         }
+    }
+
+    public void disconnect() {
+        tcpChannels.disconnect();
+        ch.disconnect();
     }
 }

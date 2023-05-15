@@ -34,35 +34,33 @@ public class TurtleMenu {
         // main
         elements.add(new GButton(200, 200, 100, 100, handler::discover, "Discover"));// discover UDP
         elements.add(new GButton(400, 200, 100, 100, handler::host, "Host"));// host UDP and open TCP server
-        menuPresets.put(GameState.main, new ArrayList<>(elements));
-        elements.clear();
+        savePreset(GameState.main);
         //host
         elements.add(new GButton(400, 200, 100, 100, handler::playServer, "Play"));
-        menuPresets.put(GameState.host, new ArrayList<>(elements));
-        elements.clear();
+        savePreset(GameState.host);
         //connect
         serverList = new ServerList(this, 200, 200, 600, 600, servers);
         elements.add(serverList);
-        menuPresets.put(GameState.discover, new ArrayList<>(elements));
-        elements.clear();
+        savePreset(GameState.discover);
         //lobby
         playerList = new PlayerList(100, 100, 600, 600, lastPacket);
         elements.add(playerList);
-        menuPresets.put(GameState.lobby, new ArrayList<>(elements));
+        savePreset(GameState.lobby);
         //playServer
-        menuPresets.put(GameState.playServer, new ArrayList<>(elements));
+        savePreset(GameState.playServer);
         //playClient
-        menuPresets.put(GameState.playClient, new ArrayList<>(elements));
+        savePreset(GameState.playClient);
         refreshGameState();
     }
 
-    public void press(ArrayRealVector pos) {
+    public boolean press(ArrayRealVector pos) {
         for (IElement element : elements) {
             if (element.press(pos)) {
                 pressed = element;
-                break;
+                return true;
             }
         }
+        return false;
     }
 
     public GameState getState() {
@@ -74,10 +72,13 @@ public class TurtleMenu {
         elements.addAll(menuPresets.get(handler.getState()));
     }
 
-    public void release() {
+    public boolean release() {
         if (pressed != null) {
             pressed.release();
+            pressed=null;
+            return true;
         }
+        return false;
     }
 
     public void update() {
@@ -101,5 +102,9 @@ public class TurtleMenu {
 
     public EventManager getHandler() {
         return handler;
+    }
+    private void savePreset(GameState state){
+        menuPresets.put(state, new ArrayList<>(elements));
+        elements.clear();
     }
 }

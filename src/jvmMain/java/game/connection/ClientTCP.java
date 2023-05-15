@@ -1,6 +1,5 @@
 package game.connection;
 
-import com.google.gson.Gson;
 import game.EventManager;
 import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ClientTcpHandler;
@@ -9,6 +8,7 @@ import game.connection.packets.ClientPacket;
 import game.connection.packets.containers.ServerStatus;
 import game.input.InputInfo;
 import game.util.Multiplayer;
+import game.util.Util;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -19,20 +19,18 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.ssl.SslContext;
 
 import javax.net.ssl.SSLException;
-import java.net.InetAddress;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class ClientTCP extends Thread {
+    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     EventManager handler;
-    Gson gson;
     Channel channel;
     ServerStatus target;
 
     public ClientTCP(EventManager handler, ServerStatus target) {
         this.handler = handler;
         this.target = target;
-        gson=new Gson();
     }
 
     public void run() {
@@ -64,7 +62,8 @@ public class ClientTCP extends Thread {
                         }
                     });
             try {
-                channel = b.connect(target.address, target.port).sync().channel();
+                ChannelFuture connectFuture = b.connect(target.address, target.port);
+                channel = connectFuture.sync().channel();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -72,13 +71,18 @@ public class ClientTCP extends Thread {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
-            handler.disconnectClient();
+            handler.playToDiscover();
+            logger.info("Disconnected Client");
             group.shutdownGracefully();
         }
     }
 
     public void send(InputInfo input) {
         if(channel!=null){
-        channel.writeAndFlush(gson.toJson(new ClientPacket(input)));}
+        channel.writeAndFlush(Util.gson.toJson(new ClientPacket(input)));}
+    }
+
+    public void disconnect() {
+        channel.disconnect();
     }
 }

@@ -23,5 +23,5 @@ public class Config {
     public static double stringFling = 24;
     public static double noReturnTime = 10; //seconds
     public static Color menuBackground =new Color(12, 11, 0, 61);
-    public static long discoveryNanoTimeout = 3000000;
+    public static long discoveryMilliTimeout = 3000000;
 }

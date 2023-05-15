@@ -1,6 +1,8 @@
-May 14, 2023 8:47:32 PM game.util.Logging setup
+May 15, 2023 5:34:44 PM game.util.Logging setup
 INFO: Set up logging
-May 14, 2023 8:48:02 PM game.EventManager disconnectClient
-INFO: Disconnected Client
-May 14, 2023 8:48:02 PM game.connection.handlers.ClientTcpHandler channelInactive
-INFO: Channel inactive
+May 15, 2023 5:34:45 PM game.connection.ServerTCP run
+INFO: Shutting down the TCP server
+May 15, 2023 5:34:52 PM game.connection.ServerTCP run
+INFO: Shutting down the TCP server
+May 15, 2023 5:35:00 PM game.connection.ServerTCP run
+INFO: Shutting down the TCP server

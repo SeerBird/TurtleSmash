@@ -14,12 +14,12 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class ClientUDP extends Thread {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private static final Map<InetAddress, ServerStatus> servers= new HashMap<>();
+    private static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
+    Channel ch;
 
     public ClientUDP() {
     }
@@ -34,7 +34,7 @@ public class ClientUDP extends Thread {
                     .option(ChannelOption.SO_BROADCAST, true)
                     .handler(new ClientUDPHandler(servers));
             try {
-                Channel ch = b.bind(Multiplayer.UDPPort).sync().channel();
+                ch = b.bind(Multiplayer.UDPPort).sync().channel();
                 ch.closeFuture().sync();
             } catch (Exception e) {
                 if (e instanceof BindException) {// the compiler is a gleecking liar
@@ -51,12 +51,18 @@ public class ClientUDP extends Thread {
     public Map<InetAddress, ServerStatus> getServers() {
         HashMap<InetAddress, ServerStatus> activeServers = new HashMap<>();
         for (ServerStatus status : servers.values()) {
-            if (System.nanoTime() - status.nanoTime < Config.discoveryNanoTimeout) {
+            if (System.nanoTime() - status.nanoTime < Config.discoveryMilliTimeout * 1000) {
                 activeServers.put(status.address, status);
             }
         }
         servers.clear();
         servers.putAll(activeServers);
         return servers;
+    }
+
+    public void disconnect() {
+        if (ch != null) {
+            ch.disconnect();
+        }
     }
 }

@@ -2,6 +2,7 @@ package game;
 
 import com.google.gson.Gson;
 import game.connection.packets.ClientPacket;
+import game.connection.packets.Packet;
 import game.input.InputInfo;
 import game.connection.packets.ServerPacket;
 import game.util.Util;
@@ -53,7 +54,7 @@ public class Player {
         input = packet.getInput();
     }
 
-    public void send(ServerPacket packet) {
+    public void send(Packet packet) {
         if (channel != null) {
             String json= Util.gson.toJson(packet);
             channel.writeAndFlush(json).addListener(new ChannelFutureListener() {

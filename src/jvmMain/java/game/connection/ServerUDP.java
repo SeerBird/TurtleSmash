@@ -55,4 +55,10 @@ public class ServerUDP extends Thread {
     public void setServerStatus(String serverStatus) {
         this.serverStatus = Multiplayer.localIp + "/" + Multiplayer.TCPPort + "/" + serverStatus;
     }
+
+    public void disconnect() {
+        if (udpChannel != null) {
+            udpChannel.disconnect();
+        }
+    }
 }

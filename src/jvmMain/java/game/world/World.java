@@ -63,6 +63,10 @@ public class World {
         toAdd.clear();
     }
 
+    public void startGen() {
+
+    }
+
     public EventManager getHandler() {
         return handler;
     }

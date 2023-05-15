@@ -1,6 +1,7 @@
 package game.connection.handlers;
 
 import game.EventManager;
+import game.connection.packets.GameStartPacket;
 import game.connection.packets.ServerPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -18,6 +19,8 @@ public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if(msg instanceof ServerPacket){
             handler.receiveServerPacket((ServerPacket)msg);
+        }else if (msg instanceof GameStartPacket){
+            handler.playClient();
         }else{
             logger.warning("Unknown message type received by client");
         }

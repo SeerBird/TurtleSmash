@@ -40,6 +40,7 @@ public class ServerList extends RectElement {
     }
 
     public void refresh() {
+        menu.getHandler().refreshLAN();
         int buttonTestHeight = 40;
         buttons.clear();
         int buttCount = 0;
