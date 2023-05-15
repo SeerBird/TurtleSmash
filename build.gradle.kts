@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "seerbird.example"
-version = "1.0.9"
+version = "1.0.10"
 
 repositories {
     mavenCentral()
@@ -62,8 +62,8 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         jvmArgs("--add-opens=java.desktop/java.awt=ALL-UNNAMED",
-                //"-Djavax.accessibility.assistive_technologies",
-                //"-Djavax.accessibility.screen_magnifier_present=false"
+                "-Djavax.accessibility.assistive_technologies",
+                "-Djavax.accessibility.screen_magnifier_present=false"
         )
 
         //nativeDistributions {

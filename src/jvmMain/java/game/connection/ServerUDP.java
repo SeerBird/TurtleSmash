@@ -3,11 +3,10 @@ package game.connection;
 import game.util.Multiplayer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
@@ -33,10 +32,10 @@ public class ServerUDP extends Thread {
             b.group(udpGroup)
                     .channel(NioDatagramChannel.class)
                     .option(ChannelOption.SO_BROADCAST, true)
-                    .handler(new LoggingHandler(LogLevel.TRACE));
+                    .handler(new ChannelDuplexHandler());
             // Bind and start to accept incoming connections.
             try {
-                udpChannel = b.bind(0).sync().channel(); //remove sync?
+                udpChannel = b.bind(0).addListener(future->logger.info("UDP server on")).sync().channel(); //remove sync?
                 udpChannel.closeFuture().sync();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

@@ -59,7 +59,7 @@ public class ServerTCP extends Thread {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO))
+                    .handler(new ChannelDuplexHandler())
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
@@ -84,7 +84,7 @@ public class ServerTCP extends Thread {
 
             // Bind and start to accept incoming connections.
             try {
-                ch = b.bind(Multiplayer.TCPPort).sync().channel();
+                ch = b.bind(Multiplayer.TCPPort).addListener(future->logger.info("TCP server on")).sync().channel();
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
                 logger.severe(e.getMessage());

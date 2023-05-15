@@ -36,7 +36,7 @@ public class ClientUDP extends Thread {
                     .option(ChannelOption.SO_BROADCAST, true)
                     .handler(new ClientUDPHandler(servers));
             try {
-                ch = b.bind(Multiplayer.UDPPort).sync().channel();
+                ch = b.bind(Multiplayer.UDPPort).addListener(future->logger.info("UDP listener on")).sync().channel();
                 ch.closeFuture().sync();
             } catch (Exception e) {
                 if (e instanceof BindException) {// the compiler is a gleecking liar

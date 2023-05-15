@@ -1,30 +1,11 @@
-May 15, 2023 9:16:49 PM game.util.Logging setup
-INFO: Set up logging
-May 15, 2023 9:16:52 PM game.connection.ClientUDP lambda$disconnect$1
-INFO: UDP listener closed
-May 15, 2023 9:16:54 PM game.connection.ClientUDP lambda$run$0
-INFO: UDP client off
-May 15, 2023 9:16:59 PM game.connection.ServerUDP run
-INFO: UDP server off
-May 15, 2023 9:16:59 PM game.connection.ServerTCP lambda$disconnect$2
-INFO: Disconnected TCP server
-May 15, 2023 9:16:59 PM game.connection.ServerUDP lambda$disconnect$0
-INFO: UDP broadcast channel closed
-May 15, 2023 9:17:01 PM game.connection.ServerTCP lambda$run$1
-INFO: TCP server off
-May 15, 2023 9:17:12 PM game.connection.ServerUDP lambda$disconnect$0
-INFO: UDP broadcast channel closed
-May 15, 2023 9:17:12 PM game.connection.ServerTCP lambda$disconnect$2
-INFO: Disconnected TCP server
-May 15, 2023 9:17:12 PM game.connection.ServerUDP run
-INFO: UDP server off
-May 15, 2023 9:17:14 PM game.connection.ServerTCP lambda$run$1
-INFO: TCP server off
-May 15, 2023 9:17:30 PM game.connection.ServerUDP lambda$disconnect$0
-INFO: UDP broadcast channel closed
-May 15, 2023 9:17:30 PM game.connection.ServerTCP lambda$disconnect$2
-INFO: Disconnected TCP server
-May 15, 2023 9:17:30 PM game.connection.ServerUDP run
-INFO: UDP server off
-May 15, 2023 9:17:33 PM game.connection.ServerTCP lambda$run$1
-INFO: TCP server off
+Logger 9000 activated
+05.15 22:26 43219: UDP listener on
+05.15 22:26 45589: UDP listener closed
+05.15 22:26 46765: UDP server on
+05.15 22:26 46812: TCP server on
+05.15 22:26 47500: UDP server off
+05.15 22:26 47599: UDP broadcast channel closed
+05.15 22:26 47615: Disconnected TCP server
+05.15 22:26 47805: UDP client off
+05.15 22:26 49716: TCP server off
+Logger 9000 off

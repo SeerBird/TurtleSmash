@@ -48,7 +48,7 @@ public class ClientTCP extends Thread {
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
+                        public void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
                             if (sslCtx != null) {
                                 p.addLast(sslCtx.newHandler(ch.alloc(), Multiplayer.localhost, 5445));
@@ -62,7 +62,7 @@ public class ClientTCP extends Thread {
                         }
                     });
             try {
-                ChannelFuture connectFuture = b.connect(target.address, target.port);
+                ChannelFuture connectFuture = b.connect(target.address, target.port).addListener(future->logger.info("TCP client connected"));
                 channel = connectFuture.sync().channel();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
