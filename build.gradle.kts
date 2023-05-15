@@ -19,7 +19,7 @@ repositories {
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 }
 javafx {
-    version="19"
+    version = "19"
     modules("javafx.base")
 }
 
@@ -43,8 +43,8 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 implementation(compose.desktop.currentOs)
                 implementation("org.apache.commons:commons-math3:3.0")
-                implementation ("io.netty:netty-all:4.1.24.Final")
-                implementation ("com.google.code.gson:gson:2.10.1")
+                implementation("io.netty:netty-all:4.1.24.Final")
+                implementation("com.google.code.gson:gson:2.10.1")
             }
         }
     }
@@ -61,7 +61,14 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "MainKt"
-        jvmArgs("--add-opens=java.desktop/java.awt=ALL-UNNAMED")
+        jvmArgs("--add-opens=java.desktop/java.awt=ALL-UNNAMED",
+                //"-Djavax.accessibility.assistive_technologies",
+                //"-Djavax.accessibility.screen_magnifier_present=false"
+        )
+
+        //nativeDistributions {
+        //    modules("java.naming", "java.sql", "jdk.jfr", "jdk.sctp", "jdk.unsupported")
+        //}"""
     }
 }
 
@@ -72,7 +79,7 @@ configurations.all {
         attribute(Attribute.of("ui", String::class.java), "awt")
     }
 }
-tasks.compileJava{
+tasks.compileJava {
     options.compilerArgs.add("-verbose")
 }
 
