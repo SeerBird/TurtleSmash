@@ -10,6 +10,8 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import java.net.BindException;
 import java.net.InetAddress;
@@ -44,7 +46,7 @@ public class ClientUDP extends Thread {
                 }
             }
         } finally {
-            udpGroup.shutdownGracefully();
+            udpGroup.shutdownGracefully().addListener(future->logger.info("UDP client off"));
         }
     }
 
@@ -62,7 +64,9 @@ public class ClientUDP extends Thread {
 
     public void disconnect() {
         if (ch != null) {
-            ch.disconnect();
+            ch.close().addListener(future -> {
+                if (future.isSuccess()) logger.info("UDP listener closed");
+            });
         }
     }
 }

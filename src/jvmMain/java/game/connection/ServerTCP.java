@@ -91,13 +91,12 @@ public class ServerTCP extends Thread {
             }
         } finally {
             bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-            logger.info("TCP server off");
+            workerGroup.shutdownGracefully().addListener(future->logger.info("TCP server off"));
         }
     }
 
     public void disconnect() {
-        tcpChannels.disconnect();
-        ch.disconnect();
+        tcpChannels.close();
+        ch.close().addListener(future->logger.info("Disconnected TCP server"));
     }
 }

@@ -14,8 +14,10 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.CharsetUtil;
 
 import java.net.InetSocketAddress;
+import java.util.logging.Logger;
 
 public class ServerUDP extends Thread {
+    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     Channel udpChannel;
     String serverStatus = "";
 
@@ -41,6 +43,7 @@ public class ServerUDP extends Thread {
             }
         } finally {
             udpGroup.shutdownGracefully();
+            logger.info("UDP server off");
         }
     }
 
@@ -58,7 +61,7 @@ public class ServerUDP extends Thread {
 
     public void disconnect() {
         if (udpChannel != null) {
-            udpChannel.disconnect();
+            udpChannel.close().addListener(future -> logger.info("UDP broadcast channel closed"));
         }
     }
 }
