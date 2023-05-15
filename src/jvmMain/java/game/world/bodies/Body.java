@@ -9,19 +9,16 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class Body {
-    public Color pointColor;
     ArrayList<VPoint> points;
     ArrayList<DistanceConstraint> edges;
-    World world;
+    transient World parentWorld;
     ArrayRealVector movement;
     ArrayRealVector acceleration;
     double relevance;
     static double defaultRelevance = 5;
-    public Color edgeColor;
     boolean gravitates;
     double mass;
     ArrayRealVector center;
@@ -30,14 +27,13 @@ public class Body {
     public Body(@NotNull World world) {
         points = new ArrayList<>();
         edges = new ArrayList<>();
-        this.world = world;
+        this.parentWorld = world;
         acceleration = new ArrayRealVector(2);
         movement = new ArrayRealVector(2);
         center = new ArrayRealVector(2);
         world.addBody(this); // might be unnecessary here, could be done outside
         relevance = 20;
-        edgeColor = Color.getHSBColor((float) Math.random(), 1, 1);
-        pointColor = Color.getHSBColor((float) Math.random(), 1, 1);
+
         gravitates = true;
         mass = 0;
         centerMoved = true;
@@ -78,8 +74,8 @@ public class Body {
         return satisfied;
     }
 
-    public World getWorld() {
-        return world;
+    public World getParentWorld() {
+        return parentWorld;
     }
 
     public double getRelevance() {
@@ -125,11 +121,11 @@ public class Body {
     }
 
     public ArrayRealVector getDistance(@NotNull Body b) {
-        return world.getDistance(getCenter(), b.getCenter());
+        return parentWorld.getDistance(getCenter(), b.getCenter());
     }
 
     public ArrayRealVector getDistance(@NotNull ArrayRealVector p) {
-        return world.getDistance(getCenter(), p);
+        return parentWorld.getDistance(getCenter(), p);
     }
 
     public boolean gravitates() {
@@ -150,6 +146,9 @@ public class Body {
 
     public void addEdge(DistanceConstraint e) {
         edges.add(e);
+    }
+    public void setParent(World parent){
+        this.parentWorld =parent;
     }
 
     public ArrayList<Pair<Double, VPoint>> project(@NotNull ArrayRealVector axis) {//returns minimum to maximum
@@ -185,8 +184,8 @@ public class Body {
     }
 
     public void delete() {
-        world.deleteBody(this);
-    }
+        parentWorld.deleteBody(this);
+    }//ehhhhh
 
     public void decreaseRelevance(double decrease) {
         relevance -= decrease;
@@ -205,7 +204,7 @@ public class Body {
         double placement = (edge.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (collision.getVertex().getX() - collision.getEdge1().getX()) / (edgeX) : (collision.getVertex().getY() - collision.getEdge1().getY()) / (edgeY) : 0.5;
         double scaleFactor = 1 / (Math.pow(placement, 2) + Math.pow(1 - placement, 2)); // normalising factor
         // I like to move it, move it
-        double elasticity = 1;
+        double elasticity = 0;
         collision.getVertex().accelerate(overlap.mapMultiply(0.25 * elasticity));
         collision.getEdge1().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * (1 - placement) * elasticity));
         collision.getEdge2().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
@@ -214,6 +213,30 @@ public class Body {
             collision.getVertex().move(overlap.mapMultiply(0.25 * elasticity));
             collision.getEdge1().move(overlap.mapMultiply(-0.25 * scaleFactor * (1 - placement) * elasticity));
             collision.getEdge2().move(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
+        }
+    }
+    public ArrayList<Pair<Pair<Integer,Integer>,Double>> getEdgesImage(){
+        ArrayList<Pair<Pair<Integer,Integer>,Double>> edgesImage= new ArrayList<>();
+        for(DistanceConstraint e:edges){
+            edgesImage.add(new Pair<>(new Pair<>(points.indexOf(e.getEdge1()),points.indexOf(e.getEdge2())),e.getDistance()));
+        }
+        return edgesImage;
+    }
+
+    public void checkPointParent() {
+        for(VPoint p:points){
+            p.setParentBody(this);
+        }
+        for(DistanceConstraint e:edges){
+            e.getEdge2().setParentBody(this);
+            e.getEdge1().setParentBody(this);
+        }
+    }
+
+    public void restoreEdgesFromImage(ArrayList<Pair<Pair<Integer,Integer>,Double>> edgesImage) {
+        edges.clear();
+        for(Pair<Pair<Integer,Integer>,Double> e:edgesImage){
+            edges.add(new DistanceConstraint(points.get(e.getKey().getKey()),points.get(e.getKey().getValue()),e.getValue()));
         }
     }
 }

@@ -1,6 +1,6 @@
 package game.world.constraints;
 
-import game.CONSTANTS;
+import game.util.CONSTANTS;
 import game.world.VPoint;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -31,18 +31,6 @@ public class DistanceConstraint implements Constraint {
         }
     }
 
-    @Override
-    public DistanceConstraint clone() {
-        try {
-            DistanceConstraint clone = (DistanceConstraint) super.clone();
-            clone.p1 = p1.clone();
-            clone.p2 = p2.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
-
     public Pair<VPoint, VPoint> getPoints() {
         return new Pair<>(p1, p2);
     }
@@ -56,5 +44,9 @@ public class DistanceConstraint implements Constraint {
     public void move(ArrayRealVector v) {
         getPoints().getKey().move(v);
         getPoints().getValue().move(v);
+    }
+
+    public double getDistance() {
+        return rest_d;
     }
 }

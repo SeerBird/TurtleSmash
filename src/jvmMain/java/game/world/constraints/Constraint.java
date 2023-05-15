@@ -1,6 +1,5 @@
 package game.world.constraints;
 
-public interface Constraint extends Cloneable {
+public interface Constraint {
     boolean satisfy();
-    Constraint clone();
 }

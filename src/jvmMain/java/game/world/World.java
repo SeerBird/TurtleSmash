@@ -2,10 +2,11 @@ package game.world;
 
 import game.Config;
 import game.EventManager;
-import game.math.Maths;
+import game.connection.packets.containers.WorldData;
+import game.util.Maths;
 import game.world.bodies.Body;
-import game.world.bodies.Box;
 import game.world.bodies.Web;
+import game.world.constraints.Constraint;
 import game.world.constraints.DistanceConstraint;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -17,13 +18,19 @@ public class World {
     ArrayList<Body> bodies;
     ArrayList<Body> toRemove;
     ArrayList<Body> toAdd;
-    EventManager handler;
+    ArrayList<DistanceConstraint> constraints;
+    transient EventManager handler;
 
     public World(EventManager handler) {
         this.handler = handler;
         bodies = new ArrayList<>();
+        constraints = new ArrayList<>();
         toAdd = new ArrayList<>();
         toRemove = new ArrayList<>();
+    }
+
+    public World() {
+
     }
 
 
@@ -33,10 +40,9 @@ public class World {
         gravitate();
         //move it all
         for (Body b : bodies) {
-            fadeBodies(b); // remove irrelevant
-
+            //fadeBodies(b); // remove irrelevant
             b.move(); // keep moving based on last update
-            //wrapAround(b); // teleport through border
+            wrapAround(b); // teleport through border
         }
         //constraints and collisions
         for (Body b : bodies) {
@@ -44,6 +50,9 @@ public class World {
             for (CollisionData collision : checkCollisions(b)) {
                 collide(collision);
             }
+        }
+        for (Constraint c : constraints) {
+            c.satisfy();
         }
         //remove and add bodies
         for (Body b : toRemove) {
@@ -54,10 +63,8 @@ public class World {
         toAdd.clear();
     }
 
-    public void testgen() {
-        Box b = new Box(this, handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
-        //new Star(this,new ArrayRealVector(new Double[]{400.0, 400.0}));
-        //new Web(this, b.getPoints().get(3), new ArrayRealVector(new Double[]{20.0, 20.0}));
+    public void startGen() {
+
     }
 
     public EventManager getHandler() {
@@ -75,8 +82,14 @@ public class World {
     public void addBody(Body b) {
         toAdd.add(b);
     }
+    public void addConstraint(DistanceConstraint c){
+        constraints.add(c);//might want to have a buffer arraylist
+    }
+    public void addConstraint(VPoint p1, VPoint p2){
+        addConstraint(new DistanceConstraint(p1, p2, p1.getDistance(p2).getNorm()));//might want to have a buffer arraylist
+    }
 
-    void gravitate() {
+    void gravitate() {//optimize
         for (int i = 0; i < bodies.size(); i++) {
             Body b1 = bodies.get(i);
             if (b1.gravitates()) {
@@ -94,8 +107,8 @@ public class World {
     }
 
     void collide(@NotNull CollisionData collision) {
-        Body b1 = collision.getVertex().getParent();
-        Body b2 = collision.getEdge1().getParent();
+        Body b1 = collision.getVertex().getParentBody();
+        Body b2 = collision.getEdge1().getParentBody();
         if (b1.getClass() == Web.class) {
             b1.collide(collision);
         } else {
@@ -154,7 +167,7 @@ public class World {
                     double max2 = projection2.get(1).getKey();
                     boolean minOf2Greater = min2 > min1;
                     boolean maxOf2Greater = max2 > max1;
-                    boolean owner2 = edge.getEdge1().getParent() == b2;
+                    boolean owner2 = edge.getEdge1().getParentBody() == b2;
                     if (minOf2Greater ^ maxOf2Greater) {// one inside the other
                         if (Math.abs(max2 - min1) < Math.abs(max1 - min2)) { //min1 to max2 is shorter
                             if (owner2) {
@@ -217,19 +230,6 @@ public class World {
         return collisions;
     }
 
-    public void boxConfine(@NotNull ArrayRealVector pos) {
-        if (pos.getEntry(0) < 0) {
-            pos.setEntry(0, Config.WIDTH + pos.getEntry(0) % Config.WIDTH);
-        } else {
-            pos.setEntry(0, pos.getEntry(0) % Config.WIDTH);
-        }
-        if (pos.getEntry(1) < 0) {
-            pos.setEntry(1, Config.HEIGHT + pos.getEntry(1) % Config.HEIGHT);
-        } else {
-            pos.setEntry(1, pos.getEntry(1) % Config.HEIGHT);
-        }
-    }
-
     public void wrapAround(@NotNull Body b) {
         ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
         ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
@@ -274,7 +274,6 @@ public class World {
         }
     }
 
-
     public ArrayRealVector getBorderDistance(@NotNull ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
         double x1 = pos1.getEntry(0);
         double y1 = pos1.getEntry(1);
@@ -311,10 +310,39 @@ public class World {
         return pos2.copy().combineToSelf(1, -1, pos1);
     }
 
-    public Body getPlayer() {
-        if (bodies.size() != 0) {
-            return bodies.get(0);
+    public void set(@NotNull WorldData data) {
+        bodies.clear();
+        bodies.addAll(data.bodies);
+        Body b;
+        for (int i = 0; i < bodies.size(); i++) {
+            b = bodies.get(i);
+            b.setParent(this);
+            b.checkPointParent();
+            b.restoreEdgesFromImage(data.edgeImages.get(i));
         }
-        return null;
+        constraints.clear();
+        ArrayList<Integer> refs;
+        for (Pair<ArrayList<Integer>, Double> image : data.constraintsImage) {
+            refs = image.getKey();
+            constraints.add(new DistanceConstraint(bodies.get(refs.get(0)).getPoints().get(refs.get(1)),
+                    bodies.get(refs.get(2)).getPoints().get(refs.get(3)), image.getValue()));
+        }
+    }
+
+    public ArrayList<Pair<ArrayList<Integer>, Double>> getConstraintImage() {
+        ArrayList<Pair<ArrayList<Integer>, Double>> res = new ArrayList<>();
+        Body pointParent;
+        ArrayList<Integer> refs = new ArrayList<>();
+        for (DistanceConstraint c : constraints) {
+            refs.clear();
+            pointParent = c.getEdge1().getParentBody();
+            refs.add(bodies.indexOf(pointParent));
+            refs.add(pointParent.getPoints().indexOf(c.getEdge1()));
+            pointParent = c.getEdge2().getParentBody();
+            refs.add(bodies.indexOf(pointParent));
+            refs.add(pointParent.getPoints().indexOf(c.getEdge2()));
+            res.add(new Pair<>(new ArrayList<>(refs), c.getDistance()));
+        }
+        return res;
     }
 }

@@ -1,6 +1,6 @@
-import game.MainLoop.run
+import game.MainLoop
 
 fun main() {
-    run()
+    MainLoop.run()
 }
 

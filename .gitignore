@@ -1,9 +1,15 @@
-.gradle
-build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-output/
+
+### Generated ###
+.gradle
+build/
+Logging.txt
+Logging.txt.1
+
+### Private ###
+conveyor.conf
 
 ### IntelliJ IDEA ###
 .idea/

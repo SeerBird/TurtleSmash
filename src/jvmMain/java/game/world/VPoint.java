@@ -6,11 +6,11 @@ import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
 
-public class VPoint implements Cloneable {
+public class VPoint {
     ArrayRealVector pos;
     ArrayRealVector lpos;
     double mass;
-    Body parent;
+    transient Body parentBody;
 
     public VPoint(Body body, double mass, double x, double y) {
         pos = new ArrayRealVector(2);
@@ -18,14 +18,14 @@ public class VPoint implements Cloneable {
         pos.setEntry(1, y);
         lpos = pos.copy();
         this.mass = mass;
-        this.parent = body;
+        this.parentBody = body;
     }
 
     public VPoint(Body body, double mass, @NotNull ArrayRealVector pos) {
         this.pos = pos.copy();
         lpos = pos.copy();
         this.mass = mass;
-        this.parent = body;
+        this.parentBody = body;
     }
 
     public void move() {
@@ -55,12 +55,12 @@ public class VPoint implements Cloneable {
         return this.mass;
     }
 
-    public Body getParent() {
-        return parent;
+    public Body getParentBody() {
+        return parentBody;
     }
 
-    public void setParent(Body p) {
-        this.parent = p;
+    public void setParentBody(Body p) {
+        this.parentBody = p;
     }
 
     public double getX() {
@@ -69,22 +69,6 @@ public class VPoint implements Cloneable {
 
     public double getY() {
         return this.pos.getEntry(1);
-    }
-
-    public void setX(double x) {
-        this.pos.setEntry(0, x);
-    }
-
-    public void setY(double y) {
-        this.pos.setEntry(1, y);
-    }
-
-    public void addToX(double dx) {
-        this.pos.addToEntry(0, dx);
-    }
-
-    public void addToY(double dy) {
-        this.pos.addToEntry(1, dy);
     }
 
     public void accelerate(double x, double y) {
@@ -106,39 +90,22 @@ public class VPoint implements Cloneable {
     }
 
     public ArrayRealVector getDistance(@NotNull VPoint b) {
-        return parent.getWorld().getDistance(pos, b.getPos()); // could be game.world-independent? just geometry if I don't have borderDistance
-    }
-
-    public ArrayRealVector getDistance(ArrayRealVector pos) {
-        return this.pos.copy().combineToSelf(-1, 1, pos);
+        return parentBody.getParentWorld().getDistance(pos, b.getPos()); // could be game.world-independent? just geometry if I don't have borderDistance
     }
 
     public Body getBody() {
-        return this.parent;
+        return this.parentBody;
     }
 
     public ArrayRealVector getVelocity() {
-        return parent.getWorld().getDistance(pos, lpos);
+        return parentBody.getParentWorld().getDistance(pos, lpos);
     }
 
-    @Override
-    public VPoint clone() { //eh
-        try {
-            VPoint clone = (VPoint) super.clone();
-            clone.lpos = this.lpos.copy();
-            clone.pos = this.pos.copy();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+    public double project(@NotNull ArrayRealVector normalizedAxis) {
+        if (normalizedAxis.getNorm() != 1) { // remove this if clause
+            return getPos().dotProduct(normalizedAxis.mapMultiply(1 / normalizedAxis.getNorm()));
         }
-    }
-
-    public double project(@NotNull ArrayRealVector axis) {
-        if (axis.getNorm() != 1) {
-            return getPos().dotProduct(axis.mapMultiply(1 / axis.getNorm()));
-        }
-        return getPos().dotProduct(axis);
-
+        return getPos().dotProduct(normalizedAxis);
     }
 
     public void stop() {

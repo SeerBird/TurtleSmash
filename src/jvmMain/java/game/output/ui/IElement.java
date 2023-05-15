@@ -1,32 +1,39 @@
 package game.output.ui;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 
-public class IElement {
-    ArrayRealVector pos;
-    Shape shape;
+public abstract class IElement {
+    TurtleMenu menu;
+    public int x;
+    public int y;
 
-    public IElement(float x, float y) {
-        pos = new ArrayRealVector(2);
+    public IElement(double x, double y) {
+        this.x = (int) x;
+        this.y = (int) y;
     }
 
-    public boolean press(float x, float y) {
-        return shape.contains(x - pos.getEntry(0), y - pos.getEntry(1));
+    public abstract boolean press(double x, double y);
+
+    public boolean press(@NotNull ArrayRealVector v) {
+        return press(v.getEntry(0), v.getEntry(1));
     }
 
-    public void release() {
+    public abstract void release();
+
+    public int getX() {
+        return x;
     }
 
-
-    public Image getImage() {
-        return null;
+    public int getY() {
+        return y;
     }
 
-    public Area getArea(BufferedImage image, int maxAlpha) {
+    private Area getArea(BufferedImage image, int maxAlpha) {
         if (image == null) return null;
         Area area = new Area();
         for (int x = 0; x < image.getWidth(); x++) {
@@ -39,9 +46,5 @@ public class IElement {
             }
         }
         return area;
-    }
-
-    public ArrayRealVector getPos() {
-        return pos;
     }
 }

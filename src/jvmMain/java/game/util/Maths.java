@@ -1,4 +1,4 @@
-package game.math;
+package game.util;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;

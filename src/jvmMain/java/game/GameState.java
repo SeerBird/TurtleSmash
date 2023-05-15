@@ -1,6 +1,9 @@
 package game;
 
 public enum GameState {
-    Menu,
-    Game
+    playClient,
+    main,
+    host,
+    discover,
+    playServer, lobby
 }
