@@ -17,14 +17,15 @@ import java.util.List;
 
 public class Multiplayer {
     public static InetAddress broadcastIP;
-    public static String localIp;
+    public static InetAddress localIp;
+    public static NetworkInterface networkInterface;
 
     static {
         try {
             InetAddress localHost = Inet4Address.getLocalHost();
-            NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
+            networkInterface = NetworkInterface.getByInetAddress(localHost);
             broadcastIP = networkInterface.getInterfaceAddresses().get(0).getBroadcast();
-            localIp = networkInterface.getInterfaceAddresses().get(0).getAddress().getHostAddress();
+            localIp = networkInterface.getInterfaceAddresses().get(0).getAddress();
             //broadcastIP = InetAddress.getByName("172.19.255.255");
         } catch (UnknownHostException | SocketException e) {
             throw new RuntimeException(e);
@@ -46,4 +47,5 @@ public class Multiplayer {
     public static final String localhost = System.getProperty("host", "localhost");
     public static final int TCPPort = Integer.parseInt(System.getProperty("tcpport", String.valueOf(Config.TCPPort)));
     public static final int UDPPort = Integer.parseInt(System.getProperty("udpport", "54777"));
+    public static final String multicastIP = System.getProperty("host", "224.42.42.42");
 }

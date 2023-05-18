@@ -1,19 +1,17 @@
 package game;
 
-import game.connection.ClientUDP;
-import game.connection.ServerUDP;
+import game.connection.*;
 import game.connection.packets.GameStartPacket;
 import game.connection.packets.containers.ServerStatus;
 import game.input.InputInfo;
 import game.connection.packets.ServerPacket;
-import game.connection.ClientTCP;
-import game.connection.ServerTCP;
 import game.input.MouseInput;
 import game.output.GameWindow;
 import game.output.Renderer;
 import game.output.audio.Sound;
 import game.output.ui.rectangles.Textbox;
 import game.output.ui.TurtleMenu;
+import game.util.Multiplayer;
 import game.world.World;
 import game.world.bodies.Body;
 import io.netty.channel.socket.SocketChannel;
@@ -41,8 +39,7 @@ public class EventManager {
     TurtleMenu menu;
     ServerTCP tcpServer;
     ClientTCP tcpClient;
-    ClientUDP udpClient;
-    ServerUDP udpServer;
+    Multicaster multicaster;
     final ServerPacket lastPacket;
     ArrayList<Runnable> jobs;
     ArrayList<Job> toRemove;
@@ -88,9 +85,8 @@ public class EventManager {
         toAdd = new ArrayList<>();
         toRemove = new ArrayList<>();
         lastPacket = new ServerPacket();
-        udpServer = new ServerUDP();
-        udpClient = new ClientUDP();
-        menu = new TurtleMenu(this, lastPacket, udpClient.getServers());
+        multicaster = new Multicaster(Multiplayer.multicastIP);
+        menu = new TurtleMenu(this, lastPacket, multicaster.getServers());
         sound = new Sound();
         world = new World(this);
         renderer = new Renderer(this);
@@ -101,7 +97,7 @@ public class EventManager {
         //jobs
         job = new HashMap<>();
         job.put(Job.sendClient, () -> this.sendClientPacket());
-        job.put(Job.broadcastLAN, () -> udpServer.broadcastToLan());
+        job.put(Job.broadcastLAN, () -> multicaster.broadcastToLan());
         job.put(Job.updateWorld, () -> world.update());
         job.put(Job.menuInput, () -> this.handleMenuInput());
         job.put(Job.gameInput, () -> this.getGameInput());
@@ -235,9 +231,9 @@ public class EventManager {
     public void host() {
         state = GameState.host;
         menu.refreshGameState();
-        udpServer = new ServerUDP();
-        udpServer.setServerStatus("bababoi");
-        udpServer.start();
+        multicaster = new Multicaster(Multiplayer.multicastIP);
+        multicaster.setServerStatus("bababoi");
+        multicaster.start();
         tcpServer = new ServerTCP(this);
         tcpServer.start();
         addJob(Job.broadcastLAN);
@@ -259,8 +255,8 @@ public class EventManager {
     public void discover() {
         state = GameState.discover;
         menu.refreshGameState();
-        udpClient = new ClientUDP();
-        udpClient.start();
+        multicaster = new Multicaster(Multiplayer.multicastIP);
+        multicaster.start();
     }
 
     public void connect(ServerStatus server) {
@@ -292,7 +288,7 @@ public class EventManager {
         state = GameState.main;
         menu.refreshGameState();
         removeJob(Job.broadcastLAN);
-        udpServer.disconnect();
+        multicaster.disconnect();
         tcpServer.disconnect();
     }
 
@@ -303,7 +299,7 @@ public class EventManager {
 
     private void discoverToMain() {
         state = GameState.main;
-        udpClient.disconnect();
+        multicaster.disconnect();
         menu.refreshGameState();
     }
 
@@ -323,7 +319,7 @@ public class EventManager {
     }
 
     public void refreshLAN() {
-        udpClient.getServers();
+        multicaster.getServers();
     }
 
     public void terminate() {
@@ -340,10 +336,6 @@ public class EventManager {
         if (cause != null) {
             menu.popup(cause.getMessage());
         }
-    }
-
-    public Map<InetAddress, ServerStatus> getServers() {
-        return udpClient.getServers();
     }
 
     public void togglePause() {

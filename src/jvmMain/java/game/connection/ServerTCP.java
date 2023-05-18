@@ -85,7 +85,7 @@ public class ServerTCP extends Thread {
 
             // Bind and start to accept incoming connections.
             try {
-                ch = b.bind(Multiplayer.TCPPort).addListener(future -> logger.info("TCP server on at "+Multiplayer.localIp+":"+Multiplayer.TCPPort)).sync().channel();
+                ch = b.bind(Multiplayer.TCPPort).addListener(future -> logger.info("TCP server on at "+Multiplayer.localIp.getHostAddress()+":"+Multiplayer.TCPPort)).sync().channel();
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
                 logger.severe(e.getMessage());
