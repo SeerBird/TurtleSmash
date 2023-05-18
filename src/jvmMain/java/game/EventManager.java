@@ -104,18 +104,18 @@ public class EventManager {
         job.put(Job.broadcastLAN, () -> udpServer.broadcastToLan());
         job.put(Job.updateWorld, () -> world.update());
         job.put(Job.menuInput, () -> this.handleMenuInput());
+        job.put(Job.gameInput, () -> this.getGameInput());
         job.put(Job.handlePlayers, () -> this.handlePlayers());
         job.put(Job.sendServer, () -> this.broadcastServerPacket());
         job.put(Job.handleServerPacket, () -> this.handleServerPacket());
         job.put(Job.updateMenu, () -> menu.update());
-        job.put(Job.gameInput, () -> this.getGameInput());
 
         //starting state
         addJob(Job.menuInput);
-        addJob(Job.updateMenu);
-        addJob(Job.updateWorld);
         addJob(Job.gameInput);
+        addJob(Job.updateMenu);
         addJob(Job.handlePlayers);
+        addJob(Job.updateWorld);
         players.add(new Player(this));
     }
 
@@ -200,7 +200,7 @@ public class EventManager {
             Body body;
             if ((body = player.getBody()) != null) {
                 if (input.teleport != null) {
-                    body.shift(body.getDistance(input.teleport));
+                    body.move((ArrayRealVector) body.getDistance(input.teleport).mapMultiply(0.333));
                 }
             }
         }

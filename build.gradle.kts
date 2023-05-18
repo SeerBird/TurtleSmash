@@ -1,5 +1,3 @@
-import org.jetbrains.compose.compose
-import org.jetbrains.kotlin.fir.expressions.builder.buildArgumentList
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 plugins {
@@ -10,7 +8,7 @@ plugins {
 }
 
 group = "seerbird.example"
-version = "1.0.10"
+version = "1.0.13"
 
 repositories {
     mavenCentral()

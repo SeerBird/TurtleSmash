@@ -35,7 +35,7 @@ public class ServerUDP extends Thread {
                     .handler(new ChannelDuplexHandler());
             // Bind and start to accept incoming connections.
             try {
-                udpChannel = b.bind(0).addListener(future->logger.info("UDP server on")).sync().channel(); //remove sync?
+                udpChannel = b.bind(0).addListener(future->logger.info("UDP server on, screaming at "+Multiplayer.broadcastIP.getHostAddress()+":"+Multiplayer.UDPPort)).sync().channel(); //remove sync?
                 udpChannel.closeFuture().sync();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -49,13 +49,14 @@ public class ServerUDP extends Thread {
     public void broadcastToLan() {//maybe it doesn't interrupt? see tomorrow
         if (udpChannel != null) {
             udpChannel.writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(serverStatus, CharsetUtil.UTF_8),
-                    new InetSocketAddress("255.255.255.255", Multiplayer.UDPPort)));
+                    new InetSocketAddress(Multiplayer.broadcastIP, Multiplayer.UDPPort)));
 
         }
     }
 
     public void setServerStatus(String serverStatus) {
         this.serverStatus = Multiplayer.localIp + "/" + Multiplayer.TCPPort + "/" + serverStatus;
+        logger.info("Set server status as "+this.serverStatus);
     }
 
     public void disconnect() {

@@ -4,6 +4,8 @@ import game.util.CONSTANTS;
 import game.util.Logging;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class MainLoop {
@@ -19,9 +21,9 @@ public class MainLoop {
         Runtime.getRuntime().addShutdownHook(onShutdown);
         try {
             Logging.setup();
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
-            throw new RuntimeException("Problems with creating the log files");
+            throw new RuntimeException("Failure creating the log files");
         }
         run = true;
         int minFrameTime = 1000000000 / CONSTANTS.MAX_FRAMERATE; // nano

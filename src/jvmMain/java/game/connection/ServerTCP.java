@@ -38,7 +38,7 @@ public class ServerTCP extends Thread {
 
     public ServerTCP(EventManager handler) {
         this.handler = handler;
-        tcpChannels=new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+        tcpChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     }
 
     public synchronized void run() {
@@ -73,6 +73,7 @@ public class ServerTCP extends Thread {
                                     new ServerPlayerHandler(handler.addPlayer(ch)),
                                     new ExceptionHandler(handler)
                             );
+                            logger.info("New connection with "+ch.remoteAddress().getAddress()+":"+ch.remoteAddress().getPort());
                         }
 
                         @Override
@@ -84,19 +85,21 @@ public class ServerTCP extends Thread {
 
             // Bind and start to accept incoming connections.
             try {
-                ch = b.bind(Multiplayer.TCPPort).addListener(future->logger.info("TCP server on")).sync().channel();
+                ch = b.bind(Multiplayer.TCPPort).addListener(future -> logger.info("TCP server on at "+Multiplayer.localIp+":"+Multiplayer.TCPPort)).sync().channel();
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
                 logger.severe(e.getMessage());
             }
         } finally {
             bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully().addListener(future->logger.info("TCP server off"));
+            workerGroup.shutdownGracefully().addListener(future -> logger.info("TCP server off"));
         }
     }
 
     public void disconnect() {
-        tcpChannels.close();
-        ch.close().addListener(future->logger.info("Disconnected TCP server"));
+        if (ch != null) {
+            tcpChannels.close();
+            ch.close().addListener(future -> logger.info("Disconnected TCP server"));
+        }
     }
 }

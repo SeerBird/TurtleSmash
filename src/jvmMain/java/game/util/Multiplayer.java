@@ -4,13 +4,16 @@ import game.Config;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.net.ssl.SSLException;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.math.BigInteger;
+import java.net.*;
+import java.nio.ByteBuffer;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Multiplayer {
     public static InetAddress broadcastIP;
@@ -18,17 +21,17 @@ public class Multiplayer {
 
     static {
         try {
-            broadcastIP = InetAddress.getByName("255.255.255.255");
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
-        try(final DatagramSocket socket = new DatagramSocket()){
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            localIp = socket.getLocalAddress().getHostAddress();
+            InetAddress localHost = Inet4Address.getLocalHost();
+            NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
+            broadcastIP = networkInterface.getInterfaceAddresses().get(0).getBroadcast();
+            localIp = networkInterface.getInterfaceAddresses().get(0).getAddress().getHostAddress();
+            //broadcastIP = InetAddress.getByName("172.19.255.255");
         } catch (UnknownHostException | SocketException e) {
             throw new RuntimeException(e);
         }
     }
+
+    @Nullable
     public static SslContext buildSslContext() throws CertificateException, SSLException {
         if (!SSL) {
             return null;
@@ -38,6 +41,7 @@ public class Multiplayer {
                 .forServer(ssc.certificate(), ssc.privateKey())
                 .build();
     }
+
     public static final boolean SSL = System.getProperty("ssl") != null;
     public static final String localhost = System.getProperty("host", "localhost");
     public static final int TCPPort = Integer.parseInt(System.getProperty("tcpport", String.valueOf(Config.TCPPort)));

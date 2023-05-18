@@ -34,6 +34,7 @@ public class ClientTCP extends Thread {
     }
 
     public void run() {
+        logger.info("Trying to connect to " + target.address + ":" + target.port);
         EventLoopGroup group = new NioEventLoopGroup();
         Runtime.getRuntime().addShutdownHook(new Thread(group::shutdownGracefully));
         final SslContext sslCtx;
@@ -62,7 +63,11 @@ public class ClientTCP extends Thread {
                         }
                     });
             try {
-                ChannelFuture connectFuture = b.connect(target.address, target.port).addListener(future->logger.info("TCP client connected"));
+                ChannelFuture connectFuture = b.connect(target.address, target.port).addListener(future -> {
+                    if (future.isSuccess()) {
+                        logger.info("TCP client connected");
+                    }
+                });
                 channel = connectFuture.sync().channel();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -73,16 +78,17 @@ public class ClientTCP extends Thread {
         } finally {
             handler.playToDiscover();
             disconnect();
-            group.shutdownGracefully().addListener(future->logger.info("TCP client off"));
+            group.shutdownGracefully().addListener(future -> logger.info("TCP client off"));
         }
     }
 
     public void send(InputInfo input) {
-        if(channel!=null){
-        channel.writeAndFlush(Util.gson.toJson(new ClientPacket(input)));}
+        if (channel != null) {
+            channel.writeAndFlush(Util.gson.toJson(new ClientPacket(input)));
+        }
     }
 
     public void disconnect() {
-        channel.close().addListener(future->logger.info("TCP channel closed"));
+        channel.close().addListener(future -> logger.info("TCP channel closed"));
     }
 }
