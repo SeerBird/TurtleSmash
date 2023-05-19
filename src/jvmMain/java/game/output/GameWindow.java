@@ -13,9 +13,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.image.BufferStrategy;
 
 public class GameWindow extends JFrame {
-    private final KeyboardInput keyboard;
-    private final MouseInput mouse;
-    private final Canvas canvas;
     private final EventManager handler;
     BufferStrategy strategy;
 
@@ -35,7 +32,7 @@ public class GameWindow extends JFrame {
         });
 
         // Add canvas(for buffer strategy I think?? might be unnecessary)
-        canvas = new Canvas();
+        Canvas canvas = new Canvas();
         canvas.setIgnoreRepaint(true);
         canvas.setSize(Config.WIDTH, Config.HEIGHT);
         add(canvas);
@@ -46,41 +43,15 @@ public class GameWindow extends JFrame {
         strategy = canvas.getBufferStrategy();
 
         // Hookup game.input
-        keyboard = new KeyboardInput(this);
+        KeyboardInput keyboard = new KeyboardInput(handler);
         addKeyListener(keyboard);
         canvas.addKeyListener(keyboard);
-        mouse = new MouseInput(this);
+        MouseInput mouse = new MouseInput(handler);
         addMouseListener(mouse);
         canvas.addMouseListener(mouse);
         addMouseMotionListener(mouse);
-        canvas.addMouseMotionListener(mouse);
+        canvas.addMouseMotionListener(mouse);//I think two of the last four lines are redundant. can't be asked to check
     }
-
-    public EventManager getHandler() {
-        return this.handler;
-    }
-
-    public KeyboardInput getKeyboard() {
-        return this.keyboard;
-    }
-
-    public MouseInput getMouse() {
-        return this.mouse;
-    }
-
-    public void redraw(Image img) {
-        /*
-        // Reset image
-        Graphics graphics = canvas.getGraphics();
-
-        // Actually do things
-        graphics.drawImage(img, 0, 0, null);
-
-        // Clean up
-        graphics.dispose();
-        */
-    }
-
     public void showCanvas() {
         strategy.show();
     }

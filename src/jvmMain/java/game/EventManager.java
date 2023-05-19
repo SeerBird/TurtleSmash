@@ -21,7 +21,9 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,17 +35,18 @@ public class EventManager {
     GameWindow win;
     Sound sound;
     World world;
-    final ArrayList<Player> players;
-    private final ArrayList<Player> removedPlayers;
+    private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
+    private static final ArrayList<Player> removedPlayers = new ArrayList<>();
     Renderer renderer;
     TurtleMenu menu;
     ServerTCP tcpServer;
     ClientTCP tcpClient;
     Multicaster multicaster;
-    final ServerPacket lastPacket;
-    ArrayList<Runnable> jobs;
-    ArrayList<Job> toRemove;
-    ArrayList<Job> toAdd;
+    private static final ServerPacket lastPacket = new ServerPacket();
+    private static final ArrayList<Runnable> jobs = new ArrayList<>();
+    private static final ArrayList<Job> toRemove = new ArrayList<>();
+    private static final ArrayList<Job> toAdd = new ArrayList<>();
+    private static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
     // idk what this has become, seems dodgy
     private final Map<Integer, Boolean> keyPressedEvents;
     private final Map<Integer, Boolean> keyReleasedEvents;
@@ -65,7 +68,7 @@ public class EventManager {
         updateWorld
     }
 
-    private final HashMap<Job, Runnable> job;
+    private static final HashMap<Job, Runnable> job = new HashMap<>();
 
     public EventManager() {
         // weird? inputs
@@ -80,22 +83,16 @@ public class EventManager {
         mousepos = new ArrayRealVector(new Double[]{400.0, 400.0});
 
         //important stuff
-        jobs = new ArrayList<>();
         state = GameState.main;
-        toAdd = new ArrayList<>();
-        toRemove = new ArrayList<>();
-        lastPacket = new ServerPacket();
-        multicaster = new Multicaster(Multiplayer.multicastIP);
-        menu = new TurtleMenu(this, lastPacket, multicaster.getServers());
+        menu = new TurtleMenu(this, lastPacket, servers);
         sound = new Sound();
         world = new World(this);
         renderer = new Renderer(this);
         win = new GameWindow(this);
-        players = new ArrayList<>(); // player 0 is local
-        removedPlayers = new ArrayList<>();
+        players.clear();
 
         //jobs
-        job = new HashMap<>();
+        job.clear();
         job.put(Job.sendClient, () -> this.sendClientPacket());
         job.put(Job.broadcastLAN, () -> multicaster.broadcastToLan());
         job.put(Job.updateWorld, () -> world.update());
@@ -196,13 +193,13 @@ public class EventManager {
             Body body;
             if ((body = player.getBody()) != null) {
                 if (input.teleport != null) {
-                    body.move((ArrayRealVector) body.getDistance(input.teleport).mapMultiply(0.333));
+                    body.shift((ArrayRealVector) body.getDistance(input.teleport).mapMultiply(0.2));
                 }
             }
         }
     }
 
-    private void broadcastServerPacket() {//ServerPacket should be assembled piece by piece
+    private void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo
         ServerPacket packet = new ServerPacket(world, players);
         synchronized (players) {
             for (Player player : players) {//potential for sending different info
@@ -229,14 +226,34 @@ public class EventManager {
 
     //States
     public void host() {
+        ServerSocket socket = null;
+        int port = 0;
+        try {
+            socket = new ServerSocket(0);
+            port = socket.getLocalPort();
+        } catch (IOException e) {
+            logger.severe(e.getMessage());
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    logger.severe("What the gluck??? " + e.getMessage() +
+                            "\nThis is unbelievable. Failed to close a socket. wow. just wow.");
+                }
+            }
+        }
+        if (port == 0) {
+            logger.severe("Failed to find a free port");
+            return;
+        }
         state = GameState.host;
         menu.refreshGameState();
-        multicaster = new Multicaster(Multiplayer.multicastIP);
-        multicaster.setServerStatus("bababoi");
-        multicaster.start();
-        tcpServer = new ServerTCP(this);
+        tcpServer = new ServerTCP(this, port);
         tcpServer.start();
-        addJob(Job.broadcastLAN);
+        multicaster = new Multicaster(Multiplayer.multicastIP, true, servers);
+        multicaster.setServerStatus("bababoi", port);
+        multicaster.start();
         addJob(Job.sendServer);
     }
 
@@ -255,7 +272,7 @@ public class EventManager {
     public void discover() {
         state = GameState.discover;
         menu.refreshGameState();
-        multicaster = new Multicaster(Multiplayer.multicastIP);
+        multicaster = new Multicaster(Multiplayer.multicastIP, false, servers);
         multicaster.start();
     }
 
@@ -287,7 +304,6 @@ public class EventManager {
     public void hostToMain() {
         state = GameState.main;
         menu.refreshGameState();
-        removeJob(Job.broadcastLAN);
         multicaster.disconnect();
         tcpServer.disconnect();
     }

@@ -35,8 +35,10 @@ public class ServerTCP extends Thread {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     ChannelGroup tcpChannels;
     Channel ch;
+    int tcpPort;
 
-    public ServerTCP(EventManager handler) {
+    public ServerTCP(EventManager handler, int tcpPort) {
+        this.tcpPort=tcpPort;
         this.handler = handler;
         tcpChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     }
@@ -75,17 +77,15 @@ public class ServerTCP extends Thread {
                             );
                             logger.info("New connection with "+ch.remoteAddress().getAddress()+":"+ch.remoteAddress().getPort());
                         }
-
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
                             tcpChannels.add(ctx.channel());
                             super.channelActive(ctx);
                         }
                     });
-
             // Bind and start to accept incoming connections.
             try {
-                ch = b.bind(Multiplayer.TCPPort).addListener(future -> logger.info("TCP server on at "+Multiplayer.localIp.getHostAddress()+":"+Multiplayer.TCPPort)).sync().channel();
+                ch = b.bind(tcpPort).addListener(future -> logger.info("TCP server on at "+Multiplayer.localIp.getHostAddress()+":"+tcpPort)).sync().channel();
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
                 logger.severe(e.getMessage());

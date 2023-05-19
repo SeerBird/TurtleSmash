@@ -3,7 +3,6 @@ package game;
 import java.awt.*;
 
 public class Config {
-    public static final int TCPPort=5455;
     public static final int WIDTH = 800;
     public static final int HEIGHT = 800;
     public static final int KEY_COUNT = 256;
@@ -23,5 +22,6 @@ public class Config {
     public static double stringFling = 24;
     public static double noReturnTime = 10; //seconds
     public static Color menuBackground =new Color(12, 11, 0, 61);
-    public static long discoveryMilliTimeout = 3000000;
+    public static long discoveryMilliTimeout = 3000;
+    public static long multicastMilliPeriod = 1000;
 }

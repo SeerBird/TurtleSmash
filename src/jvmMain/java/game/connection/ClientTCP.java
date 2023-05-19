@@ -34,7 +34,7 @@ public class ClientTCP extends Thread {
     }
 
     public void run() {
-        logger.info("Trying to connect to " + target.address + ":" + target.port);
+        logger.info("Trying to connect to " + target.address.getHostAddress() + ":" + target.port);
         EventLoopGroup group = new NioEventLoopGroup();
         Runtime.getRuntime().addShutdownHook(new Thread(group::shutdownGracefully));
         final SslContext sslCtx;

@@ -45,7 +45,6 @@ public class Multiplayer {
 
     public static final boolean SSL = System.getProperty("ssl") != null;
     public static final String localhost = System.getProperty("host", "localhost");
-    public static final int TCPPort = Integer.parseInt(System.getProperty("tcpport", String.valueOf(Config.TCPPort)));
     public static final int UDPPort = Integer.parseInt(System.getProperty("udpport", "54777"));
     public static final String multicastIP = System.getProperty("host", "224.42.42.42");
 }

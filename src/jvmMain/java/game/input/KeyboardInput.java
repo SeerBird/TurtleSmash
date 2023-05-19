@@ -1,6 +1,7 @@
 package game.input;
 
 import game.Config;
+import game.EventManager;
 import game.output.GameWindow;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,21 +12,18 @@ import java.util.Map;
 
 public class KeyboardInput implements KeyListener {
     // Current state of the keyboard
-    GameWindow win;
+    EventManager handler;
 
-    public KeyboardInput(GameWindow win) {
-        this.win = win;
+    public KeyboardInput(EventManager handler) {
+        this.handler = handler;
     }
 
-    public GameWindow getWindow() {
-        return win;
-    }
     public synchronized void keyPressed(@NotNull KeyEvent e) {
-        getWindow().getHandler().postKeyPressedEvent(e);
+        handler.postKeyPressedEvent(e);
     }
 
     public synchronized void keyReleased(@NotNull KeyEvent e) {
-        getWindow().getHandler().postKeyReleasedEvent(e);
+        handler.postKeyReleasedEvent(e);
     }
 
     public void keyTyped(KeyEvent e) {

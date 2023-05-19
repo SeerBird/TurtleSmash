@@ -1,18 +1,19 @@
 package game.input;
 
+import game.EventManager;
 import game.output.GameWindow;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class MouseInput extends MouseAdapter {
-    GameWindow win;
+    EventManager handler;
     public static final int LEFT = 1;
     public static final int MID = 2;
     public static final int RIGHT = 3;
 
-    public MouseInput(GameWindow win) {
-        this.win = win;
+    public MouseInput(EventManager handler) {
+        this.handler = handler;
     }
 
     @Override
@@ -22,12 +23,12 @@ public class MouseInput extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        win.getHandler().postMousePressEvent(e);
+        handler.postMousePressEvent(e);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        win.getHandler().postMouseReleaseEvent(e);
+        handler.postMouseReleaseEvent(e);
     }
 
     @Override
@@ -42,11 +43,11 @@ public class MouseInput extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        win.getHandler().postMouseMoveEvent(e);
+        handler.postMouseMoveEvent(e);
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        win.getHandler().postMouseMoveEvent(e);
+        handler.postMouseMoveEvent(e);
     }
 }
