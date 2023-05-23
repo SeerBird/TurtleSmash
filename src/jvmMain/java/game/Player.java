@@ -57,12 +57,9 @@ public class Player {
     public void send(Packet packet) {
         if (channel != null) {
             String json= Util.gson.toJson(packet);
-            channel.writeAndFlush(json).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if(!future.isSuccess()){
-                        logger.warning(future.cause().getMessage());
-                    }
+            channel.writeAndFlush(json).addListener((ChannelFutureListener) future -> {
+                if(!future.isSuccess()){
+                    logger.warning(future.cause().getMessage());
                 }
             });
         }

@@ -31,29 +31,12 @@ import java.util.logging.Logger;
 
 public class EventManager {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    GameState state;
-    GameWindow win;
-    Sound sound;
-    World world;
+    private static GameState state;
     private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
-    Renderer renderer;
-    TurtleMenu menu;
-    ServerTCP tcpServer;
-    ClientTCP tcpClient;
-    Multicaster multicaster;
     private static final ServerPacket lastPacket = new ServerPacket();
-    private static final ArrayList<Runnable> jobs = new ArrayList<>();
-    private static final ArrayList<Job> toRemove = new ArrayList<>();
-    private static final ArrayList<Job> toAdd = new ArrayList<>();
     private static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
-    // idk what this has become, seems dodgy
-    private final Map<Integer, Boolean> keyPressedEvents;
-    private final Map<Integer, Boolean> keyReleasedEvents;
-    private final HashMap<Integer, MouseEvent> mousePressEvents;
-    private final HashMap<Integer, MouseEvent> mouseReleaseEvents;
-    private MouseEvent mouseMoveEvent;
-    ArrayRealVector mousepos;
+    private static final HashMap<Job, Runnable> job = new HashMap<>();
 
     private enum Job {
         sendClient,
@@ -68,19 +51,33 @@ public class EventManager {
         updateWorld
     }
 
-    private static final HashMap<Job, Runnable> job = new HashMap<>();
+    private static final ArrayList<Runnable> jobs = new ArrayList<>();
+    private static final ArrayList<Job> toRemove = new ArrayList<>();
+    private static final ArrayList<Job> toAdd = new ArrayList<>();
+    Renderer renderer;
+    TurtleMenu menu;
+    ServerTCP tcpServer;
+    ClientTCP tcpClient;
+    Multicaster multicaster;
+    GameWindow win;
+    Sound sound;
+    World world;
+    // idk what this has become, seems dodgy. I should move this to the actual input module
+    // figure out what the different state functions are and whether the order matters, then see
+    private static final Map<Integer, Boolean> keyPressedEvents = new HashMap<>();
+    private static final Map<Integer, Boolean> keyReleasedEvents = new HashMap<>();
+    private static final Map<Integer, MouseEvent> mousePressEvents = new HashMap<>();
+    private static final Map<Integer, MouseEvent> mouseReleaseEvents = new HashMap<>();
+    private MouseEvent mouseMoveEvent;
+    private static final ArrayRealVector mousepos = new ArrayRealVector(2);
 
     public EventManager() {
         // weird? inputs
-        keyPressedEvents = new HashMap<>();
-        keyReleasedEvents = new HashMap<>();
-        mousePressEvents = new HashMap<>();
-        mouseReleaseEvents = new HashMap<>();
+        keyPressedEvents.clear();
         for (int i = 0x10; i <= 0xE3; i++) {
             keyPressedEvents.put(i, false);
             keyReleasedEvents.put(i, false);
         }
-        mousepos = new ArrayRealVector(new Double[]{400.0, 400.0});
 
         //important stuff
         state = GameState.main;
@@ -89,7 +86,6 @@ public class EventManager {
         world = new World(this);
         renderer = new Renderer(this);
         win = new GameWindow(this);
-        players.clear();
 
         //jobs
         job.clear();
@@ -109,6 +105,7 @@ public class EventManager {
         addJob(Job.updateMenu);
         addJob(Job.handlePlayers);
         addJob(Job.updateWorld);
+        players.clear();
         players.add(new Player(this));
     }
 
@@ -120,12 +117,12 @@ public class EventManager {
 
     public void update() {
         {
-            for (Job job : toAdd) {
-                jobs.add(this.job.get(job));
+            for (Job added : toAdd) {
+                jobs.add(job.get(added));
             }
             toAdd.clear();
-            for (Job job : toRemove) {
-                jobs.remove(this.job.get(job));
+            for (Job removed : toRemove) {
+                jobs.remove(job.get(removed));
             }
             toRemove.clear();
         }// remove and add jobs
@@ -354,14 +351,6 @@ public class EventManager {
         }
     }
 
-    public void togglePause() {
-        if (jobs.contains((Runnable) world::update)) {
-            jobs.remove((Runnable) world::update);
-        } else {
-            jobs.add(world::update);
-        }
-    }
-
     //Simple stuff
     public Player addPlayer(SocketChannel channel) {
         Player dupe = null;
@@ -414,10 +403,8 @@ public class EventManager {
 
     public void postMouseMoveEvent(@NotNull MouseEvent e) {
         mouseMoveEvent = e;
-        if (mousepos != null) {
-            mousepos.setEntry(0, e.getPoint().x);
-            mousepos.setEntry(1, e.getPoint().y);
-        }
+        mousepos.setEntry(0, e.getPoint().x);
+        mousepos.setEntry(1, e.getPoint().y);
     }
 
     //getters
@@ -432,7 +419,4 @@ public class EventManager {
     public GameState getState() {
         return state;
     }
-
-    // World
-
 }

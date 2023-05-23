@@ -19,7 +19,7 @@ public class Logging {
     static public void setup() throws IOException, URISyntaxException {
         //get log path
         String os = System.getenv("OS");
-        String pattern = "\\TurtleSmash\\logs\\";//remove TurtleSmash for release?
+        String pattern = "/TurtleSmash/logs/";//remove TurtleSmash for release?
         URI uri;
         Path path;
         if (Objects.equals(os, "Windows_NT")) {

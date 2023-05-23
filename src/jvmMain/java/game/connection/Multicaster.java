@@ -58,7 +58,7 @@ public class Multicaster extends Thread {
             if (isServer) {
                 startBroadcast();
             }
-            ch.closeFuture().await();
+            ch.closeFuture().sync().addListener(future-> logger.info("Closing multicast channel"));
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
