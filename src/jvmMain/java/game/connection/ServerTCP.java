@@ -1,43 +1,35 @@
 package game.connection;
 
-import game.EventManager;
+import game.GameHandler;
 import game.connection.handlers.ExceptionHandler;
-import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ServerDecoder;
 import game.connection.handlers.ServerPlayerHandler;
 import game.util.Multiplayer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.ChannelGroupFuture;
-import io.netty.channel.group.ChannelMatcher;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 
 public class ServerTCP extends Thread {
-    EventManager handler;
+    GameHandler handler;
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     ChannelGroup tcpChannels;
     Channel ch;
     int tcpPort;
 
-    public ServerTCP(EventManager handler, int tcpPort) {
+    public ServerTCP(GameHandler handler, int tcpPort) {
         this.tcpPort=tcpPort;
         this.handler = handler;
         tcpChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);

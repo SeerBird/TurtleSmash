@@ -1,14 +1,11 @@
 package game;
 
-import com.google.gson.Gson;
 import game.connection.packets.ClientPacket;
 import game.connection.packets.Packet;
 import game.input.InputInfo;
-import game.connection.packets.ServerPacket;
 import game.util.Util;
 import game.world.bodies.Body;
 import game.world.bodies.Box;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.socket.SocketChannel;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -18,12 +15,12 @@ import java.util.logging.Logger;
 
 public class Player {
     Box body; //should be turtle
-    EventManager handler;
+    GameHandler handler;
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     InputInfo input;
     SocketChannel channel;
 
-    public Player(@NotNull EventManager handler) {
+    public Player(@NotNull GameHandler handler) {
         this.handler = handler;
         input = new InputInfo();
         body = new Box(handler.getWorld(), handler.getMousepos(), new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));

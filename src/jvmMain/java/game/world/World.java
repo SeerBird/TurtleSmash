@@ -1,7 +1,7 @@
 package game.world;
 
 import game.Config;
-import game.EventManager;
+import game.GameHandler;
 import game.connection.packets.containers.WorldData;
 import game.util.Maths;
 import game.world.bodies.Body;
@@ -19,9 +19,9 @@ public class World {
     ArrayList<Body> toRemove;
     ArrayList<Body> toAdd;
     ArrayList<DistanceConstraint> constraints;
-    transient EventManager handler;
+    transient GameHandler handler;
 
-    public World(EventManager handler) {
+    public World(GameHandler handler) {
         this.handler = handler;
         bodies = new ArrayList<>();
         constraints = new ArrayList<>();
@@ -67,7 +67,7 @@ public class World {
 
     }
 
-    public EventManager getHandler() {
+    public GameHandler getHandler() {
         return handler;
     }
 

@@ -5,7 +5,6 @@ import game.util.Logging;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class MainLoop {
@@ -27,7 +26,7 @@ public class MainLoop {
         }
         run = true;
         int minFrameTime = 1000000000 / CONSTANTS.MAX_FRAMERATE; // nano
-        EventManager manager = new EventManager();
+        GameHandler manager = new GameHandler();
         boolean outJob = false;
         long last = 0;
         long now;

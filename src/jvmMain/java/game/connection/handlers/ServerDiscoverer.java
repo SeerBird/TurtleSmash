@@ -12,11 +12,11 @@ import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class ClientUDPHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+public class ServerDiscoverer extends SimpleChannelInboundHandler<DatagramPacket> {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     Map<InetAddress, ServerStatus> servers;
 
-    public ClientUDPHandler(Map<InetAddress, ServerStatus> servers) {
+    public ServerDiscoverer(Map<InetAddress, ServerStatus> servers) {
         this.servers = servers;
     }
 

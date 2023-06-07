@@ -18,7 +18,6 @@ import io.netty.channel.socket.SocketChannel;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -29,9 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class EventManager {
+public class GameHandler {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private static GameState state;
+    private GameState state;
     private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
     private static final ServerPacket lastPacket = new ServerPacket();
@@ -43,7 +42,6 @@ public class EventManager {
         sendServer,
         handlePlayers,
         menuInput,
-        broadcastLAN,
         textInput,
         handleServerPacket,
         updateMenu,
@@ -71,7 +69,7 @@ public class EventManager {
     private MouseEvent mouseMoveEvent;
     private static final ArrayRealVector mousepos = new ArrayRealVector(2);
 
-    public EventManager() {
+    public GameHandler() {
         // weird? inputs
         keyPressedEvents.clear();
         for (int i = 0x10; i <= 0xE3; i++) {
@@ -90,7 +88,6 @@ public class EventManager {
         //jobs
         job.clear();
         job.put(Job.sendClient, () -> this.sendClientPacket());
-        job.put(Job.broadcastLAN, () -> multicaster.broadcastToLan());
         job.put(Job.updateWorld, () -> world.update());
         job.put(Job.menuInput, () -> this.handleMenuInput());
         job.put(Job.gameInput, () -> this.getGameInput());
@@ -129,7 +126,6 @@ public class EventManager {
         for (Runnable job : jobs) {
             job.run();
         }// get em done
-        lastPacket.changed = false;// put this somewhere else, looks ugly
     }
 
     public void addJob(Job job) {
@@ -172,7 +168,7 @@ public class EventManager {
     private void getGameInput() {
         players.get(0).getInput().reset();
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            players.get(0).getInput().teleport = mousepos;//copy?
+            players.get(0).getInput().teleport = mousepos; //copy?
         }
         if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
             mousePressEvents.put(MouseInput.LEFT, null);
@@ -191,6 +187,7 @@ public class EventManager {
             if ((body = player.getBody()) != null) {
                 if (input.teleport != null) {
                     body.shift((ArrayRealVector) body.getDistance(input.teleport).mapMultiply(0.2));
+                    body.stop();
                 }
             }
         }
@@ -213,6 +210,7 @@ public class EventManager {
         if (lastPacket.changed) {
             synchronized (lastPacket) {
                 this.world.set(lastPacket.world);
+                lastPacket.changed = false;
             }
         }
     }
@@ -223,29 +221,30 @@ public class EventManager {
 
     //States
     public void host() {
-        ServerSocket socket = null;
         int port = 0;
-        try {
-            socket = new ServerSocket(0);
-            port = socket.getLocalPort();
-        } catch (IOException e) {
-            logger.severe(e.getMessage());
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    logger.severe("What the gluck??? " + e.getMessage() +
-                            "\nThis is unbelievable. Failed to close a socket. wow. just wow.");
+        {
+            ServerSocket socket = null;
+            try {
+                socket = new ServerSocket(0);
+                port = socket.getLocalPort();
+            } catch (IOException e) {
+                logger.severe(e.getMessage());
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        logger.severe("What the gleeck??? " + e.getMessage() +
+                                "\nThis is unbelievable. Failed to close a socket. wow. just wow.");
+                    }
                 }
             }
-        }
-        if (port == 0) {
-            logger.severe("Failed to find a free port");
-            return;
-        }
-        state = GameState.host;
-        menu.refreshGameState();
+            if (port == 0) {
+                logger.severe("Failed to find a free port");
+                return;
+            }
+        }// find a free port
+        setState(GameState.host);
         tcpServer = new ServerTCP(this, port);
         tcpServer.start();
         multicaster = new Multicaster(Multiplayer.multicastIP, true, servers);
@@ -255,27 +254,24 @@ public class EventManager {
     }
 
     public void playServer() {
-        state = GameState.playServer;
-        menu.refreshGameState();
+        setState(GameState.playServer);
         world.startGen();
         GameStartPacket packet = new GameStartPacket();
         synchronized (players) {
             for (int i = 1; i < players.size(); i++) {//potential for sending different info
-                players.get(i).getChannel().writeAndFlush(packet);
+                players.get(i).getChannel().writeAndFlush(packet);//code proper disconnect handling, breaks at the moment
             }
         }
     }
 
     public void discover() {
-        state = GameState.discover;
-        menu.refreshGameState();
+        setState(GameState.discover);
         multicaster = new Multicaster(Multiplayer.multicastIP, false, servers);
         multicaster.start();
     }
 
     public void connect(ServerStatus server) {
-        state = GameState.lobby;
-        menu.refreshGameState();
+        setState(GameState.lobby);
         tcpClient = new ClientTCP(this, server);
         tcpClient.start();
         addJob(Job.handleServerPacket);
@@ -283,42 +279,40 @@ public class EventManager {
     }
 
     public void playClient() {
-        state = GameState.playClient;
-        menu.refreshGameState();
+        setState(GameState.playClient);
     }
 
     public void playToDiscover() {
-        state = GameState.discover;
+        setState(GameState.discover);
         removeJob(Job.sendClient);
-        menu.refreshGameState();
     }
 
     public void playToHost() {
-        state = GameState.host;
-        menu.refreshGameState();
+        setState(GameState.host);
     }
 
     public void hostToMain() {
-        state = GameState.main;
-        menu.refreshGameState();
+        setState(GameState.main);
         multicaster.disconnect();
         tcpServer.disconnect();
     }
 
     private void lobbyToDiscover() {
-        state = GameState.discover;
-        menu.refreshGameState();
+        setState(GameState.discover);
     }
 
     private void discoverToMain() {
-        state = GameState.main;
+        setState(GameState.main);
         multicaster.disconnect();
+    }
+    private void setState(GameState state){
+        this.state = state;
         menu.refreshGameState();
     }
 
     Textbox textbox;
 
-    public void enterTextbox(Textbox textbox) {
+    public void enterTextbox(Textbox textbox) {//move to menu
         this.textbox = textbox;
         addJob(Job.textInput);
     }
@@ -327,7 +321,7 @@ public class EventManager {
         removeJob(Job.textInput);
     }
 
-    private void getTextInput() {
+    private void getTextInput() {//move to input
         //iterate through all text keys, get and reset pressed, check for shift and give the right letter to the textbox
     }
 
@@ -388,9 +382,6 @@ public class EventManager {
 
     public void postKeyReleasedEvent(@NotNull KeyEvent e) {
         keyReleasedEvents.put(e.getKeyCode(), true);
-    }
-
-    public void postWindowResizeEvent(ComponentEvent e) {
     }
 
     public void postMousePressEvent(MouseEvent e) {

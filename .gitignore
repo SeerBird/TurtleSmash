@@ -4,6 +4,7 @@
 
 ### Generated ###
 .gradle
+.output/
 build/
 Logging.txt
 Logging.txt.1

@@ -1,6 +1,6 @@
 package game.connection;
 
-import game.EventManager;
+import game.GameHandler;
 import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ClientTcpHandler;
 import game.connection.handlers.ExceptionHandler;
@@ -24,11 +24,11 @@ import java.util.logging.Logger;
 
 public class ClientTCP extends Thread {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    EventManager handler;
+    GameHandler handler;
     Channel channel;
     ServerStatus target;
 
-    public ClientTCP(EventManager handler, ServerStatus target) {
+    public ClientTCP(GameHandler handler, ServerStatus target) {
         this.handler = handler;
         this.target = target;
     }

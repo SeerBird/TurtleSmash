@@ -1,7 +1,7 @@
 package game.connection;
 
 import game.Config;
-import game.connection.handlers.ClientUDPHandler;
+import game.connection.handlers.ServerDiscoverer;
 import game.connection.packets.containers.ServerStatus;
 import game.util.Multiplayer;
 import io.netty.bootstrap.Bootstrap;
@@ -30,8 +30,8 @@ public class Multicaster extends Thread {
     EventLoopGroup group;
     boolean isServer;
 
-    public Multicaster(String groupIP, boolean isServer,Map<InetAddress, ServerStatus> servers) {
-        this.servers=servers;
+    public Multicaster(String groupIP, boolean isServer, Map<InetAddress, ServerStatus> servers) {
+        this.servers = servers;
         this.isServer = isServer;
         this.groupAddress = new InetSocketAddress(groupIP, Multiplayer.UDPPort);
         serverStatus = "";
@@ -43,22 +43,20 @@ public class Multicaster extends Thread {
             Bootstrap b = new Bootstrap()
                     .group(group)
                     .channelFactory((ChannelFactory<NioDatagramChannel>) () -> new NioDatagramChannel(InternetProtocolFamily.IPv4))
-                    .localAddress(groupAddress.getAddress(), groupAddress.getPort())
-                    .option(ChannelOption.SO_BROADCAST, true)
+                    .localAddress(Multiplayer.localIp, groupAddress.getPort())
                     .option(ChannelOption.IP_MULTICAST_IF, Multiplayer.networkInterface)
                     .option(ChannelOption.SO_REUSEADDR, true)
-                    .option(ChannelOption.SO_RCVBUF, 2048)
-                    .option(ChannelOption.IP_MULTICAST_TTL, 255)
-                    .handler(new ClientUDPHandler(servers));
-            ch = (NioDatagramChannel) b.bind(Multiplayer.UDPPort).sync().channel();
-            ch.joinGroup(groupAddress, Multiplayer.networkInterface).addListener(future -> {
-                logger.info("Listening for servers on " + groupAddress.getAddress().getHostAddress() + ':' + groupAddress.getPort()
-                        + " on interface " + Multiplayer.networkInterface.getDisplayName());
-            }).sync();
+                    .option(ChannelOption.IP_MULTICAST_LOOP_DISABLED,true)
+                    .option(ChannelOption.SO_BROADCAST,true)
+                    .handler(new ServerDiscoverer(servers));
+            ch = (NioDatagramChannel) b.bind(groupAddress.getPort()).sync().channel();
+            ch.joinGroup(groupAddress, Multiplayer.networkInterface).addListener(future ->
+                    logger.info("Listening for servers on " + groupAddress.getAddress().getHostAddress() + ':' + groupAddress.getPort()
+                            + " on interface " + Multiplayer.networkInterface.getDisplayName())).sync();
             if (isServer) {
                 startBroadcast();
             }
-            ch.closeFuture().sync().addListener(future-> logger.info("Closing multicast channel"));
+            ch.closeFuture().sync().addListener(future -> logger.info("Closing multicast channel"));
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
@@ -72,6 +70,7 @@ public class Multicaster extends Thread {
         ch.writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(serverStatus, CharsetUtil.UTF_8), groupAddress));
     }
 
+    @SuppressWarnings("unchecked")
     public void startBroadcast() {
         if (group != null) {
             long period = Config.multicastMilliPeriod;

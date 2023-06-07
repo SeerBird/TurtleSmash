@@ -2,7 +2,7 @@ package game.output;
 
 
 import game.Config;
-import game.EventManager;
+import game.GameHandler;
 import game.output.ui.rectangles.GButton;
 import game.output.ui.IElement;
 import game.output.ui.rectangles.Label;
@@ -25,9 +25,9 @@ public class Renderer {
     int height;
     int width;
     Graphics g;
-    EventManager handler;
+    GameHandler handler;
 
-    public Renderer(EventManager handler) {
+    public Renderer(GameHandler handler) {
         this.handler = handler;
         width = Config.WIDTH;
         height = Config.HEIGHT;

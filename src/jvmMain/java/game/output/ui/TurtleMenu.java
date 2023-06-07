@@ -1,6 +1,6 @@
 package game.output.ui;
 
-import game.EventManager;
+import game.GameHandler;
 import game.GameState;
 import game.connection.packets.ServerPacket;
 import game.connection.packets.containers.ServerStatus;
@@ -20,12 +20,12 @@ public class TurtleMenu {
     private final ArrayList<IElement> elements;
     private final HashMap<GameState, ArrayList<IElement>> menuPresets;
     private IElement pressed;
-    EventManager handler;
+    GameHandler handler;
     //cringe element references
     final ServerList serverList;
     final PlayerList playerList;
 
-    public TurtleMenu(EventManager handler, ServerPacket lastPacket, Map<InetAddress, ServerStatus> servers) {
+    public TurtleMenu(GameHandler handler, ServerPacket lastPacket, Map<InetAddress, ServerStatus> servers) {
         this.handler = handler;
         elements = new ArrayList<>();
         menuPresets = new HashMap<>();
@@ -100,7 +100,7 @@ public class TurtleMenu {
 
     }
 
-    public EventManager getHandler() {
+    public GameHandler getHandler() {
         return handler;
     }
     private void savePreset(GameState state){

@@ -1,6 +1,6 @@
 package game.connection.handlers;
 
-import game.EventManager;
+import game.GameHandler;
 import game.connection.packets.GameStartPacket;
 import game.connection.packets.ServerPacket;
 import io.netty.channel.ChannelHandlerContext;
@@ -10,9 +10,9 @@ import java.util.logging.Logger;
 
 public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private final EventManager handler;
+    private final GameHandler handler;
 
-    public ClientTcpHandler(EventManager handler){
+    public ClientTcpHandler(GameHandler handler){
         this.handler=handler;
     }
     @Override

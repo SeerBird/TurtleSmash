@@ -1,18 +1,17 @@
 package game.connection.handlers;
 
-import game.EventManager;
+import game.GameHandler;
 import io.netty.channel.*;
 
-import java.net.ConnectException;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.logging.Logger;
 
 public class ExceptionHandler extends ChannelDuplexHandler {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    EventManager handler;
+    GameHandler handler;
 
-    public ExceptionHandler(EventManager handler) {
+    public ExceptionHandler(GameHandler handler) {
         this.handler = handler;
     }
 

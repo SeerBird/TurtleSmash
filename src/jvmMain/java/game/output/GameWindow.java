@@ -2,7 +2,7 @@ package game.output;
 
 
 import game.Config;
-import game.EventManager;
+import game.GameHandler;
 import game.input.KeyboardInput;
 import game.input.MouseInput;
 
@@ -13,10 +13,10 @@ import java.awt.event.ComponentEvent;
 import java.awt.image.BufferStrategy;
 
 public class GameWindow extends JFrame {
-    private final EventManager handler;
+    private final GameHandler handler;
     BufferStrategy strategy;
 
-    public GameWindow(EventManager handler) {
+    public GameWindow(GameHandler handler) {
         // Basic functionality
         this.handler = handler;
         setIgnoreRepaint(true);
