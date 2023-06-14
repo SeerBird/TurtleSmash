@@ -25,33 +25,23 @@ public class MainLoop {
             throw new RuntimeException("Failure creating the log files");
         }
         run = true;
-        int minFrameTime = 1000000000 / CONSTANTS.MAX_FRAMERATE; // nano
-        GameHandler manager = new GameHandler();
-        boolean outJob = false;
+        int minFrameTime = 1000000000 / 60; // nanoseconds
+        GameHandler handler = new GameHandler();
         long last = 0;
         long now;
-        int updateJobs = 0;
         while (run) {
             now = System.nanoTime();
             long timeLeft = minFrameTime - now + last;
-            if (timeLeft <= 0) {
-                updateJobs++;
-            } else{
+            if (timeLeft <= 0) { // if a time of a frame has passed, tick
+                handler.update();
+                handler.out();
+                last = now;
+            } else{ // otherwise, sleep for the time left
                 try {
                     Thread.sleep(timeLeft/1001000);
                 } catch (InterruptedException e) {
                     logger.info(e.getMessage());
                 }
-            }
-            if (updateJobs > 0) {
-                manager.update();
-                outJob = true;
-                updateJobs--;
-                last = now;
-            }
-            if (outJob) {
-                manager.out();
-                outJob = false;
             }
         }
     }

@@ -52,7 +52,7 @@ public class World {
             }
         }
         for (Constraint c : constraints) {
-            c.satisfy();
+            c.satisfy(); //those can't be removed. find a better solution
         }
         //remove and add bodies
         for (Body b : toRemove) {
@@ -97,7 +97,7 @@ public class World {
                     Body b2 = bodies.get(j);
                     if (b2.gravitates()) {
                         ArrayRealVector force = b1.getDistance(b2);
-                        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3) * 10);
+                        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3) * 10); //arbitrary factor of 10, make it into a variable thingy ig
                         b1.accelerate(force.mapMultiply(b2.getMass()));
                         b2.accelerate(force.mapMultiply(-b1.getMass()));
                     }
@@ -114,7 +114,7 @@ public class World {
         } else {
             b2.collide(collision);
         }//webs take priority
-        //sounds, particles, and other stuff
+        //sounds, particles, and other stuff need to happen here
     }
 
     ArrayList<CollisionData> checkCollisions(@NotNull Body b1) { // separating axis theorem, only works for convex shapes
@@ -230,7 +230,7 @@ public class World {
         return collisions;
     }
 
-    public void wrapAround(@NotNull Body b) {
+    void wrapAround(@NotNull Body b) {
         ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
         ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
         if (projectionX.get(0).getKey() > Config.WIDTH) {
@@ -245,7 +245,7 @@ public class World {
         }
     }
 
-    public void fadeBodies(@NotNull Body b) {
+    void fadeBodies(@NotNull Body b) {
         ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
         ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
         //boolean gone = false;

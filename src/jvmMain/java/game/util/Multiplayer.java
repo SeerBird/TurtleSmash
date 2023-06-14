@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Multiplayer {
-    public static InetAddress broadcastIP;
     public static InetAddress localIp;
     public static NetworkInterface networkInterface;
 
@@ -24,9 +23,15 @@ public class Multiplayer {
         try {
             InetAddress localHost = Inet4Address.getLocalHost();
             networkInterface = NetworkInterface.getByInetAddress(localHost);
-            broadcastIP = networkInterface.getInterfaceAddresses().get(0).getBroadcast();
-            localIp = networkInterface.getInterfaceAddresses().get(0).getAddress();
-            //broadcastIP = InetAddress.getByName("172.19.255.255");
+            for (InterfaceAddress address : networkInterface.getInterfaceAddresses()) {
+                if (address.getAddress() instanceof Inet4Address) {
+                    localIp = address.getAddress();
+                    break;
+                }
+            }
+            if (localIp == null) {
+                throw new RuntimeException("Failed to find an IPV4 address");//handle this, don't throw
+            }
         } catch (UnknownHostException | SocketException e) {
             throw new RuntimeException(e);
         }

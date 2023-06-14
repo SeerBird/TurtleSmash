@@ -57,7 +57,7 @@ public class GameHandler {
     ServerTCP tcpServer;
     ClientTCP tcpClient;
     Multicaster multicaster;
-    GameWindow win;
+    GameWindow window;
     Sound sound;
     World world;
     // idk what this has become, seems dodgy. I should move this to the actual input module
@@ -83,7 +83,7 @@ public class GameHandler {
         sound = new Sound();
         world = new World(this);
         renderer = new Renderer(this);
-        win = new GameWindow(this);
+        window = new GameWindow(this);
 
         //jobs
         job.clear();
@@ -107,9 +107,9 @@ public class GameHandler {
     }
 
     public void out() {
-        renderer.drawImage(win.getCanvas(), world);
-        renderer.drawImage(win.getCanvas(), menu);
-        win.showCanvas();
+        renderer.drawImage(window.getCanvas(), world);
+        renderer.drawImage(window.getCanvas(), menu);
+        window.showCanvas();
     }
 
     public void update() {
@@ -123,8 +123,10 @@ public class GameHandler {
             }
             toRemove.clear();
         }// remove and add jobs
-        for (Runnable job : jobs) {
-            job.run();
+        {
+            for (Runnable job : jobs) {
+                job.run();
+            }
         }// get em done
     }
 
@@ -305,7 +307,8 @@ public class GameHandler {
         setState(GameState.main);
         multicaster.disconnect();
     }
-    private void setState(GameState state){
+
+    private void setState(GameState state) {
         this.state = state;
         menu.refreshGameState();
     }
