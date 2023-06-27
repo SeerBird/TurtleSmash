@@ -28,17 +28,15 @@ public class Multicaster extends Thread {
     NioDatagramChannel ch;
     String serverStatus;
     EventLoopGroup group;
-    boolean isServer;
 
-    public Multicaster(String groupIP, boolean isServer, Map<InetAddress, ServerStatus> servers) {
+    public Multicaster(String groupIP, Map<InetAddress, ServerStatus> servers) {
         this.servers = servers;
-        this.isServer = isServer;
         this.groupAddress = new InetSocketAddress(groupIP, Multiplayer.UDPPort);
         serverStatus = "";
+        group = new NioEventLoopGroup();
     }
 
     public void run() {
-        group = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap()
                     .group(group)
@@ -46,16 +44,13 @@ public class Multicaster extends Thread {
                     .localAddress(Multiplayer.localIp, groupAddress.getPort())
                     .option(ChannelOption.IP_MULTICAST_IF, Multiplayer.networkInterface)
                     .option(ChannelOption.SO_REUSEADDR, true)
-                    .option(ChannelOption.IP_MULTICAST_LOOP_DISABLED,true)
-                    .option(ChannelOption.SO_BROADCAST,true)
+                    .option(ChannelOption.IP_MULTICAST_LOOP_DISABLED, true)
+                    .option(ChannelOption.SO_BROADCAST, true)
                     .handler(new ServerDiscoverer(servers));
             ch = (NioDatagramChannel) b.bind(groupAddress.getPort()).sync().channel();
             ch.joinGroup(groupAddress, Multiplayer.networkInterface).addListener(future ->
                     logger.info("Listening for servers on " + groupAddress.getAddress().getHostAddress() + ':' + groupAddress.getPort()
                             + " on interface " + Multiplayer.networkInterface.getDisplayName())).sync();
-            if (isServer) {
-                startBroadcast();
-            }
             ch.closeFuture().sync().addListener(future -> logger.info("Closing multicast channel"));
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -66,8 +61,10 @@ public class Multicaster extends Thread {
 
     //Server functionality
 
-    public void broadcastToLan() {
-        ch.writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(serverStatus, CharsetUtil.UTF_8), groupAddress));
+    void broadcastToLan() {
+        if (ch != null) {
+            ch.writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer(serverStatus, CharsetUtil.UTF_8), groupAddress));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -93,7 +90,7 @@ public class Multicaster extends Thread {
 
     //Client functionality
 
-    public Map<InetAddress, ServerStatus> getServers() {
+    public void refreshServers() {
         HashMap<InetAddress, ServerStatus> activeServers = new HashMap<>();
         for (ServerStatus status : servers.values()) {
             if (System.nanoTime() - status.nanoTime < Config.discoveryMilliTimeout * 1000000) {
@@ -102,7 +99,6 @@ public class Multicaster extends Thread {
         }
         servers.clear();
         servers.putAll(activeServers);
-        return servers;
     }
 
     public void disconnect() {

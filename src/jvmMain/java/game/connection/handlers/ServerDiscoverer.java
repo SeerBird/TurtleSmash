@@ -25,14 +25,14 @@ public class ServerDiscoverer extends SimpleChannelInboundHandler<DatagramPacket
         String message = msg.content().toString(CharsetUtil.UTF_8);
         try {
             ServerStatus status;
-            InetAddress address = InetAddress.getByName(message.substring(0, message.indexOf("/")));
-            if((status=servers.get(address))==null){
+            InetAddress address = InetAddress.getByName(message.substring(0, message.indexOf("/"))); //get ip
+            if((status=servers.get(address))==null){//if this is a new server, create a new record
                 status = new ServerStatus();
                 status.address = address;
                 servers.put(address, status);
             }
-            String processed = message.substring(message.indexOf("/") + 1); //5455/bababoi
-            status.port = Integer.parseInt(processed.substring(0, processed.indexOf("/"))); //
+            String processed = message.substring(message.indexOf("/") + 1); //everything except the ip
+            status.port = Integer.parseInt(processed.substring(0, processed.indexOf("/")));
             status.message = processed.substring(processed.indexOf("/")+1);
             status.nanoTime = System.nanoTime();
         } catch (UnknownHostException e) {

@@ -1,9 +1,10 @@
 package game.world.bodies;
 
+import game.util.Maths;
 import game.world.CollisionData;
 import game.world.VPoint;
 import game.world.World;
-import game.world.constraints.DistanceConstraint;
+import game.world.constraints.Edge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
@@ -13,13 +14,12 @@ import java.util.ArrayList;
 
 public class Body {
     ArrayList<VPoint> points;
-    ArrayList<DistanceConstraint> edges;
+    ArrayList<Edge> edges;
     transient World parentWorld;
     ArrayRealVector movement;
     ArrayRealVector acceleration;
     double relevance;
     static double defaultRelevance = 5;
-    boolean gravitates;
     double mass;
     ArrayRealVector center;
     boolean centerMoved;
@@ -33,8 +33,6 @@ public class Body {
         center = new ArrayRealVector(2);
         world.addBody(this); // might be unnecessary here, could be done outside
         relevance = 20;
-
-        gravitates = true;
         mass = 0;
         centerMoved = true;
     }
@@ -67,9 +65,9 @@ public class Body {
     }
 
     public boolean constrain() {
-        boolean satisfied = false;
-        for (DistanceConstraint c : edges) {
-            satisfied |= c.satisfy();
+        boolean satisfied = true;
+        for (Edge c : edges) {
+            satisfied &= c.satisfy();
         }
         return satisfied;
     }
@@ -99,6 +97,12 @@ public class Body {
         }
         return center.copy();
     }
+    public double apprVelocity(){
+        if(points.size()!=0){
+            return points.get(0).getVelocity().getNorm();
+        }
+        return 0.0;
+    }
 
     public void refreshMass() {
         mass = 0;
@@ -117,7 +121,7 @@ public class Body {
     }
 
     public void addEdge(VPoint p1, VPoint p2) {
-        addEdge(new DistanceConstraint(p1, p2, p1.getDistance(p2).getNorm()));
+        addEdge(new Edge(p1, p2, p1.getDistance(p2).getNorm()));
     }
 
     public ArrayRealVector getDistance(@NotNull Body b) {
@@ -129,40 +133,39 @@ public class Body {
     }
 
     public boolean gravitates() {
-        return gravitates;
+        return true;
     }
 
     public ArrayList<VPoint> getPoints() {
         return points;
     }
 
-    public ArrayList<DistanceConstraint> getSides() { // remember to override in webs not to collide with stuck parts
+    public ArrayList<Edge> getSides() { // remember to override in webs not to collide with stuck parts
         return edges;
     }
 
-    final public ArrayList<DistanceConstraint> getEdges() {
+    final public ArrayList<Edge> getEdges() {
         return edges;
     }
 
-    public void addEdge(DistanceConstraint e) {
+    public void addEdge(Edge e) {
         edges.add(e);
     }
-    public void setParent(World parent){
-        this.parentWorld =parent;
+
+    public void setParent(World parent) {
+        this.parentWorld = parent;
     }
 
     public ArrayList<Pair<Double, VPoint>> project(@NotNull ArrayRealVector axis) {//returns minimum to maximum
         double norm = axis.getNorm();
-        if (norm != 1.0) {
-            axis.mapMultiplyToSelf(1 / norm);
-        }
+        axis.mapMultiplyToSelf(1 / norm);//normalize
         VPoint minp = points.get(0);
         VPoint maxp = points.get(0);
         double min = axis.dotProduct(minp.getPos());
         double max = min;
         double projection;
         for (VPoint p : points) {//doing the first point over, idc
-            projection = axis.dotProduct(p.getPos());
+            projection = p.project(axis);
             if (projection > max) {
                 max = projection;
                 maxp = p;
@@ -204,7 +207,7 @@ public class Body {
         double placement = (edge.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (collision.getVertex().getX() - collision.getEdge1().getX()) / (edgeX) : (collision.getVertex().getY() - collision.getEdge1().getY()) / (edgeY) : 0.5;
         double scaleFactor = 1 / (Math.pow(placement, 2) + Math.pow(1 - placement, 2)); // normalising factor
         // I like to move it, move it
-        double elasticity = 0;
+        double elasticity = 0.6;
         collision.getVertex().accelerate(overlap.mapMultiply(0.25 * elasticity));
         collision.getEdge1().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * (1 - placement) * elasticity));
         collision.getEdge2().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
@@ -215,28 +218,33 @@ public class Body {
             collision.getEdge2().move(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
         }
     }
-    public ArrayList<Pair<Pair<Integer,Integer>,Double>> getEdgesImage(){
-        ArrayList<Pair<Pair<Integer,Integer>,Double>> edgesImage= new ArrayList<>();
-        for(DistanceConstraint e:edges){
-            edgesImage.add(new Pair<>(new Pair<>(points.indexOf(e.getEdge1()),points.indexOf(e.getEdge2())),e.getDistance()));
+
+    public ArrayList<Pair<Pair<Integer, Integer>, Double>> getEdgesImage() {
+        ArrayList<Pair<Pair<Integer, Integer>, Double>> edgesImage = new ArrayList<>();
+        for (Edge e : edges) {
+            edgesImage.add(new Pair<>(new Pair<>(points.indexOf(e.getEdge1()), points.indexOf(e.getEdge2())), e.getDistance()));
         }
         return edgesImage;
     }
 
     public void checkPointParent() {
-        for(VPoint p:points){
+        for (VPoint p : points) {
             p.setParentBody(this);
         }
-        for(DistanceConstraint e:edges){
+        for (Edge e : edges) {
             e.getEdge2().setParentBody(this);
             e.getEdge1().setParentBody(this);
         }
     }
 
-    public void restoreEdgesFromImage(ArrayList<Pair<Pair<Integer,Integer>,Double>> edgesImage) {
+    static boolean intersect(@NotNull Edge edge1, @NotNull Edge edge2) {
+        return Maths.intersect(edge1.getEdge1().getPos(), edge1.getEdge2().getPos(), edge2.getEdge1().getPos(), edge2.getEdge2().getPos());
+    }
+
+    public void restoreEdgesFromImage(@NotNull ArrayList<Pair<Pair<Integer, Integer>, Double>> edgesImage) {
         edges.clear();
-        for(Pair<Pair<Integer,Integer>,Double> e:edgesImage){
-            edges.add(new DistanceConstraint(points.get(e.getKey().getKey()),points.get(e.getKey().getValue()),e.getValue()));
+        for (Pair<Pair<Integer, Integer>, Double> e : edgesImage) {
+            edges.add(new Edge(points.get(e.getKey().getKey()), points.get(e.getKey().getValue()), e.getValue()));
         }
     }
 }

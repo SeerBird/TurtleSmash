@@ -1,15 +1,15 @@
 package game.world;
 
-import game.world.constraints.DistanceConstraint;
+import game.world.constraints.Edge;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 public class CollisionData {
     public VPoint vertex;
-    public DistanceConstraint edge;
+    public Edge edge;
     public ArrayRealVector overlap; //vertex to edge
 
-    public CollisionData(VPoint vertex, @NotNull DistanceConstraint edge, @NotNull ArrayRealVector overlap) {
+    public CollisionData(VPoint vertex, @NotNull Edge edge, @NotNull ArrayRealVector overlap) {
         this.vertex = vertex;
         this.edge=edge;
         this.overlap = overlap.copy();
@@ -20,7 +20,7 @@ public class CollisionData {
     public VPoint getEdge2(){
         return edge.getPoints().getValue();
     }
-    public DistanceConstraint getEdge(){
+    public Edge getEdge(){
         return edge;
     }
 

@@ -92,6 +92,9 @@ public class VPoint {
     public ArrayRealVector getDistance(@NotNull VPoint b) {
         return parentBody.getParentWorld().getDistance(pos, b.getPos()); // could be game.world-independent? just geometry if I don't have borderDistance
     }
+    public ArrayRealVector getDistance(ArrayRealVector pos) {
+        return parentBody.getParentWorld().getDistance(this.pos, pos); // could be game.world-independent? just geometry if I don't have borderDistance
+    }
 
     public Body getBody() {
         return this.parentBody;
@@ -102,9 +105,6 @@ public class VPoint {
     }
 
     public double project(@NotNull ArrayRealVector normalizedAxis) {
-        if (normalizedAxis.getNorm() != 1) { // remove this if clause
-            return getPos().dotProduct(normalizedAxis.mapMultiply(1 / normalizedAxis.getNorm()));
-        }
         return getPos().dotProduct(normalizedAxis);
     }
 

@@ -14,14 +14,12 @@ import game.world.VPoint;
 import game.world.World;
 import game.world.bodies.Body;
 import game.world.bodies.Web;
-import game.world.constraints.DistanceConstraint;
+import game.world.constraints.Edge;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 public class Renderer {
-    BufferedImage view;
     int height;
     int width;
     Graphics g;
@@ -31,7 +29,6 @@ public class Renderer {
         this.handler = handler;
         width = Config.WIDTH;
         height = Config.HEIGHT;
-        view = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     }
 
     public void update() { //get new info and progress animations
@@ -64,7 +61,7 @@ public class Renderer {
 
     private void drawBody(@NotNull Body b) {
         g.setColor(Config.EDGES);
-        for (DistanceConstraint e : b.getEdges()) {
+        for (Edge e : b.getEdges()) {
             g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
         }
         g.setColor(Config.POINTS);
@@ -75,7 +72,7 @@ public class Renderer {
 
     public void drawImage(@NotNull Graphics g, @NotNull TurtleMenu menu) {
         this.g = g;
-        if (!(menu.getState() == GameState.playClient || menu.getState() == GameState.playServer)) {
+        if (!(handler.getState() == GameState.playClient || handler.getState() == GameState.playServer)) {
             fill(Config.menuBackground);
         }
         for (IElement e : menu.getElements()) {

@@ -5,9 +5,9 @@ import game.GameHandler;
 import game.connection.packets.containers.WorldData;
 import game.util.Maths;
 import game.world.bodies.Body;
+import game.world.bodies.Box;
 import game.world.bodies.Web;
-import game.world.constraints.Constraint;
-import game.world.constraints.DistanceConstraint;
+import game.world.constraints.Edge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
@@ -18,13 +18,11 @@ public class World {
     ArrayList<Body> bodies;
     ArrayList<Body> toRemove;
     ArrayList<Body> toAdd;
-    ArrayList<DistanceConstraint> constraints;
     transient GameHandler handler;
 
     public World(GameHandler handler) {
         this.handler = handler;
         bodies = new ArrayList<>();
-        constraints = new ArrayList<>();
         toAdd = new ArrayList<>();
         toRemove = new ArrayList<>();
     }
@@ -40,9 +38,9 @@ public class World {
         gravitate();
         //move it all
         for (Body b : bodies) {
-            //fadeBodies(b); // remove irrelevant
+            //fadeBodies(b); // remove irrelevant bodies
             b.move(); // keep moving based on last update
-            wrapAround(b); // teleport through border
+            //wrapAround(b); // teleport through border
         }
         //constraints and collisions
         for (Body b : bodies) {
@@ -50,9 +48,6 @@ public class World {
             for (CollisionData collision : checkCollisions(b)) {
                 collide(collision);
             }
-        }
-        for (Constraint c : constraints) {
-            c.satisfy(); //those can't be removed. find a better solution
         }
         //remove and add bodies
         for (Body b : toRemove) {
@@ -82,19 +77,15 @@ public class World {
     public void addBody(Body b) {
         toAdd.add(b);
     }
-    public void addConstraint(DistanceConstraint c){
-        constraints.add(c);//might want to have a buffer arraylist
-    }
-    public void addConstraint(VPoint p1, VPoint p2){
-        addConstraint(new DistanceConstraint(p1, p2, p1.getDistance(p2).getNorm()));//might want to have a buffer arraylist
-    }
 
     void gravitate() {//optimize
+        Body b1;
+        Body b2;
         for (int i = 0; i < bodies.size(); i++) {
-            Body b1 = bodies.get(i);
+            b1 = bodies.get(i);
             if (b1.gravitates()) {
                 for (int j = i + 1; j < bodies.size(); j++) {
-                    Body b2 = bodies.get(j);
+                    b2 = bodies.get(j);
                     if (b2.gravitates()) {
                         ArrayRealVector force = b1.getDistance(b2);
                         force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3) * 10); //arbitrary factor of 10, make it into a variable thingy ig
@@ -118,19 +109,20 @@ public class World {
     }
 
     ArrayList<CollisionData> checkCollisions(@NotNull Body b1) { // separating axis theorem, only works for convex shapes
+        //pray for your turtles
         //returns
         ArrayRealVector collisionAxis = null;
-        DistanceConstraint collisionEdge = null;
+        Edge collisionEdge = null;
         VPoint collisionVertex = null;
         //locals
-        ArrayList<DistanceConstraint> edges1 = b1.getSides(); // not necessarily all DistanceConstraints of a body?
-        ArrayList<DistanceConstraint> edges2;
+        ArrayList<Edge> edges1 = b1.getSides();
+        ArrayList<Edge> edges2;
         ArrayList<CollisionData> collisions = new ArrayList<>();
         double minDistance; // from vertex to edge in the direction of the axis
         ArrayRealVector axis;
         ArrayList<Pair<Double, VPoint>> projection1;
         ArrayList<Pair<Double, VPoint>> projection2;
-        DistanceConstraint edge;
+        Edge edge;
 
         for (Body b2 : bodies) {
             if (b2 == b1 || (b2.getClass() == Web.class && b1.getClass() == Web.class)) {
@@ -219,12 +211,13 @@ public class World {
                     break;
                 } // no collision
             }
-            if (collided && collisionEdge != null) {// unnecessary collisionEdge check? shows a warning, I could leave the warning be as it is unrealistic
-                axis = collisionEdge.getEdge1().getDistance(collisionEdge.getEdge2());
-                double vertexProjection = collisionVertex.project(axis);
-                if (vertexProjection > collisionEdge.getEdge1().project(axis) && vertexProjection < collisionEdge.getEdge2().project(axis)) {// might be unnecessary
-                    collisions.add(new CollisionData(collisionVertex, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
-                }
+            if (collided && collisionEdge != null) {
+                //axis = collisionEdge.getEdge1().getDistance(collisionEdge.getEdge2());
+                //axis.mapMultiplyToSelf(1/axis.getNorm());
+                //double vertexProjection = collisionVertex.project(axis);
+                //if (vertexProjection > collisionEdge.getEdge1().project(axis) && vertexProjection < collisionEdge.getEdge2().project(axis)) {// might be unnecessary
+                collisions.add(new CollisionData(collisionVertex, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
+                //}
             }
         }
         return collisions;
@@ -242,6 +235,9 @@ public class World {
             b.shift(new ArrayRealVector(new Double[]{0.0, -projectionY.get(1).getKey()}));
         } else if (projectionY.get(1).getKey() < 0) {
             b.shift(new ArrayRealVector(new Double[]{0.0, Config.HEIGHT - projectionY.get(0).getKey() - 1}));
+        }
+        if(b.apprVelocity()>Config.WIDTH){
+            b.stop();
         }
     }
 
@@ -307,7 +303,7 @@ public class World {
     }
 
     public ArrayRealVector getDistance(ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
-        return pos2.copy().combineToSelf(1, -1, pos1);
+        return pos2.combine(1, -1, pos1);
     }
 
     public void set(@NotNull WorldData data) {
@@ -320,29 +316,9 @@ public class World {
             b.checkPointParent();
             b.restoreEdgesFromImage(data.edgeImages.get(i));
         }
-        constraints.clear();
-        ArrayList<Integer> refs;
-        for (Pair<ArrayList<Integer>, Double> image : data.constraintsImage) {
-            refs = image.getKey();
-            constraints.add(new DistanceConstraint(bodies.get(refs.get(0)).getPoints().get(refs.get(1)),
-                    bodies.get(refs.get(2)).getPoints().get(refs.get(3)), image.getValue()));
-        }
     }
 
-    public ArrayList<Pair<ArrayList<Integer>, Double>> getConstraintImage() {
-        ArrayList<Pair<ArrayList<Integer>, Double>> res = new ArrayList<>();
-        Body pointParent;
-        ArrayList<Integer> refs = new ArrayList<>();
-        for (DistanceConstraint c : constraints) {
-            refs.clear();
-            pointParent = c.getEdge1().getParentBody();
-            refs.add(bodies.indexOf(pointParent));
-            refs.add(pointParent.getPoints().indexOf(c.getEdge1()));
-            pointParent = c.getEdge2().getParentBody();
-            refs.add(bodies.indexOf(pointParent));
-            refs.add(pointParent.getPoints().indexOf(c.getEdge2()));
-            res.add(new Pair<>(new ArrayList<>(refs), c.getDistance()));
-        }
-        return res;
+    public void spawn(ArrayRealVector pos) {
+        new Box(handler.getWorld(), pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
     }
 }

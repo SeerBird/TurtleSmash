@@ -16,7 +16,7 @@ public class Config {
     public static double shellMass = 3;
     public static int stringLimit = 3;
     public static int stringLengthLimit = 20;
-    public static double stringTensileStrength = 0.5;
+    public static double webMaxDisplacement = 6000;
     public static double stringRestNodeDistance = 14;
     public static double gravity = 1;
     public static double stringFling = 24;

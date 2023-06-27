@@ -8,7 +8,6 @@ import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 
 public abstract class IElement {
-    TurtleMenu menu;
     public int x;
     public int y;
 

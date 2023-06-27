@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class GameHandler {
+public class GameHandler { // make it all static. or try and see whether it's possible either way
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private GameState state;
     private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
@@ -62,19 +62,20 @@ public class GameHandler {
     World world;
     // idk what this has become, seems dodgy. I should move this to the actual input module
     // figure out what the different state functions are and whether the order matters, then see
-    private static final Map<Integer, Boolean> keyPressedEvents = new HashMap<>();
-    private static final Map<Integer, Boolean> keyReleasedEvents = new HashMap<>();
+    private static final Map<Integer, Boolean> keyPressEvents = new HashMap<>();
+    private static final Map<Integer, Boolean> keyReleaseEvents = new HashMap<>();
     private static final Map<Integer, MouseEvent> mousePressEvents = new HashMap<>();
     private static final Map<Integer, MouseEvent> mouseReleaseEvents = new HashMap<>();
     private MouseEvent mouseMoveEvent;
     private static final ArrayRealVector mousepos = new ArrayRealVector(2);
+    public boolean debug;
 
     public GameHandler() {
         // weird? inputs
-        keyPressedEvents.clear();
+        keyPressEvents.clear();
         for (int i = 0x10; i <= 0xE3; i++) {
-            keyPressedEvents.put(i, false);
-            keyReleasedEvents.put(i, false);
+            keyPressEvents.put(i, false);
+            keyReleaseEvents.put(i, false);
         }
 
         //important stuff
@@ -103,7 +104,9 @@ public class GameHandler {
         addJob(Job.handlePlayers);
         addJob(Job.updateWorld);
         players.clear();
-        players.add(new Player(this));
+        Player p = new Player(this);
+        p.getInput().mousepos = mousepos;
+        players.add(p);
     }
 
     public void out() {
@@ -112,7 +115,7 @@ public class GameHandler {
         window.showCanvas();
     }
 
-    public void update() {
+    public static void update() {
         {
             for (Job added : toAdd) {
                 jobs.add(job.get(added));
@@ -130,11 +133,11 @@ public class GameHandler {
         }// get em done
     }
 
-    public void addJob(Job job) {
+    public static void addJob(Job job) {
         toAdd.add(job);
     }
 
-    public void removeJob(Job job) {
+    public static void removeJob(Job job) {
         toRemove.add(job);
     }
 
@@ -151,7 +154,15 @@ public class GameHandler {
                 mouseReleaseEvents.put(MouseInput.LEFT, null);
             }
         }
-        if (keyPressedEvents.get(KeyEvent.VK_ESCAPE)) {
+        if (keyPressEvents.get(KeyEvent.VK_SPACE)) {
+            debug=true;
+            keyPressEvents.put(KeyEvent.VK_SPACE, false);
+        }
+        if (keyReleaseEvents.get(KeyEvent.VK_SPACE)) {
+            debug=false;
+            keyReleaseEvents.put(KeyEvent.VK_SPACE, false);
+        }
+        if (keyPressEvents.get(KeyEvent.VK_ESCAPE)) {
             if (state == GameState.playClient) {
                 tcpClient.disconnect();
             } else if (state == GameState.lobby) {
@@ -163,18 +174,32 @@ public class GameHandler {
             } else if (state == GameState.host) {
                 hostToMain();
             }
-            keyPressedEvents.put(KeyEvent.VK_ESCAPE, false);
+            keyPressEvents.put(KeyEvent.VK_ESCAPE, false);
+        }
+        if (keyReleaseEvents.get(KeyEvent.VK_A)) {
+            getGameInput();
+            keyPressEvents.put(KeyEvent.VK_A, false);
+            keyReleaseEvents.put(KeyEvent.VK_A, false);
         }
     }
 
     private void getGameInput() {
         players.get(0).getInput().reset();
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            players.get(0).getInput().teleport = mousepos; //copy?
+            players.get(0).getInput().teleport();
         }
         if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
             mousePressEvents.put(MouseInput.LEFT, null);
             mouseReleaseEvents.put(MouseInput.LEFT, null);
+        }
+        if (keyPressEvents.get(KeyEvent.VK_C)) {
+            players.get(0).getInput().create();
+            keyPressEvents.put(KeyEvent.VK_C, false);
+        }
+        if (mouseReleaseEvents.get(MouseInput.RIGHT) != null) {
+            players.get(0).getInput().webFling();
+            mousePressEvents.put(MouseInput.RIGHT, null);
+            mouseReleaseEvents.put(MouseInput.RIGHT, null);
         }
     }
 
@@ -183,13 +208,19 @@ public class GameHandler {
             players.remove(ghost);
         }
         InputInfo input;
+        Body body;
         for (Player player : players) {
             input = player.getInput();
-            Body body;
             if ((body = player.getBody()) != null) {
-                if (input.teleport != null) {
-                    body.shift((ArrayRealVector) body.getDistance(input.teleport).mapMultiply(0.2));
+                if (input.teleport) {
+                    body.shift((ArrayRealVector) body.getDistance(input.mousepos).mapMultiply(0.2));
                     body.stop();
+                }
+                if (input.create) {
+                    world.spawn(input.mousepos);
+                }
+                if (input.webFling) {
+                    player.getBody().webFling(input.mousepos);
                 }
             }
         }
@@ -249,9 +280,10 @@ public class GameHandler {
         setState(GameState.host);
         tcpServer = new ServerTCP(this, port);
         tcpServer.start();
-        multicaster = new Multicaster(Multiplayer.multicastIP, true, servers);
+        multicaster = new Multicaster(Multiplayer.multicastIP, servers);
         multicaster.setServerStatus("bababoi", port);
         multicaster.start();
+        multicaster.startBroadcast();
         addJob(Job.sendServer);
     }
 
@@ -259,16 +291,16 @@ public class GameHandler {
         setState(GameState.playServer);
         world.startGen();
         GameStartPacket packet = new GameStartPacket();
-        synchronized (players) {
+        synchronized (players) { // make this a procedure
             for (int i = 1; i < players.size(); i++) {//potential for sending different info
-                players.get(i).getChannel().writeAndFlush(packet);//code proper disconnect handling, breaks at the moment
+                players.get(i).send(packet);//code proper disconnect handling, breaks at the moment
             }
         }
     }
 
     public void discover() {
         setState(GameState.discover);
-        multicaster = new Multicaster(Multiplayer.multicastIP, false, servers);
+        multicaster = new Multicaster(Multiplayer.multicastIP, servers);
         multicaster.start();
     }
 
@@ -329,7 +361,7 @@ public class GameHandler {
     }
 
     public void refreshLAN() {
-        multicaster.getServers();
+        multicaster.refreshServers();
     }
 
     public void terminate() {
@@ -376,7 +408,7 @@ public class GameHandler {
 
     // Input
     public void postKeyPressedEvent(@NotNull KeyEvent e) {
-        keyPressedEvents.put(e.getKeyCode(), true);
+        keyPressEvents.put(e.getKeyCode(), true);
     }
 
     public ArrayRealVector getMousepos() {
@@ -384,7 +416,7 @@ public class GameHandler {
     }
 
     public void postKeyReleasedEvent(@NotNull KeyEvent e) {
-        keyReleasedEvents.put(e.getKeyCode(), true);
+        keyReleaseEvents.put(e.getKeyCode(), true);
     }
 
     public void postMousePressEvent(MouseEvent e) {

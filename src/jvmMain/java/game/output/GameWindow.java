@@ -13,12 +13,10 @@ import java.awt.event.ComponentEvent;
 import java.awt.image.BufferStrategy;
 
 public class GameWindow extends JFrame {
-    private final GameHandler handler;
     BufferStrategy strategy;
 
     public GameWindow(GameHandler handler) {
         // Basic functionality
-        this.handler = handler;
         setIgnoreRepaint(true);
         setResizable(false);
         setVisible(true);

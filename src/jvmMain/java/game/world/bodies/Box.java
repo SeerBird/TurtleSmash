@@ -2,10 +2,9 @@ package game.world.bodies;
 
 import game.world.VPoint;
 import game.world.World;
-import game.world.constraints.DistanceConstraint;
+import game.world.constraints.Edge;
 import org.apache.commons.math3.linear.ArrayRealVector;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class Box extends Body {
@@ -15,12 +14,12 @@ public class Box extends Body {
         VPoint p2 = new VPoint(this, 10, pos.combine(1, 1, side1));
         VPoint p3 = new VPoint(this, 10, pos.combine(1, 1, side2));
         VPoint p4 = new VPoint(this, 10, pos.combine(1, 1, side1).combine(1, 1, side2));
-        addEdge(new DistanceConstraint(p1, p2, p1.getDistance(p2).getNorm()));
-        addEdge(new DistanceConstraint(p1, p3, p1.getDistance(p3).getNorm()));
-        addEdge(new DistanceConstraint(p2, p4, p2.getDistance(p4).getNorm()));
-        addEdge(new DistanceConstraint(p3, p4, p3.getDistance(p4).getNorm()));
-        addEdge(new DistanceConstraint(p1, p4, p1.getDistance(p4).getNorm()));
-        addEdge(new DistanceConstraint(p2, p3, p2.getDistance(p3).getNorm()));
+        addEdge(new Edge(p1, p2, p1.getDistance(p2).getNorm()));
+        addEdge(new Edge(p1, p3, p1.getDistance(p3).getNorm()));
+        addEdge(new Edge(p2, p4, p2.getDistance(p4).getNorm()));
+        addEdge(new Edge(p3, p4, p3.getDistance(p4).getNorm()));
+        addEdge(new Edge(p1, p4, p1.getDistance(p4).getNorm()));
+        addEdge(new Edge(p2, p3, p2.getDistance(p3).getNorm()));
         addPoint(p1);
         addPoint(p2);
         addPoint(p3);
@@ -29,8 +28,8 @@ public class Box extends Body {
     }
 
     @Override
-    public ArrayList<DistanceConstraint> getSides() {
-        ArrayList<DistanceConstraint> sides = new ArrayList<>();
+    public ArrayList<Edge> getSides() {
+        ArrayList<Edge> sides = new ArrayList<>();
         sides.add(edges.get(0));
         sides.add(edges.get(1));
         sides.add(edges.get(2));

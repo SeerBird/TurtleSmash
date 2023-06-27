@@ -2,7 +2,7 @@ package game.world.bodies;
 
 import game.world.VPoint;
 import game.world.World;
-import game.world.constraints.DistanceConstraint;
+import game.world.constraints.Edge;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,8 +33,8 @@ public class Star extends Body {
         addEdge(p5,p1);
     }
     @Override
-    public ArrayList<DistanceConstraint> getSides() {
-        ArrayList<DistanceConstraint> sides=new ArrayList<>();
+    public ArrayList<Edge> getSides() {
+        ArrayList<Edge> sides=new ArrayList<>();
         sides.add(edges.get(0));
         sides.add(edges.get(1));
         sides.add(edges.get(2));

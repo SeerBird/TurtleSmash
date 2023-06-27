@@ -21,7 +21,7 @@ public class ServerList extends RectElement {
         this.servers = servers;
         buttons = new HashMap<>();
         pressed = null;
-        refresh = new GButton(0,0,100,100,this::refresh,"Refresh");
+        refresh = new GButton(0,0,100,100, () -> refresh(),"Refresh");
     }
 
     @Override
