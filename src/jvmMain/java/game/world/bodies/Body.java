@@ -11,6 +11,7 @@ import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Body {
     ArrayList<VPoint> points;
@@ -119,9 +120,18 @@ public class Body {
         points.add(p);
         centerMoved = true;
     }
+    public void addPoints(VPoint... points){
+        this.points.addAll(List.of(points));
+        centerMoved = true;
+    }
 
     public void addEdge(VPoint p1, VPoint p2) {
         addEdge(new Edge(p1, p2, p1.getDistance(p2).getNorm()));
+    }
+    public void addEdgeChain(VPoint... points){
+        for(int i=1;i<points.length;i++){
+            addEdge(points[i-1],points[i]);
+        }
     }
 
     public ArrayRealVector getDistance(@NotNull Body b) {

@@ -107,6 +107,8 @@ public class GameHandler { // make it all static. or try and see whether it's po
         Player p = new Player(this);
         p.getInput().mousepos = mousepos;
         players.add(p);
+        //host();
+        //playServer();
     }
 
     public void out() {
@@ -220,7 +222,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
                     world.spawn(input.mousepos);
                 }
                 if (input.webFling) {
-                    player.getBody().webFling(input.mousepos);
+                    player.getBody().webFling(input.mousepos.copy());
                 }
             }
         }
