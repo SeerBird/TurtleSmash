@@ -25,10 +25,10 @@ public class Discoverer{
         } catch (IOException e) {
             logger.warning("Failed to create multicast discoverer socket");
         }
-        SocketAddress group = new InetSocketAddress(groupAddress, 0);
         try {
-            socket.joinGroup(group, Multiplayer.networkInterface);
+            socket.joinGroup(new InetSocketAddress(groupAddress, 4445), Multiplayer.networkInterface);
             //socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
+            //socket.setOption(StandardSocketOptions.IP_MULTICAST_IF,Multiplayer.networkInterface);
         } catch (IOException e) {
             logger.warning("Failed to join multicast group");
         }
@@ -52,7 +52,7 @@ public class Discoverer{
                 return;
             }
             servers.put(received.address,received);
-        }, 0, 1, TimeUnit.MILLISECONDS);
+        }, 2000, 1, TimeUnit.MILLISECONDS);
         logger.info("Listening for servers on " + groupAddress.getHostAddress() + ':' + 4445
                 + " on interface " + Multiplayer.networkInterface.getDisplayName());
     }
