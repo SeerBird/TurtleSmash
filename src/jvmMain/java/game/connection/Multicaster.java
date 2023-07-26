@@ -48,9 +48,14 @@ public class Multicaster extends Thread {
                     .option(ChannelOption.SO_BROADCAST, true)
                     .handler(new ServerDiscoverer(servers));
             ch = (NioDatagramChannel) b.bind(groupAddress.getPort()).sync().channel();
-            ch.joinGroup(groupAddress, Multiplayer.networkInterface).addListener(future ->
+            ch.joinGroup(groupAddress, Multiplayer.networkInterface).addListener(future -> {
+                if (future.isSuccess()) {
                     logger.info("Listening for servers on " + groupAddress.getAddress().getHostAddress() + ':' + groupAddress.getPort()
-                            + " on interface " + Multiplayer.networkInterface.getDisplayName())).sync();
+                            + " on interface " + Multiplayer.networkInterface.getDisplayName());
+                } else {
+                    logger.info("Failed to join multicast group");
+                }
+            }).sync();
             ch.closeFuture().sync().addListener(future -> logger.info("Closing multicast channel"));
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -104,6 +109,7 @@ public class Multicaster extends Thread {
     public void disconnect() {
         stopBroadcast();
         if (ch != null) {
+            ch.leaveGroup(groupAddress,Multiplayer.networkInterface);
             ch.close().addListener(future -> logger.info("Multicaster down"));
         }
     }
