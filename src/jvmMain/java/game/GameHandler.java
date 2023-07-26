@@ -56,7 +56,8 @@ public class GameHandler { // make it all static. or try and see whether it's po
     TurtleMenu menu;
     ServerTCP tcpServer;
     ClientTCP tcpClient;
-    Multicaster multicaster;
+    Broadcaster broadcaster;
+    Discoverer discoverer;
     GameWindow window;
     Sound sound;
     World world;
@@ -157,11 +158,11 @@ public class GameHandler { // make it all static. or try and see whether it's po
             }
         }
         if (keyPressEvents.get(KeyEvent.VK_SPACE)) {
-            debug=true;
+            debug = true;
             keyPressEvents.put(KeyEvent.VK_SPACE, false);
         }
         if (keyReleaseEvents.get(KeyEvent.VK_SPACE)) {
-            debug=false;
+            debug = false;
             keyReleaseEvents.put(KeyEvent.VK_SPACE, false);
         }
         if (keyPressEvents.get(KeyEvent.VK_ESCAPE)) {
@@ -282,10 +283,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
         setState(GameState.host);
         tcpServer = new ServerTCP(this, port);
         tcpServer.start();
-        multicaster = new Multicaster(Multiplayer.multicastIP, servers);
-        multicaster.setServerStatus("bababoi", port);
-        multicaster.start();
-        multicaster.startBroadcast();
+        broadcaster = new Broadcaster("bababoi", port);
         addJob(Job.sendServer);
     }
 
@@ -302,8 +300,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     public void discover() {
         setState(GameState.discover);
-        multicaster = new Multicaster(Multiplayer.multicastIP, servers);
-        multicaster.start();
+        discoverer = new Discoverer(servers);
     }
 
     public void connect(ServerStatus server) {
@@ -329,7 +326,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     public void hostToMain() {
         setState(GameState.main);
-        multicaster.disconnect();
+        broadcaster.stop();
         tcpServer.disconnect();
     }
 
@@ -339,7 +336,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     private void discoverToMain() {
         setState(GameState.main);
-        multicaster.disconnect();
+        discoverer.stop();
     }
 
     private void setState(GameState state) {
@@ -363,7 +360,11 @@ public class GameHandler { // make it all static. or try and see whether it's po
     }
 
     public void refreshLAN() {
-        multicaster.refreshServers();
+        for(InetAddress address:servers.keySet()){
+            if(System.nanoTime()-servers.get(address).nanoTime>Config.discoveryMilliTimeout*1000000){
+                servers.remove(address);
+            }
+        }
     }
 
     public void terminate() {

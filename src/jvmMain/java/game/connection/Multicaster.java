@@ -41,7 +41,7 @@ public class Multicaster extends Thread {
             Bootstrap b = new Bootstrap()
                     .group(group)
                     .channelFactory((ChannelFactory<NioDatagramChannel>) () -> new NioDatagramChannel(InternetProtocolFamily.IPv4))
-                    .localAddress(Multiplayer.localIp, groupAddress.getPort())
+                    .localAddress(Multiplayer.localAddress, groupAddress.getPort())
                     .option(ChannelOption.IP_MULTICAST_IF, Multiplayer.networkInterface)
                     .option(ChannelOption.SO_REUSEADDR, true)
                     .option(ChannelOption.IP_MULTICAST_LOOP_DISABLED, true)
@@ -89,7 +89,7 @@ public class Multicaster extends Thread {
     }
 
     public void setServerStatus(String serverStatus, int tcpPort) {
-        this.serverStatus = Multiplayer.localIp.getHostAddress() + "/" + tcpPort + "/" + serverStatus;
+        this.serverStatus = Multiplayer.localAddress.getHostAddress() + "/" + tcpPort + "/" + serverStatus;
         logger.info("Set server status as " + this.serverStatus);
     }
 
