@@ -21,7 +21,7 @@ public class Discoverer{
 
     public Discoverer(Map<InetAddress, ServerStatus> servers) {
         try {
-            socket = new MulticastSocket(4446);
+            socket = new MulticastSocket(4445);
         } catch (IOException e) {
             logger.warning("Failed to create multicast discoverer socket");
         }
@@ -51,7 +51,7 @@ public class Discoverer{
                 return;
             }
             servers.put(received.address,received);
-        }, 0, 80, TimeUnit.MILLISECONDS);
+        }, 0, 1, TimeUnit.MILLISECONDS);
         logger.info("Listening for servers on " + groupAddress.getHostAddress() + ':' + 4445
                 + " on interface " + Multiplayer.networkInterface.getDisplayName());
     }

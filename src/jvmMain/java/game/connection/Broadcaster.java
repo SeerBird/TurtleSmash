@@ -28,7 +28,6 @@ public class Broadcaster {
         {
             try {
                 socket = new DatagramSocket();
-                SocketAddress group = new InetSocketAddress(groupAddress, 4445);
             } catch (IOException e) {
                 logger.warning("Failed to create a broadcaster socket");
             }
