@@ -25,9 +25,10 @@ public class Discoverer{
         } catch (IOException e) {
             logger.warning("Failed to create multicast discoverer socket");
         }
-        SocketAddress group = new InetSocketAddress(groupAddress, 4445);
+        SocketAddress group = new InetSocketAddress(groupAddress, 0);
         try {
             socket.joinGroup(group, Multiplayer.networkInterface);
+            //socket.setOption(StandardSocketOptions.IP_MULTICAST_LOOP,false);
         } catch (IOException e) {
             logger.warning("Failed to join multicast group");
         }
@@ -60,6 +61,11 @@ public class Discoverer{
             future.cancel(true);
         }
         if(socket!=null){
+            try {
+                socket.leaveGroup(new InetSocketAddress(groupAddress, 4445), Multiplayer.networkInterface);
+            } catch (IOException e) {
+                logger.warning("Error leaving group");
+            }
             socket.close();
         }
     }
