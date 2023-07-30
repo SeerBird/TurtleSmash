@@ -13,10 +13,10 @@ public class Multiplayer {
     public static InetAddress localAddress;
     public static InetAddress groupAddress;
     public static NetworkInterface networkInterface;
-    public static final boolean SSL = System.getProperty("ssl") != null;
-    public static final String localhost = System.getProperty("host", "localhost");
-    public static final int UDPPort = Integer.parseInt(System.getProperty("udpport", "54777"));
-    public static final String multicastIP = System.getProperty("host", "224.42.42.42");
+    public static final boolean SSL = System.getProperty("ssl") != null; //idk what this is even.
+    // /|\ leaving this in case I will want to actually deal with it, does nothing rn.
+    private static final String multicastIP = "224.42.42.42";
+    public static final int multicastPort = 5455;
 
     static {
         try {

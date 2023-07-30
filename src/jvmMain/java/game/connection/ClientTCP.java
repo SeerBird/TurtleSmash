@@ -52,7 +52,7 @@ public class ClientTCP extends Thread {
                         public void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
                             if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(ch.alloc(), Multiplayer.localhost, 5445));
+                                p.addLast(sslCtx.newHandler(ch.alloc(), "localhost", 5445));
                             }
                             p.addLast(
                                     new ObjectEncoder(),
