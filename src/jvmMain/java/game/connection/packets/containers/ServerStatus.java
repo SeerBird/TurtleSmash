@@ -14,6 +14,11 @@ public class ServerStatus {
 
     public ServerStatus(){
     }
+    public ServerStatus(InetAddress address, int port, String message){
+        this.address=address;
+        this.port=port;
+        this.message=message;
+    }
     public ServerStatus(@NotNull String message) throws UnknownHostException, IndexOutOfBoundsException {
         address = InetAddress.getByName(message.substring(0, message.indexOf("/")));
         String processed = message.substring(message.indexOf("/") + 1); //everything except the ip

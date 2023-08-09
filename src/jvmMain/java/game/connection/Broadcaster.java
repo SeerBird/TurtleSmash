@@ -17,26 +17,19 @@ import static game.util.Multiplayer.multicastPort;
 public class Broadcaster {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static DatagramSocket socket = null;
-    private final ServerStatus serverStatus = new ServerStatus();
-    ScheduledFuture<?> future;
+    private static final ServerStatus serverStatus = new ServerStatus(Multiplayer.localAddress,0,"placeholder");
 
-    public Broadcaster() {
-        {
-            this.serverStatus.address = Multiplayer.localAddress;
-            this.serverStatus.port = 0;
-            this.serverStatus.message = "placeholder";
-        }// set server status
-    }
+    static ScheduledFuture<?> future;
 
-    public void setStatus(String message, int tcpPort) {
-        synchronized (this.serverStatus) {
-            this.serverStatus.port = tcpPort;
-            this.serverStatus.message = message;
-            logger.info("Set server status as " + this.serverStatus);
+    public static void setStatus(String message, int tcpPort) {
+        synchronized (serverStatus) {
+            serverStatus.port = tcpPort;
+            serverStatus.message = message;
+            logger.info("Set server status as " + serverStatus.getStatus());
         }
     }
 
-    public void start() {
+    public static void start() {
         {
             try {
                 socket = new DatagramSocket();
@@ -50,14 +43,14 @@ public class Broadcaster {
             try {
                 socket.send(packet);
             } catch (IOException e) {
-                logger.warning("Failed to broadcast server status: "+e.getMessage());
+                logger.warning("Failed to broadcast server status: " + e.getMessage());
             }
         }, 0, Config.multicastMilliPeriod, TimeUnit.MILLISECONDS);// start broadcast
         String unit = (Config.multicastMilliPeriod == 1000) ? " second" : " seconds";
         logger.info("Screaming at " + groupAddress.getHostAddress() + ":" + multicastPort + " every " + Config.multicastMilliPeriod / 1000 + unit);
     }
 
-    public void stop() {
+    public static void stop() {
         if (future != null) {
             future.cancel(false);
         }

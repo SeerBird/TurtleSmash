@@ -56,8 +56,6 @@ public class GameHandler { // make it all static. or try and see whether it's po
     TurtleMenu menu;
     ServerTCP tcpServer;
     ClientTCP tcpClient;
-    private static final Broadcaster broadcaster = new Broadcaster();
-    private static final Discoverer discoverer = new Discoverer(servers);
     GameWindow window;
     Sound sound;
     World world;
@@ -283,8 +281,8 @@ public class GameHandler { // make it all static. or try and see whether it's po
         setState(GameState.host);
         tcpServer = new ServerTCP(this, port);
         tcpServer.start();
-        broadcaster.setStatus("bababoi", port);
-        broadcaster.start();
+        Broadcaster.setStatus("bababoi", port);
+        Broadcaster.start();
         addJob(Job.sendServer);
     }
 
@@ -301,7 +299,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     public void discover() {
         setState(GameState.discover);
-        discoverer.start();
+        Discovery.start(servers);
     }
 
     public void connect(ServerStatus server) {
@@ -327,7 +325,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     public void hostToMain() {
         setState(GameState.main);
-        broadcaster.stop();
+        Broadcaster.stop();
         tcpServer.disconnect();
     }
 
@@ -337,7 +335,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     private void discoverToMain() {
         setState(GameState.main);
-        discoverer.stop();
+        Discovery.stop();
     }
 
     private void setState(GameState state) {
