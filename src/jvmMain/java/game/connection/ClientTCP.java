@@ -89,6 +89,8 @@ public class ClientTCP extends Thread {
     }
 
     public void disconnect() {
-        channel.close().addListener(future -> logger.info("TCP channel closed"));
+        if (channel != null) {
+            channel.close().addListener(future -> logger.info("TCP channel closed"));
+        }
     }
 }

@@ -68,6 +68,7 @@ public class Discoverer {
         if (future != null) {
             future.cancel(true);
         }
+        logger.info("No longer listening for servers");
     }
 
     public void shutDown() {
