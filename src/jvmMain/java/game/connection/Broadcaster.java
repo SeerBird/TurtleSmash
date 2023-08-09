@@ -26,13 +26,6 @@ public class Broadcaster {
             this.serverStatus.port = 0;
             this.serverStatus.message = "placeholder";
         }// set server status
-        {
-            try {
-                socket = new DatagramSocket();
-            } catch (IOException e) {
-                logger.warning("Failed to create a broadcaster socket");
-            }
-        }// initialize socket
     }
 
     public void setStatus(String message, int tcpPort) {
@@ -44,13 +37,20 @@ public class Broadcaster {
     }
 
     public void start() {
+        {
+            try {
+                socket = new DatagramSocket();
+            } catch (IOException e) {
+                logger.warning("Failed to create a broadcaster socket");
+            }
+        }// initialize socket
         future = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
             byte[] buffer = serverStatus.getStatus().getBytes();// do I need this synchronised?
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, groupAddress, multicastPort);
             try {
                 socket.send(packet);
             } catch (IOException e) {
-                logger.warning("Failed to broadcast server status");
+                logger.warning("Failed to broadcast server status: "+e.getMessage());
             }
         }, 0, Config.multicastMilliPeriod, TimeUnit.MILLISECONDS);// start broadcast
         String unit = (Config.multicastMilliPeriod == 1000) ? " second" : " seconds";
@@ -59,12 +59,8 @@ public class Broadcaster {
 
     public void stop() {
         if (future != null) {
-            future.cancel(true);
+            future.cancel(false);
         }
-    }
-
-    public void shutDown() {
-        stop();
         if (socket != null) {
             socket.close();
         }

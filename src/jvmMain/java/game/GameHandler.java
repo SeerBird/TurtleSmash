@@ -327,7 +327,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     public void hostToMain() {
         setState(GameState.main);
-        broadcaster.shutDown();
+        broadcaster.stop();
         tcpServer.disconnect();
     }
 
