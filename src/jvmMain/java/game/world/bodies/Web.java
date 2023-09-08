@@ -144,17 +144,17 @@ public class Web extends Body {
     @Override
     public boolean constrain() {
         boolean edges = super.constrain();
-        boolean stickieSat = true;
+        boolean stickySat = true;
         for (ArrayList<WebStick> connections : stickies.values()) {
             for (WebStick sticky : connections) {
-                stickieSat &= sticky.satisfy();
+                stickySat &= sticky.satisfy();
             }
         }
         for (WebStick stick : toUnstick) {
             stickies.get(stick.getEdge1()).remove(stick);
         }
         toUnstick.clear();
-        return edges & stickieSat;
+        return edges & stickySat;
     }
 
     public void unstick(@NotNull WebStick webStick) {
