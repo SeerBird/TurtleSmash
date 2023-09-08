@@ -1,23 +1,22 @@
 package game.util;
 
-import game.Config;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.net.ssl.SSLException;
-import java.math.BigInteger;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Multiplayer {
-    public static InetAddress localIp;
+    public static InetAddress localAddress;
+    public static InetAddress groupAddress;
     public static NetworkInterface networkInterface;
+    public static final boolean SSL = System.getProperty("ssl") != null; //idk what this is even.
+    // /|\ leaving this in case I will want to actually deal with it, does nothing rn.
+    private static final String multicastIP = "224.42.42.42";
+    public static final int multicastPort = 5455;
 
     static {
         try {
@@ -25,13 +24,14 @@ public class Multiplayer {
             networkInterface = NetworkInterface.getByInetAddress(localHost);
             for (InterfaceAddress address : networkInterface.getInterfaceAddresses()) {
                 if (address.getAddress() instanceof Inet4Address) {
-                    localIp = address.getAddress();
+                    localAddress = address.getAddress();
                     break;
                 }
             }
-            if (localIp == null) {
+            if (localAddress == null) {
                 throw new RuntimeException("Failed to find an IPV4 address");//handle this, don't throw
             }
+            groupAddress = InetAddress.getByName(multicastIP);
         } catch (UnknownHostException | SocketException e) {
             throw new RuntimeException(e);
         }
@@ -47,9 +47,4 @@ public class Multiplayer {
                 .forServer(ssc.certificate(), ssc.privateKey())
                 .build();
     }
-
-    public static final boolean SSL = System.getProperty("ssl") != null;
-    public static final String localhost = System.getProperty("host", "localhost");
-    public static final int UDPPort = Integer.parseInt(System.getProperty("udpport", "54777"));
-    public static final String multicastIP = System.getProperty("host", "224.42.42.42");
 }

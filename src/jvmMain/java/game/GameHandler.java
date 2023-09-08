@@ -11,7 +11,6 @@ import game.output.Renderer;
 import game.output.audio.Sound;
 import game.output.ui.rectangles.Textbox;
 import game.output.ui.TurtleMenu;
-import game.util.Multiplayer;
 import game.world.World;
 import game.world.bodies.Body;
 import io.netty.channel.socket.SocketChannel;
@@ -31,10 +30,6 @@ import java.util.logging.Logger;
 public class GameHandler { // make it all static. or try and see whether it's possible either way
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private GameState state;
-    private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
-    private static final ArrayList<Player> removedPlayers = new ArrayList<>();
-    private static final ServerPacket lastPacket = new ServerPacket();
-    private static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
     private static final HashMap<Job, Runnable> job = new HashMap<>();
 
     private enum Job {
@@ -49,14 +44,18 @@ public class GameHandler { // make it all static. or try and see whether it's po
         updateWorld
     }
 
-    private static final ArrayList<Runnable> jobs = new ArrayList<>();
     private static final ArrayList<Job> toRemove = new ArrayList<>();
     private static final ArrayList<Job> toAdd = new ArrayList<>();
+
+    private static final ArrayList<Runnable> jobs = new ArrayList<>();
+    private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
+    private static final ArrayList<Player> removedPlayers = new ArrayList<>();
+    private static final ServerPacket lastPacket = new ServerPacket();
+    private static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
     Renderer renderer;
     TurtleMenu menu;
     ServerTCP tcpServer;
     ClientTCP tcpClient;
-    Multicaster multicaster;
     GameWindow window;
     Sound sound;
     World world;
@@ -157,11 +156,11 @@ public class GameHandler { // make it all static. or try and see whether it's po
             }
         }
         if (keyPressEvents.get(KeyEvent.VK_SPACE)) {
-            debug=true;
+            debug = true;
             keyPressEvents.put(KeyEvent.VK_SPACE, false);
         }
         if (keyReleaseEvents.get(KeyEvent.VK_SPACE)) {
-            debug=false;
+            debug = false;
             keyReleaseEvents.put(KeyEvent.VK_SPACE, false);
         }
         if (keyPressEvents.get(KeyEvent.VK_ESCAPE)) {
@@ -282,10 +281,8 @@ public class GameHandler { // make it all static. or try and see whether it's po
         setState(GameState.host);
         tcpServer = new ServerTCP(this, port);
         tcpServer.start();
-        multicaster = new Multicaster(Multiplayer.multicastIP, servers);
-        multicaster.setServerStatus("bababoi", port);
-        multicaster.start();
-        multicaster.startBroadcast();
+        Broadcaster.setStatus("bababoi", port);
+        Broadcaster.start();
         addJob(Job.sendServer);
     }
 
@@ -302,8 +299,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     public void discover() {
         setState(GameState.discover);
-        multicaster = new Multicaster(Multiplayer.multicastIP, servers);
-        multicaster.start();
+        Discovery.start(servers);
     }
 
     public void connect(ServerStatus server) {
@@ -329,7 +325,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     public void hostToMain() {
         setState(GameState.main);
-        multicaster.disconnect();
+        Broadcaster.stop();
         tcpServer.disconnect();
     }
 
@@ -339,7 +335,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     private void discoverToMain() {
         setState(GameState.main);
-        multicaster.disconnect();
+        Discovery.stop();
     }
 
     private void setState(GameState state) {
@@ -363,7 +359,11 @@ public class GameHandler { // make it all static. or try and see whether it's po
     }
 
     public void refreshLAN() {
-        multicaster.refreshServers();
+        for (InetAddress address : servers.keySet()) {
+            if (System.nanoTime() - servers.get(address).nanoTime > Config.discoveryMilliTimeout * 1000000) {
+                servers.remove(address);
+            }
+        }
     }
 
     public void terminate() {
