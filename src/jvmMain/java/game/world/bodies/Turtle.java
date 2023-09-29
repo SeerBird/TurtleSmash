@@ -10,8 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static game.util.Maths.i;
-import static game.util.Maths.j;
+import static game.util.Maths.*;
 
 public class Turtle extends Body {
     ArrayList<VPoint> spinnerets;
@@ -28,83 +27,92 @@ public class Turtle extends Body {
         double hwidth = 60;
         double hlength = 60;
         double tlength = 40;
-        double twidth=20;
+        double twidth = 20;
+        double scalar = 1.0;
+        length*=scalar;
+        width*=scalar;
+        awidth*=scalar;
+        lwidth*=scalar;
+        hwidth*=scalar;
+        hlength*=scalar;
+        tlength*=scalar;
+        twidth*=scalar; //this is for testing only, don't leave this here
         //head
         ArrayRealVector temp = pos.combine(1, length / 2 + hlength, j).combine(1, hwidth / 2, i);
-        VPoint h1 = new VPoint(this, 2, temp);
-        VPoint h2 = new VPoint(this, 2, temp.combine(1, -hlength, j));
-        VPoint h3 = new VPoint(this, 2, temp.combine(1, -hwidth, i));
-        VPoint h4 = new VPoint(this, 2, temp.combine(1, -hlength, j).combine(1, -hwidth, i));
+        VPoint head3 = new VPoint(this, 2, temp);
+        VPoint head4 = new VPoint(this, 2, temp.combine(1, -hlength, j));
+        VPoint head2 = new VPoint(this, 2, temp.combine(1, -hwidth, i));
+        VPoint head1 = new VPoint(this, 2, temp.combine(1, -hlength, j).combine(1, -hwidth, i));
         //right arm
         temp = pos.combine(1, length / 2, j).combine(1, width / 2, i);
         double norm = arm.getNorm();
-        VPoint ra1 = new VPoint(this, 2, temp.combine(1, -awidth * arm.getEntry(1) / norm, i));
-        VPoint ra2 = new VPoint(this, 2, temp.combine(1, -awidth * arm.getEntry(0) / norm, j));
-        VPoint ra3 = new VPoint(this, 2, ra1.getPos().add(arm));
-        VPoint ra4 = new VPoint(this, 2, ra2.getPos().add(arm));
+        VPoint rightArm1 = new VPoint(this, 2, temp.combine(1, -awidth * arm.getEntry(1) / norm, i));
+        VPoint rightArm4 = new VPoint(this, 2, temp.combine(1, -awidth * arm.getEntry(0) / norm, j));
+        VPoint rightArm2 = new VPoint(this, 2, rightArm1.getPos().add(arm));
+        VPoint rightArm3 = new VPoint(this, 2, rightArm4.getPos().add(arm));
         //left arm
-        temp = pos.combine(1, length / 2, j).combine(1, -width / 2, i);
-        norm = arm.getNorm();
-        VPoint la1 = new VPoint(this, 2, temp.combine(1, awidth * arm.getEntry(1) / norm, i));
-        VPoint la2 = new VPoint(this, 2, temp.combine(1, -awidth * arm.getEntry(0) / norm, j));
-        arm.setEntry(0, -arm.getEntry(0));
-        VPoint la3 = new VPoint(this, 2, la1.getPos().add(arm));
-        VPoint la4 = new VPoint(this, 2, la2.getPos().add(arm));
+        VPoint leftArm4 = new VPoint(this, 2, reflect(rightArm1.getPos(), pos, j));
+        VPoint leftArm1 = new VPoint(this, 2, reflect(rightArm4.getPos(), pos, j));
+        VPoint leftArm3 = new VPoint(this, 2, reflect(rightArm2.getPos(), pos, j));
+        VPoint leftArm2 = new VPoint(this, 2, reflect(rightArm3.getPos(), pos, j));
         //right leg
         temp = pos.combine(1, -length / 2, j).combine(1, width / 2, i);
         norm = leg.getNorm();
-        VPoint rl1 = new VPoint(this, 2, temp.combine(1, lwidth * leg.getEntry(1) / norm, i));
-        VPoint rl2 = new VPoint(this, 2, temp.combine(1, lwidth * leg.getEntry(0) / norm, j));
-        VPoint rl3 = new VPoint(this, 2, rl1.getPos().add(leg));
-        VPoint rl4 = new VPoint(this, 2, rl2.getPos().add(leg));
+        VPoint rightLeg4 = new VPoint(this, 2, temp.combine(1, lwidth * leg.getEntry(1) / norm, i));
+        VPoint rightLeg1 = new VPoint(this, 2, temp.combine(1, lwidth * leg.getEntry(0) / norm, j));
+        VPoint rightLeg3 = new VPoint(this, 2, rightLeg4.getPos().add(leg));
+        VPoint rightLeg2 = new VPoint(this, 2, rightLeg1.getPos().add(leg));
         //left leg
-        temp = pos.combine(1, -length / 2, j).combine(1, -width / 2, i);
-        norm = leg.getNorm();
-        VPoint ll1 = new VPoint(this, 2, temp.combine(1, -lwidth * leg.getEntry(1) / norm, i));
-        VPoint ll2 = new VPoint(this, 2, temp.combine(1, lwidth * leg.getEntry(0) / norm, j));
-        leg.setEntry(0, -leg.getEntry(0));
-        VPoint ll3 = new VPoint(this, 2, ll1.getPos().add(leg));
-        VPoint ll4 = new VPoint(this, 2, ll2.getPos().add(leg));
+        VPoint leftLeg1 = new VPoint(this, 2, reflect(rightLeg4.getPos(), pos, j));
+        VPoint leftLeg4 = new VPoint(this, 2, reflect(rightLeg1.getPos(), pos, j));
+        VPoint leftLeg2 = new VPoint(this, 2, reflect(rightLeg3.getPos(), pos, j));
+        VPoint leftLeg3 = new VPoint(this, 2, reflect(rightLeg2.getPos(), pos, j));
         //tail
-        VPoint t1 = new VPoint(this, 2, pos.combine(1, -length / 2 - tlength, j));
-        VPoint t2 = new VPoint(this,2,pos.combine(1, -length / 2, j).combine(1,twidth/2,i));
-        VPoint t3 = new VPoint(this,2,pos.combine(1, -length / 2, j).combine(1,-twidth/2,i));
+        VPoint tail2 = new VPoint(this, 2, pos.combine(1, -length / 2 - tlength, j));
+        VPoint tail1 = new VPoint(this, 2, pos.combine(1, -length / 2, j).combine(1, twidth / 2, i));
+        VPoint tail3 = new VPoint(this, 2, reflect(tail1.getPos(), pos, j));
         //add
-        addPoints(h1, h2, h3, h4, ra1, ra2, ra3, ra4, la1, la2, la3, la4, rl1, rl2, rl3, rl4, ll1, ll2, ll3, ll4, t1,t2,t3);
-        addEdgeChain(h1, h2, ra1, ra3, ra4, ra2, rl2, rl4, rl3, rl1, t2,t1,t3, ll1, ll3, ll4, ll2, la2, la4, la3, la1, h4, h3, h1);
-        spinnerets.addAll(new ArrayList<>(Arrays.asList(ra3,la3,rl4,ll4)));
+        addPoints(head3, head4, head2, head1, rightArm1, rightArm4, rightArm2, rightArm3, leftArm4, leftArm1, leftArm3, leftArm2, rightLeg4, rightLeg1, rightLeg3, rightLeg2, leftLeg1, leftLeg4, leftLeg2, leftLeg3, tail2, tail1, tail3);
+        addEdgeChain(head1, head2, head3, head4,
+                rightArm1, rightArm2, rightArm3, rightArm4,
+                rightLeg1, rightLeg2, rightLeg3, rightLeg4,
+                tail1, tail2, tail3,
+                leftLeg1, leftLeg2, leftLeg3, leftLeg4,
+                leftArm1, leftArm2, leftArm3, leftArm4,
+                head1);
+        spinnerets.addAll(new ArrayList<>(Arrays.asList(rightArm2, leftArm3, rightLeg2, leftLeg3)));
         //structure
-        addEdge(ra2,ll2);
-        addEdge(la2,rl2);
-        addEdge(ra1,ra4);
-        addEdge(ra2,ra3);
-        addEdge(la1,la4);
-        addEdge(la2,la3);
-        addEdge(ll1,ll4);
-        addEdge(ll2,ll3);
-        addEdge(rl1,rl4);
-        addEdge(rl2,rl3);
-        addEdge(h1,h4);
-        addEdge(h2,h3);
-        addEdge(ra1,la2);
-        addEdge(la1,ra2);
-        addEdge(rl2,t2);
-        addEdge(ll2,t3);
-        addEdge(h2,la2);
-        addEdge(h4,ra2);
-        addEdge(ra2,rl1);
-        addEdge(la2,ll1);
-        addEdge(rl2,ra1);
-        addEdge(ll2,la1);
-        addEdge(t2,t3);
-        addEdge(ll2,t2);
-        addEdge(rl2,t3);
+        addEdge(rightArm4, leftLeg4);
+        addEdge(leftArm1, rightLeg1);
+        addEdge(rightArm1, rightArm3);
+        addEdge(rightArm4, rightArm2);
+        addEdge(leftArm4, leftArm2);
+        addEdge(leftArm1, leftArm3);
+        addEdge(leftLeg1, leftLeg3);
+        addEdge(leftLeg4, leftLeg2);
+        addEdge(rightLeg4, rightLeg2);
+        addEdge(rightLeg1, rightLeg3);
+        addEdge(head3, head1);
+        addEdge(head4, head2);
+        addEdge(rightArm1, leftArm1);
+        addEdge(leftArm4, rightArm4);
+        addEdge(rightLeg1, tail1);
+        addEdge(leftLeg4, tail3);
+        addEdge(head4, leftArm1);
+        addEdge(head1, rightArm4);
+        addEdge(rightArm4, rightLeg4);
+        addEdge(leftArm1, leftLeg1);
+        addEdge(rightLeg1, rightArm1);
+        addEdge(leftLeg4, leftArm4);
+        addEdge(tail1, tail3);
+        addEdge(leftLeg4, tail1);
+        addEdge(rightLeg1, tail3);
     }
 
     @Override
     public ArrayList<Edge> getSides() {
         ArrayList<Edge> sides = new ArrayList<>();
-        for(int i=0;i<23;i++){
+        for (int i = 0; i < 23; i++) {
             sides.add(edges.get(i));
         }
         return sides;

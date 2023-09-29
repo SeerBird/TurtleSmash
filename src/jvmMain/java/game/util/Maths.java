@@ -14,6 +14,13 @@ public final class Maths {
         return (areClockwise(p1, p3, p4) ^ areClockwise(p2, p3, p4)) &&
                 (areClockwise(p1, p2, p3) ^ areClockwise(p1, p2, p4));
     }
+    public static ArrayRealVector reflect(ArrayRealVector point, ArrayRealVector axisPoint, @NotNull ArrayRealVector normalizedAxis){
+        if(normalizedAxis.getNorm()!=1.0){
+            normalizedAxis.mapMultiplyToSelf(1/normalizedAxis.getNorm());
+        }
+        ArrayRealVector midpoint=axisPoint.combine(1,1,normalizedAxis.mapMultiply(point.dotProduct(normalizedAxis)-axisPoint.dotProduct(normalizedAxis)));
+        return midpoint.combine(2,-1,point);
+    }
 
     public static ArrayRealVector i = new ArrayRealVector(new Double[]{1.0, 0.0});
     public static ArrayRealVector j = new ArrayRealVector(new Double[]{0.0, 1.0});

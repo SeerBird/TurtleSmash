@@ -79,7 +79,28 @@ public class Renderer {
                 i++;
                 g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
             }
-        } else {
+        }else if(b instanceof Web){
+            int i=0;
+            g.setColor(Config.POINTS);
+            for(VPoint p:b.getPoints()) {
+                if (i == 4) {
+                    g.setColor(Color.ORANGE);
+                } else if (i == 8) {
+                    g.setColor(Color.CYAN);
+                } else if (i == 12) {
+                    g.setColor(Color.magenta);
+                }
+                i++;
+                g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
+            }
+            if(((Web) b).targetEdge1!=null&&((Web) b).targetEdge2!=null){
+                Edge e=((Web) b).targetEdge1;
+                g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
+                e=((Web) b).targetEdge2;
+                g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
+            }
+
+        }else {
             g.setColor(Config.POINTS);
             for (VPoint p : b.getPoints()) {
                 g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
