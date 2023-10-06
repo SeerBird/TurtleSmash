@@ -10,6 +10,7 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class Body {
     ArrayRealVector center;
     boolean centerMoved;
 
-    public Body(@NotNull World world) {
+    public Body(@NotNull World world) { //why do I need to pass world to it? that's dumb. fix this.
         points = new ArrayList<>();
         edges = new ArrayList<>();
         this.parentWorld = world;
@@ -98,8 +99,9 @@ public class Body {
         }
         return center.copy();
     }
-    public double apprVelocity(){
-        if(points.size()!=0){
+
+    public double apprVelocity() {
+        if (points.size() != 0) {
             return points.get(0).getVelocity().getNorm();
         }
         return 0.0;
@@ -116,11 +118,15 @@ public class Body {
         centerMoved = false;
     }
 
-    public void addPoint(VPoint p) {
+    void addPoint(VPoint p) {
         points.add(p);
         centerMoved = true;
     }
-    public void addPoints(VPoint... points){
+    public void addPoint(double mass, @NotNull ArrayRealVector pos){
+        addPoint(new VPoint(this,mass,pos));
+    }
+
+    public void addPoints(VPoint... points) {
         this.points.addAll(List.of(points));
         centerMoved = true;
     }
@@ -128,9 +134,10 @@ public class Body {
     public void addEdge(VPoint p1, VPoint p2) {
         addEdge(new Edge(p1, p2, p1.getDistance(p2).getNorm()));
     }
-    public void addEdgeChain(VPoint... points){
-        for(int i=1;i<points.length;i++){
-            addEdge(points[i-1],points[i]);
+
+    public void addEdgeChain(VPoint... points) {
+        for (int i = 1; i < points.length; i++) {
+            addEdge(points[i - 1], points[i]);
         }
     }
 
@@ -249,12 +256,5 @@ public class Body {
 
     static boolean intersect(@NotNull Edge edge1, @NotNull Edge edge2) {
         return Maths.intersect(edge1.getEdge1().getPos(), edge1.getEdge2().getPos(), edge2.getEdge1().getPos(), edge2.getEdge2().getPos());
-    }
-
-    public void restoreEdgesFromImage(@NotNull ArrayList<Pair<Pair<Integer, Integer>, Double>> edgesImage) {
-        edges.clear();
-        for (Pair<Pair<Integer, Integer>, Double> e : edgesImage) {
-            edges.add(new Edge(points.get(e.getKey().getKey()), points.get(e.getKey().getValue()), e.getValue()));
-        }
     }
 }

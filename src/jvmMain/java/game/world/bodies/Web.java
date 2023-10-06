@@ -1,6 +1,7 @@
 package game.world.bodies;
 
 import game.Config;
+import game.connection.packets.containers.images.WebImage;
 import game.world.CollisionData;
 import game.world.VPoint;
 import game.world.World;
@@ -15,8 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Web extends Body {
-    VPoint source;
     boolean attached;
+    public VPoint source; //I don't like the fact that all of this is public
+    public Edge target;
+    public transient Edge sourceEdge; //those will handle themselves, dw
+    public transient Edge targetEdge1;
+    public transient Edge targetEdge2;
     boolean isGrowing;
     Map<VPoint, ArrayList<WebStick>> stickies;
     ArrayList<WebStick> toUnstick;
@@ -31,6 +36,10 @@ public class Web extends Body {
         points.get(0).accelerate(velocity);
         attached = true;
         isGrowing = true;
+    }
+    public Web(World world, WebImage image){
+        super(world);
+        isGrowing=image.isGrowing;
     }
 
     @Override
@@ -64,21 +73,22 @@ public class Web extends Body {
         super.move();
         if (attached) {
             if (isGrowing) {
-                ArrayRealVector root = points.get(points.size() - 1).getPos();
-                ArrayRealVector dist = points.get(points.size() - 1).getDistance(source);
-                double distance = dist.getNorm() / Config.stringRestNodeDistance; // not in pixels but in rest distances
-                if (distance > 1) {
-                    if (points.size() >= Config.stringLengthLimit) {
-                        fix();
-                    }// stop growth when limit is reached
-                    else {
+                if (points.size() >= Config.stringLengthLimit) {
+                    fix();
+                }// stop growth when limit is reached
+                else {
+                    ArrayRealVector root = points.get(points.size() - 1).getPos();
+                    ArrayRealVector dist = points.get(points.size() - 1).getDistance(source);
+                    double distance = dist.getNorm() / Config.stringRestNodeDistance; // not in pixels but in rest distances
+                    if (distance > 1) {
+
                         dist.mapMultiplyToSelf(1 / distance); // get a rest distance in the right direction
                         for (int i = 1; i < distance; i++) {
                             addPoint(new VPoint(this, 1, root.combineToSelf(1, 1, dist)));
                             addEdge(points.get(points.size() - 2), points.get(points.size() - 1));
                         }
-                    }
-                }// grow
+                    }// grow
+                }
             } else {
                 // what does it do when attached but not growing? just moves? maybe collapse ifs
             }
@@ -226,5 +236,17 @@ public class Web extends Body {
             }
             attached = false;
         }
+    }
+
+    public Edge getTarget() {
+        return target;
+    }
+
+    public Edge getSourceEdge() {
+        return sourceEdge;
+    }
+
+    public void setGrowing(boolean isGrowing) {
+        this.isGrowing=isGrowing;
     }
 }

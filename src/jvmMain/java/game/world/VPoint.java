@@ -96,10 +96,6 @@ public class VPoint {
         return parentBody.getParentWorld().getDistance(this.pos, pos); // could be game.world-independent? just geometry if I don't have borderDistance
     }
 
-    public Body getBody() {
-        return this.parentBody;
-    }
-
     public ArrayRealVector getVelocity() {
         return parentBody.getParentWorld().getDistance(pos, lpos);
     }

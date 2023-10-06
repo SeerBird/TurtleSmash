@@ -7,6 +7,7 @@ import game.util.Maths;
 import game.world.bodies.Body;
 import game.world.bodies.Box;
 import game.world.bodies.Web;
+import game.connection.packets.containers.images.BodyImage;
 import game.world.constraints.Edge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -308,13 +309,11 @@ public class World {
 
     public void set(@NotNull WorldData data) {
         bodies.clear();
-        bodies.addAll(data.bodies);
-        Body b;
-        for (int i = 0; i < bodies.size(); i++) {
-            b = bodies.get(i);
-            b.setParent(this);
-            b.checkPointParent();
-            b.restoreEdgesFromImage(data.edgeImages.get(i));
+        for(BodyImage body:data.bodyImages){
+            bodies.add(body.getIsolatedBody(this));
+        }
+        for(int i=0;i<data.bodyImages.size();i++){
+            data.bodyImages.get(i).connectBody(bodies.get(i));
         }
     }
 
