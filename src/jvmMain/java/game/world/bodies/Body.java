@@ -191,7 +191,7 @@ public class Body {
                 minp = p;
             }
         }
-        ArrayList<Pair<Double, VPoint>> res = new ArrayList<>(); // I should probably change this to a pair
+        ArrayList<Pair<Double, VPoint>> res = new ArrayList<>(); // I should probably change this to a pair. I hate pairs
         res.add(new Pair<>(min, minp));
         res.add(new Pair<>(max, maxp));
         return res;

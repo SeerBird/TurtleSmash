@@ -6,14 +6,11 @@ import game.world.CollisionData;
 import game.world.VPoint;
 import game.world.World;
 import game.world.constraints.Edge;
-import game.world.constraints.WebStick;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Web extends Body {
     boolean attached;
@@ -23,18 +20,13 @@ public class Web extends Body {
     public transient Edge targetEdge1;
     public transient Edge targetEdge2;
     boolean isGrowing;
-    Map<VPoint, ArrayList<WebStick>> stickies;
-    ArrayList<WebStick> toUnstick;
 
-    // last point is attached to source
+    // points are ordered end to source
     public Web(@NotNull World world, @NotNull VPoint source, ArrayRealVector velocity) {
         super(world);
-        stickies = new HashMap<>();
-        toUnstick = new ArrayList<>();
         this.source = source;
         addPoint(new VPoint(this, 1, source.getPos()));
         points.get(0).accelerate(velocity);
-        attached = true;
         isGrowing = true;
     }
     public Web(World world, WebImage image){
@@ -43,18 +35,8 @@ public class Web extends Body {
     }
 
     @Override
-    public ArrayList<Edge> getSides() {// do not return sides that are stuck
-        ArrayList<Edge> sides = new ArrayList<>();
-        for (int i = 0; i < points.size() - 1; i++) {
-            if (!(notStuck(i) || notStuck(i + 1))) {
-                sides.add(edges.get(i));
-            }
-        }
-        return sides;
-    }
-
-    private boolean notStuck(int pointID) {
-        return stickies.get(points.get(pointID)).size() == 0;
+    public ArrayList<Edge> getSides() {
+        return new ArrayList<>(edges);
     }
 
     @Override
@@ -65,13 +47,12 @@ public class Web extends Body {
     @Override
     public void addPoint(VPoint p) {
         super.addPoint(p);
-        stickies.put(p, new ArrayList<>());
     }
 
     @Override
     public void move() {
         super.move();
-        if (attached) {
+        if (source != null) {
             if (isGrowing) {
                 if (points.size() >= Config.stringLengthLimit) {
                     fix();
@@ -94,6 +75,9 @@ public class Web extends Body {
             }
         }// still attached
         else {
+            if (target == null) {
+
+            }
             // eh idk. space for content ig
         }
     }
@@ -110,100 +94,59 @@ public class Web extends Body {
         double max = min;
         double projection;
         VPoint p;
-        for (int i = 0; i < points.size(); i++) {//doing the first point over, idc
-            if (notStuck(i)) {
-                p = points.get(i);
-                projection = axis.dotProduct(p.getPos());
-                if (projection > max) {
-                    max = projection;
-                    maxp = p;
-                } else if (projection < min) {
-                    min = projection;
-                    minp = p;
-                }
+        for (VPoint point : points) {//doing the first point over, idc
+            p = point;
+            projection = axis.dotProduct(p.getPos());
+            if (projection > max) {
+                max = projection;
+                maxp = p;
+            } else if (projection < min) {
+                min = projection;
+                minp = p;
             }
         }
-        ArrayList<Pair<Double, VPoint>> res = new ArrayList<>(); // I should probably change this to a pair
+        ArrayList<Pair<Double, VPoint>> res = new ArrayList<>(); // I should probably change this to a pair. I hate pairs.
         res.add(new Pair<>(min, minp));
         res.add(new Pair<>(max, maxp));
         return res;
     }
 
+    private void stick(@NotNull VPoint webPoint, @NotNull Edge edge) {//create a new one-sided distance constraint class?
+    }
+
     @Override
     public void collide(@NotNull CollisionData collision) {
-        if (collision.getVertex().getParentBody() == this) { //only the vertices are sticky
-            if (points.contains(collision.getVertex())) {
-                int i = points.indexOf(collision.getVertex());
-                if (i == 0) {
-                    if (intersect(edges.get(i), collision.getEdge())) {
-                        stick(collision.getVertex(), collision.getEdge());
-                    }
-                } else if (i == points.size() - 1) {
-                    if (intersect(edges.get(i - 1), collision.getEdge())) {
-                        stick(collision.getVertex(), collision.getEdge());
-                    }
-                } else {
-                    if (intersect(edges.get(i), collision.getEdge()) || intersect(edges.get(i - 1), collision.getEdge())) {
-                        stick(collision.getVertex(), collision.getEdge());
-                    }
-                }
-            }
-        }
+        target = collision.edge;
+        VPoint sticky = collision.getVertex();
+        ArrayRealVector distance = target.getEdge1().getDistance(target.getEdge2());
+        distance.mapMultiply(target.getDistance() / distance.getNorm()); // make it work on the rest distance rather than the real distance
+        double edgeX = distance.getEntry(0);
+        double edgeY = distance.getEntry(1);
+        // should be 0 to 1, indicating where between edge1 and edge2 the vertex projection is
+        double placement = (distance.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (sticky.getX() - target.getEdge1().getX()) / (edgeX) : (sticky.getY() - target.getEdge1().getY()) / (edgeY) : 0.5;
+        sticky.setPos(target.getEdge1().getPos().combine(1, 1, distance.mapMultiply(placement)));
+        targetEdge1 = new Edge(sticky, target.getEdge1(), distance.getNorm() * placement);
+        targetEdge2 = new Edge(sticky, target.getEdge2(), distance.getNorm() * (1 - placement));
     }
 
     @Override
     public boolean constrain() {
-        boolean edges = super.constrain();
-        boolean stickySat = true;
-        for (ArrayList<WebStick> connections : stickies.values()) {
-            for (WebStick sticky : connections) {
-                stickySat &= sticky.satisfy();
+        boolean sat = super.constrain();
+        if (!isGrowing) {
+            if (sourceEdge == null) {
+                sourceEdge = new Edge(source, points.get(points.size() - 1), Config.stringRestNodeDistance);
             }
+            sat &= sourceEdge.satisfy();
         }
-        for (WebStick stick : toUnstick) {
-            stickies.get(stick.getEdge1()).remove(stick);
+        if (target != null) {
+            sat &= targetEdge1.satisfy();
+            sat &= targetEdge2.satisfy();
         }
-        toUnstick.clear();
-        return edges & stickySat;
+        return sat;
     }
 
-    public void unstick(@NotNull WebStick webStick) {
-        toUnstick.add(webStick);
-    }
-
-    private void stick(@NotNull VPoint webPoint, @NotNull Edge edge) {//create a new one-sided distance constraint class?
-        ArrayRealVector distance = edge.getEdge1().getDistance(edge.getEdge2());
-        double edgeX = distance.getEntry(0);
-        double edgeY = distance.getEntry(1);
-        // should be 0 to 1, indicating where between edge1 and edge2 the vertex projection is
-        double placement = (distance.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (webPoint.getX() - edge.getEdge1().getX()) / (edgeX) : (webPoint.getY() - edge.getEdge1().getY()) / (edgeY) : 0.5;
-        webPoint.setPos(edge.getEdge1().getPos().combine(1, 1, distance.mapMultiply(placement)));
-        stickies.get(webPoint).add(new WebStick(webPoint, edge.getEdge1()));
-        stickies.get(webPoint).add(new WebStick(webPoint, edge.getEdge2()));
-        int stuckEnd = points.indexOf(webPoint) + 1;
-        int stuckStart = stuckEnd - 2;
-        for (; stuckEnd < points.size(); stuckEnd++) {
-            if (notStuck(stuckEnd)) {
-                break;
-            }
-        }
-        stuckEnd--;
-        for (; stuckStart >= 0; stuckStart--) {
-            if (notStuck(stuckStart)) {
-                break;
-            }
-        }
-        stuckStart++;
-        if (stuckEnd - stuckStart >= 2 && stuckStart >= 0 && stuckEnd < points.size()) {
-            for (int i = stuckEnd - 1; i > stuckStart; i--) {//descending to work with list.remove
-                VPoint removed = points.get(i);
-                points.remove(removed);
-                stickies.remove(removed);
-                edges.remove(i);
-            }
-            edges.remove(stuckStart);
-            edges.add(stuckStart, new Edge(points.get(stuckStart), points.get(stuckStart + 1)));
-        }
+    public VPoint getSticky() {
+        return points.get(0);
     }
 
     public boolean isGrowing() {
@@ -229,13 +172,8 @@ public class Web extends Body {
         }
     }
 
-    public void detach() {
-        if (attached) {
-            if (!isGrowing) {
-                edges.remove(edges.size() - 1);
-            }
-            attached = false;
-        }
+    public boolean isSticky() {
+        return target == null;
     }
 
     public Edge getTarget() {
