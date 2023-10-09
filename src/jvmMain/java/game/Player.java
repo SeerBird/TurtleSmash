@@ -2,6 +2,7 @@ package game;
 
 import game.connection.packets.ClientPacket;
 import game.connection.packets.Packet;
+import game.input.InputControl;
 import game.input.InputInfo;
 import game.util.Maths;
 import game.util.Util;
@@ -23,7 +24,7 @@ public class Player {
 
     public Player() {
         input = new InputInfo();
-        body = new Turtle(GameHandler.getMousepos(),
+        body = new Turtle(InputControl.getMousepos(),
                 (ArrayRealVector) Maths.i.mapMultiply(20), (ArrayRealVector) Maths.j.mapMultiply(20));
     }
 
@@ -62,5 +63,8 @@ public class Player {
 
     public Turtle getBody() {
         return body;
+    }
+    public void connectInput(@NotNull InputInfo input){
+        this.input=input;
     }
 }

@@ -3,9 +3,9 @@ package game;
 import game.connection.*;
 import game.connection.packets.GameStartPacket;
 import game.connection.packets.containers.ServerStatus;
+import game.input.InputControl;
 import game.input.InputInfo;
 import game.connection.packets.ServerPacket;
-import game.input.MouseInput;
 import game.output.GameWindow;
 import game.output.Renderer;
 import game.output.audio.Sound;
@@ -16,9 +16,8 @@ import game.world.bodies.Body;
 import io.netty.channel.socket.SocketChannel;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -54,23 +53,15 @@ public class GameHandler { // make it all static. or try and see whether it's po
     public static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
     static ServerTCP tcpServer;
     static ClientTCP tcpClient;
-    static GameWindow window= new GameWindow();
-    static Sound sound= new Sound();
+    static final GameWindow window = new GameWindow();
+    static final Sound sound = new Sound();
     // idk what this has become, seems dodgy. I should move this to the actual input module
     // figure out what the different state functions are and whether the order matters, then see
-    private static final Map<Integer, Boolean> keyPressEvents = new HashMap<>();
-    private static final Map<Integer, Boolean> keyReleaseEvents = new HashMap<>();
-    private static final Map<Integer, MouseEvent> mousePressEvents = new HashMap<>();
-    private static final Map<Integer, MouseEvent> mouseReleaseEvents = new HashMap<>();
-    private static MouseEvent mouseMoveEvent;
-    private static final ArrayRealVector mousepos = new ArrayRealVector(2);
+
     public static boolean debug;
-    static{
-        // weird? inputs
-        for (int i = 0x10; i <= 0xE3; i++) {
-            keyPressEvents.put(i, false);
-            keyReleaseEvents.put(i, false);
-        }
+
+    static {
+
 
         //important stuff
         state = GameState.main;
@@ -79,8 +70,8 @@ public class GameHandler { // make it all static. or try and see whether it's po
         job.clear();
         job.put(Job.sendClient, () -> sendClientPacket());
         job.put(Job.updateWorld, () -> World.update());
-        job.put(Job.menuInput, () -> handleMenuInput());
-        job.put(Job.gameInput, () -> getGameInput());
+        job.put(Job.menuInput, () -> InputControl.handleMenuInput());
+        job.put(Job.gameInput, () -> InputControl.getGameInput());
         job.put(Job.handlePlayers, () -> handlePlayers());
         job.put(Job.sendServer, () -> broadcastServerPacket());
         job.put(Job.handleServerPacket, () -> handleServerPacket());
@@ -94,7 +85,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
         addJob(Job.updateWorld);
         players.clear();
         Player p = new Player(); // the player on this device
-        p.getInput().mousepos = mousepos;
+        p.connectInput(InputControl.getInput());
         players.add(p);
     }
 
@@ -132,65 +123,6 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     //Jobs
 
-    private static void handleMenuInput() {
-        if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            if (TurtleMenu.press(mousepos)) {
-                mousePressEvents.put(MouseInput.LEFT, null);
-            }
-        }
-        if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
-            if (TurtleMenu.release()) {
-                mouseReleaseEvents.put(MouseInput.LEFT, null);
-            }
-        }
-        if (keyPressEvents.get(KeyEvent.VK_SPACE)) {
-            debug = true;
-            keyPressEvents.put(KeyEvent.VK_SPACE, false);
-        }
-        if (keyReleaseEvents.get(KeyEvent.VK_SPACE)) {
-            debug = false;
-            keyReleaseEvents.put(KeyEvent.VK_SPACE, false);
-        }
-        if (keyPressEvents.get(KeyEvent.VK_ESCAPE)) {
-            if (state == GameState.playClient) {
-                tcpClient.disconnect();
-            } else if (state == GameState.lobby) {
-                lobbyToDiscover();
-            } else if (state == GameState.discover) {
-                discoverToMain();
-            } else if (state == GameState.playServer) {
-                playToHost();
-            } else if (state == GameState.host) {
-                hostToMain();
-            }
-            keyPressEvents.put(KeyEvent.VK_ESCAPE, false);
-        }
-        if (keyReleaseEvents.get(KeyEvent.VK_A)) {
-            getGameInput();
-            keyPressEvents.put(KeyEvent.VK_A, false);
-            keyReleaseEvents.put(KeyEvent.VK_A, false);
-        }
-    }
-
-    private static void getGameInput() {
-        players.get(0).getInput().reset();
-        if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            players.get(0).getInput().teleport();
-        }
-        if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
-            mousePressEvents.put(MouseInput.LEFT, null);
-            mouseReleaseEvents.put(MouseInput.LEFT, null);
-        }
-        if (keyPressEvents.get(KeyEvent.VK_C)) {
-            players.get(0).getInput().create();
-            keyPressEvents.put(KeyEvent.VK_C, false);
-        }
-        if (mouseReleaseEvents.get(MouseInput.RIGHT) != null) {
-            players.get(0).getInput().webFling();
-            mousePressEvents.put(MouseInput.RIGHT, null);
-            mouseReleaseEvents.put(MouseInput.RIGHT, null);
-        }
-    }
 
     private static void handlePlayers() {
         for (Player ghost : removedPlayers) {
@@ -298,6 +230,10 @@ public class GameHandler { // make it all static. or try and see whether it's po
         addJob(Job.sendClient);
     }
 
+    public static void disconnectTCPClient() {
+        tcpClient.disconnect();
+    }
+
     public static void playClient() {
         setState(GameState.playClient);
     }
@@ -317,11 +253,11 @@ public class GameHandler { // make it all static. or try and see whether it's po
         tcpServer.disconnect();
     }
 
-    private static void lobbyToDiscover() {
+    public static void lobbyToDiscover() {
         setState(GameState.discover);
     }
 
-    private static void discoverToMain() {
+    public static void discoverToMain() {
         setState(GameState.main);
         Discovery.stop();
     }
@@ -397,32 +333,16 @@ public class GameHandler { // make it all static. or try and see whether it's po
         removedPlayers.add(player);
     }
 
+    @Nullable
+    public static Player getPlayer() {
+        if(players.size()==0){
+            return null;
+        }
+        return players.get(0);
+    }
+
     // Input
-    public static void postKeyPressedEvent(@NotNull KeyEvent e) {
-        keyPressEvents.put(e.getKeyCode(), true);
-    }
 
-    public static ArrayRealVector getMousepos() {
-        return mousepos;
-    }
-
-    public static void postKeyReleasedEvent(@NotNull KeyEvent e) {
-        keyReleaseEvents.put(e.getKeyCode(), true);
-    }
-
-    public static void postMousePressEvent(MouseEvent e) {
-        mousePressEvents.put(e.getButton(), e);
-    }
-
-    public static void postMouseReleaseEvent(MouseEvent e) {
-        mouseReleaseEvents.put(e.getButton(), e);
-    }
-
-    public static void postMouseMoveEvent(@NotNull MouseEvent e) {
-        mouseMoveEvent = e;
-        mousepos.setEntry(0, e.getPoint().x);
-        mousepos.setEntry(1, e.getPoint().y);
-    }
 
     //getters
 

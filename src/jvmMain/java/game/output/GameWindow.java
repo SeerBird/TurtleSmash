@@ -20,7 +20,6 @@ public class GameWindow extends JFrame {
         setIgnoreRepaint(true);
         setResizable(false); //not forever?
         setSize(Config.WIDTH, Config.HEIGHT);
-        setVisible(true);
         this.setLocation(400, 10);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addComponentListener(new ComponentAdapter() {
@@ -50,6 +49,7 @@ public class GameWindow extends JFrame {
         canvas.addMouseListener(mouse);
         addMouseMotionListener(mouse);
         canvas.addMouseMotionListener(mouse);//I think two of the last four lines are redundant. can't be asked to check
+        setVisible(true);
     }
     public void showCanvas() {
         strategy.show();

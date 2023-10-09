@@ -27,12 +27,12 @@ public class MouseInput extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        GameHandler.postMousePressEvent(e);
+        InputControl.postMousePressEvent(e);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        GameHandler.postMouseReleaseEvent(e);
+        InputControl.postMouseReleaseEvent(e);
     }
 
     @Override
@@ -47,11 +47,11 @@ public class MouseInput extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        GameHandler.postMouseMoveEvent(e);
+        InputControl.postMouseMoveEvent(e);
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        GameHandler.postMouseMoveEvent(e);
+        InputControl.postMouseMoveEvent(e);
     }
 }
