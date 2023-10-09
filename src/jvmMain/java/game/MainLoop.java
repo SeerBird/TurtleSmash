@@ -33,7 +33,7 @@ public class MainLoop {
             now = System.nanoTime();
             long timeLeft = minFrameTime - now + last;
             if (timeLeft <= 0) { // if a time of a frame has passed, tick
-                handler.update();
+                GameHandler.update();
                 handler.out();
                 last = now;
             } else{ // otherwise, sleep for the time left

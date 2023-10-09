@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MouseInput extends MouseAdapter {
-    GameHandler handler;
     private static final Map<Integer, MouseEvent> mousePressEvents = new HashMap<>();
     private static final Map<Integer, MouseEvent> mouseReleaseEvents = new HashMap<>();
     private MouseEvent mouseMoveEvent;
@@ -18,8 +17,7 @@ public class MouseInput extends MouseAdapter {
     public static final int MID = 2;
     public static final int RIGHT = 3;
 
-    public MouseInput(GameHandler handler) {
-        this.handler = handler;
+    public MouseInput() {
     }
 
     @Override
@@ -29,12 +27,12 @@ public class MouseInput extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        handler.postMousePressEvent(e);
+        GameHandler.postMousePressEvent(e);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        handler.postMouseReleaseEvent(e);
+        GameHandler.postMouseReleaseEvent(e);
     }
 
     @Override
@@ -49,11 +47,11 @@ public class MouseInput extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        handler.postMouseMoveEvent(e);
+        GameHandler.postMouseMoveEvent(e);
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        handler.postMouseMoveEvent(e);
+        GameHandler.postMouseMoveEvent(e);
     }
 }

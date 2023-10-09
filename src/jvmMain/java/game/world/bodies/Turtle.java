@@ -15,8 +15,8 @@ import static game.util.Maths.*;
 public class Turtle extends Body {
     ArrayList<VPoint> spinnerets;
 
-    public Turtle(World world, @NotNull ArrayRealVector pos, ArrayRealVector side1, ArrayRealVector side2) {
-        super(world);
+    public Turtle(@NotNull ArrayRealVector pos, ArrayRealVector side1, ArrayRealVector side2) {
+        super();
         spinnerets = new ArrayList<>();
         double length = 500;
         double width = 330;
@@ -134,6 +134,6 @@ public class Turtle extends Body {
             }
         }//find closest spinneret
         dist.mapMultiplyToSelf(Config.stringFling / minNorm);//set vector to the configured velocity
-        new Web(parentWorld, spinnerets.get(spinneretID), dist.add(spinnerets.get(spinneretID).getVelocity()));//FLING
+        new Web(spinnerets.get(spinneretID), dist.add(spinnerets.get(spinneretID).getVelocity()));//FLING
     }
 }

@@ -15,12 +15,12 @@ public class BodyEdgeImage {
 
     public BodyEdgeImage(@NotNull Edge e) {
         Body parent = e.getEdge1().getParentBody();
-        bodyindex = parent.getParentWorld().getBodies().indexOf(parent);
+        bodyindex = World.getBodies().indexOf(parent);
         index1 = parent.getPoints().indexOf(e.getEdge1());
         index2 = parent.getPoints().indexOf(e.getEdge2());
     }
-    public Edge findEdge(@NotNull World world){
-        Body parent = world.getBodies().get(bodyindex);
+    public Edge findEdge(){
+        Body parent = World.getBodies().get(bodyindex);
         VPoint p1=parent.getPoints().get(index1);
         VPoint p2=parent.getPoints().get(index2);
         for(Edge e: parent.getEdges()){

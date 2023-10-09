@@ -8,8 +8,8 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import java.util.ArrayList;
 
 public class Box extends Body {
-    public Box(World world, ArrayRealVector pos, ArrayRealVector side1, ArrayRealVector side2) {
-        super(world);
+    public Box(ArrayRealVector pos, ArrayRealVector side1, ArrayRealVector side2) {
+        super();
         VPoint p1 = new VPoint(this, 10, pos);
         VPoint p2 = new VPoint(this, 10, pos.combine(1, 1, side1));
         VPoint p3 = new VPoint(this, 10, pos.combine(1, 1, side2));

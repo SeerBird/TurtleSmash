@@ -32,8 +32,8 @@ public class WebImage extends BodyImage {
     }
 
     @Override
-    public Body getIsolatedBody(World world) {
-        Web web = (Web) super.getIsolatedBody(world);
+    public Body getIsolatedBody() {
+        Web web = (Web) super.getIsolatedBody();
         web.setGrowing(isGrowing);
         return web;
     }
@@ -41,14 +41,13 @@ public class WebImage extends BodyImage {
     @Override
     public void connectBody(Body body) {
         Web web = (Web) body;
-        World world = web.getParentWorld();
         if (target != null) {
-            web.targetEdge1 = targetEdge1.getEdge(world);
-            web.targetEdge2 = targetEdge2.getEdge(world);
-            web.target = target.findEdge(world);
+            web.targetEdge1 = targetEdge1.getEdge();
+            web.targetEdge2 = targetEdge2.getEdge();
+            web.target = target.findEdge();
         }
         if (sourceEdge != null) {
-            web.sourceEdge = sourceEdge.getEdge(world);
+            web.sourceEdge = sourceEdge.getEdge();
             web.source=web.sourceEdge.getEdge1();
         }
     }

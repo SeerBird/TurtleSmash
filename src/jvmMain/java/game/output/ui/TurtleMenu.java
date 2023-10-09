@@ -17,33 +17,26 @@ import java.util.logging.Logger;
 
 public class TurtleMenu {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private final ArrayList<IElement> elements;
-    private final HashMap<GameState, ArrayList<IElement>> menuPresets;
-    private IElement pressed;
-    GameHandler handler;
+    private static final ArrayList<IElement> elements = new ArrayList<>();
+    private static final HashMap<GameState, ArrayList<IElement>> menuPresets = new HashMap<>();
+    private static IElement pressed;
     //cringe element references
-    final ServerList serverList;
-    final PlayerList playerList;
+    static final ServerList serverList = new ServerList(200, 200, 600, 600, GameHandler.servers);
+    static final PlayerList playerList = new PlayerList(100, 100, 600, 600, GameHandler.lastPacket);
 
-    public TurtleMenu(GameHandler handler, ServerPacket lastPacket, Map<InetAddress, ServerStatus> servers) {
-        this.handler = handler;
-        elements = new ArrayList<>();
-        menuPresets = new HashMap<>();
-
+    static{
         // Create the presets
         // main
-        elements.add(new GButton(200, 200, 100, 100, handler::discover, "Discover"));// discover UDP
-        elements.add(new GButton(400, 200, 100, 100, handler::host, "Host"));// host UDP and open TCP server
+        elements.add(new GButton(200, 200, 100, 100, GameHandler::discover, "Discover"));// discover UDP
+        elements.add(new GButton(400, 200, 100, 100, GameHandler::host, "Host"));// host UDP and open TCP server
         savePreset(GameState.main);
         //host
-        elements.add(new GButton(400, 200, 100, 100, handler::playServer, "Play"));
+        elements.add(new GButton(400, 200, 100, 100, GameHandler::playServer, "Play"));
         savePreset(GameState.host);
         //connect
-        serverList = new ServerList(this, 200, 200, 600, 600, servers);
         elements.add(serverList);
         savePreset(GameState.discover);
         //lobby
-        playerList = new PlayerList(100, 100, 600, 600, lastPacket);
         elements.add(playerList);
         savePreset(GameState.lobby);
         //playServer
@@ -53,7 +46,7 @@ public class TurtleMenu {
         refreshGameState();
     }
 
-    public boolean press(ArrayRealVector pos) {
+    public static boolean press(ArrayRealVector pos) {
         for (IElement element : elements) {
             if (element.press(pos)) {
                 pressed = element;
@@ -63,47 +56,44 @@ public class TurtleMenu {
         return false;
     }
 
-    public GameState getState() {
-        return handler.getState();
+    public static GameState getState() {
+        return GameHandler.getState();
     }
 
-    public void refreshGameState() {
+    public static void refreshGameState() {
         elements.clear();
-        elements.addAll(menuPresets.get(handler.getState()));
+        elements.addAll(menuPresets.get(GameHandler.getState()));
     }
 
-    public boolean release() {
+    public static boolean release() {
         if (pressed != null) {
             pressed.release();
-            pressed=null;
+            pressed = null;
             return true;
         }
         return false;
     }
 
-    public void update() {
+    public static void update() {
         for (IElement element : new ArrayList<>(elements)) {
             if (element instanceof GButton) {
 
             }
         }
-        if (handler.getState() == GameState.lobby) {
+        if (GameHandler.getState() == GameState.lobby) {
             playerList.refresh();
         }
     }
 
-    public ArrayList<IElement> getElements() {
+    public static ArrayList<IElement> getElements() {
         return elements;
     }
 
-    public void popup(String message) {
+    public static void popup(String message) {
 
     }
 
-    public GameHandler getHandler() {
-        return handler;
-    }
-    private void savePreset(GameState state){
+    private static void savePreset(GameState state) {
         menuPresets.put(state, new ArrayList<>(elements));
         elements.clear();
     }

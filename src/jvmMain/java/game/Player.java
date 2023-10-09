@@ -17,15 +17,13 @@ import java.util.logging.Logger;
 
 public class Player {
     Turtle body; //should be turtle
-    GameHandler handler;
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     InputInfo input;
     SocketChannel channel;
 
-    public Player(@NotNull GameHandler handler) {
-        this.handler = handler;
+    public Player() {
         input = new InputInfo();
-        body = new Turtle(handler.getWorld(), handler.getMousepos(),
+        body = new Turtle(GameHandler.getMousepos(),
                 (ArrayRealVector) Maths.i.mapMultiply(20), (ArrayRealVector) Maths.j.mapMultiply(20));
     }
 

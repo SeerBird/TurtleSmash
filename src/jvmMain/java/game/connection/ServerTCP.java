@@ -23,15 +23,13 @@ import java.util.logging.Logger;
 
 
 public class ServerTCP extends Thread {
-    GameHandler handler;
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     ChannelGroup tcpChannels;
     Channel ch;
     int tcpPort;
 
-    public ServerTCP(GameHandler handler, int tcpPort) {
+    public ServerTCP(int tcpPort) {
         this.tcpPort=tcpPort;
-        this.handler = handler;
         tcpChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     }
 
@@ -64,8 +62,8 @@ public class ServerTCP extends Thread {
                             pipe.addLast(
                                     new ObjectEncoder(),
                                     new ServerDecoder(1048576, ClassResolvers.cacheDisabled(null)),
-                                    new ServerPlayerHandler(handler.addPlayer(ch)),
-                                    new ExceptionHandler(handler)
+                                    new ServerPlayerHandler(GameHandler.addPlayer(ch)),
+                                    new ExceptionHandler()
                             );
                             logger.info("New connection with "+ch.remoteAddress().getAddress()+":"+ch.remoteAddress().getPort());
                         }

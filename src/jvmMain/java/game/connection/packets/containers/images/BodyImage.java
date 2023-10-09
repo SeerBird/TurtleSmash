@@ -37,8 +37,8 @@ public class BodyImage {
         return points;
     }
 
-    public Body getIsolatedBody(World world) {
-        Body body = new Body(world);
+    public Body getIsolatedBody() {
+        Body body = new Body();
         for (Pair<Double, ArrayRealVector> point : points) {
             body.addPoint(point.getKey(), point.getValue());
         }

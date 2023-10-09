@@ -16,21 +16,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public class World {
-    ArrayList<Body> bodies;
-    ArrayList<Body> toRemove;
-    ArrayList<Body> toAdd;
-    transient GameHandler handler;
-
-    public World(GameHandler handler) {
-        this.handler = handler;
-        bodies = new ArrayList<>();
-        toAdd = new ArrayList<>();
-        toRemove = new ArrayList<>();
-    }
-
-    public World() {
-
-    }
+    static ArrayList<Body> bodies= new ArrayList<>();
+    ArrayList<Body> toRemove= new ArrayList<>();
+    static ArrayList<Body> toAdd= new ArrayList<>();
 
 
     public void update() { // make it all multiplied by dt
@@ -63,19 +51,15 @@ public class World {
 
     }
 
-    public GameHandler getHandler() {
-        return handler;
-    }
-
-    public ArrayList<Body> getBodies() {
-        return this.bodies;
+    public static ArrayList<Body> getBodies() {
+        return bodies;
     }
 
     public void deleteBody(Body b) {
         toRemove.add(b);
     }
 
-    public void addBody(Body b) {
+    public static void addBody(Body b) {
         toAdd.add(b);
     }
 
@@ -252,12 +236,7 @@ public class World {
                     } // no collision
                 }
                 if (collided && collisionEdge != null) {
-                    //axis = collisionEdge.getEdge1().getDistance(collisionEdge.getEdge2());
-                    //axis.mapMultiplyToSelf(1/axis.getNorm());
-                    //double vertexProjection = collisionVertex.project(axis);
-                    //if (vertexProjection > collisionEdge.getEdge1().project(axis) && vertexProjection < collisionEdge.getEdge2().project(axis)) {// might be unnecessary
                     collisions.add(new CollisionData(collisionVertex, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
-                    //}
                 }
             }
         }
@@ -343,14 +322,14 @@ public class World {
         return new ArrayRealVector(new Double[]{dx, dy});
     }
 
-    public ArrayRealVector getDistance(ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
+    public static ArrayRealVector getDistance(ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
         return pos2.combine(1, -1, pos1);
     }
 
     public void set(@NotNull WorldData data) {
         bodies.clear();
         for(BodyImage body:data.bodyImages){
-            bodies.add(body.getIsolatedBody(this));
+            bodies.add(body.getIsolatedBody());
         }
         for(int i=0;i<data.bodyImages.size();i++){
             data.bodyImages.get(i).connectBody(bodies.get(i));
@@ -358,6 +337,6 @@ public class World {
     }
 
     public void spawn(ArrayRealVector pos) {
-        new Box(handler.getWorld(), pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        new Box(pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
     }
 }

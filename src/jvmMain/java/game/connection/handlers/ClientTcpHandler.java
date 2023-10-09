@@ -10,17 +10,15 @@ import java.util.logging.Logger;
 
 public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private final GameHandler handler;
 
-    public ClientTcpHandler(GameHandler handler){
-        this.handler=handler;
+    public ClientTcpHandler(){
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if(msg instanceof ServerPacket){
-            handler.receiveServerPacket((ServerPacket)msg);
+            GameHandler.receiveServerPacket((ServerPacket)msg);
         }else if (msg instanceof GameStartPacket){
-            handler.playClient();
+            GameHandler.playClient();
         }else{
             logger.warning("Unknown message type received by client");
         }

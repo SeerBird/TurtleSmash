@@ -22,31 +22,12 @@ public class Web extends Body {
     boolean isGrowing;
 
     // points are ordered end to source
-    public Web(@NotNull World world, @NotNull VPoint source, ArrayRealVector velocity) {
-        super(world);
+    public Web(@NotNull VPoint source, ArrayRealVector velocity) {
+        super();
         this.source = source;
         addPoint(new VPoint(this, 1, source.getPos()));
         points.get(0).accelerate(velocity);
         isGrowing = true;
-    }
-    public Web(World world, WebImage image){
-        super(world);
-        isGrowing=image.isGrowing;
-    }
-
-    @Override
-    public ArrayList<Edge> getSides() {
-        return new ArrayList<>(edges);
-    }
-
-    @Override
-    public void addEdge(VPoint p1, VPoint p2) {
-        super.addEdge(p1, p2);
-    }
-
-    @Override
-    public void addPoint(VPoint p) {
-        super.addPoint(p);
     }
 
     @Override
@@ -55,7 +36,7 @@ public class Web extends Body {
         if (source != null) {
             if (isGrowing) {
                 if (points.size() >= Config.stringLengthLimit) {
-                    fix();
+                    isGrowing=false;
                 }// stop growth when limit is reached
                 else {
                     ArrayRealVector root = points.get(points.size() - 1).getPos();
@@ -151,13 +132,6 @@ public class Web extends Body {
 
     public boolean isGrowing() {
         return isGrowing;
-    }
-
-    public void fix() {
-        if (isGrowing) {
-            isGrowing = false;
-            addEdge(points.get(points.size() - 1), source);
-        }
     }
 
     @Override

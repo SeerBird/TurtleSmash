@@ -15,7 +15,7 @@ import java.awt.image.BufferStrategy;
 public class GameWindow extends JFrame {
     BufferStrategy strategy;
 
-    public GameWindow(GameHandler handler) {
+    public GameWindow() {
         // Basic functionality
         setIgnoreRepaint(true);
         setResizable(false);
@@ -25,7 +25,7 @@ public class GameWindow extends JFrame {
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                handler.getRenderer().resize(e.getComponent().getWidth(), e.getComponent().getHeight());
+                Renderer.resize(e.getComponent().getWidth(), e.getComponent().getHeight());
             }
         });
 
@@ -41,10 +41,10 @@ public class GameWindow extends JFrame {
         strategy = canvas.getBufferStrategy();
 
         // Hookup game.input
-        KeyboardInput keyboard = new KeyboardInput(handler);
+        KeyboardInput keyboard = new KeyboardInput();
         addKeyListener(keyboard);
         canvas.addKeyListener(keyboard);
-        MouseInput mouse = new MouseInput(handler);
+        MouseInput mouse = new MouseInput();
         addMouseListener(mouse);
         canvas.addMouseListener(mouse);
         addMouseMotionListener(mouse);

@@ -24,12 +24,10 @@ import java.util.logging.Logger;
 
 public class ClientTCP extends Thread {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    GameHandler handler;
     Channel channel;
     ServerStatus target;
 
-    public ClientTCP(GameHandler handler, ServerStatus target) {
-        this.handler = handler;
+    public ClientTCP(ServerStatus target) {
         this.target = target;
     }
 
@@ -57,8 +55,8 @@ public class ClientTCP extends Thread {
                             p.addLast(
                                     new ObjectEncoder(),
                                     new ClientDecoder(1048576, ClassResolvers.cacheDisabled(null)),
-                                    new ClientTcpHandler(handler),
-                                    new ExceptionHandler(handler)
+                                    new ClientTcpHandler(),
+                                    new ExceptionHandler()
                             );
                         }
                     });
@@ -76,7 +74,7 @@ public class ClientTCP extends Thread {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
-            handler.playToDiscover();
+            GameHandler.playToDiscover();
             disconnect();
             group.shutdownGracefully().addListener(future -> logger.info("TCP client off"));
         }

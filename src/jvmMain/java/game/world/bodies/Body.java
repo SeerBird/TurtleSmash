@@ -17,7 +17,6 @@ import java.util.List;
 public class Body {
     ArrayList<VPoint> points;
     ArrayList<Edge> edges;
-    transient World parentWorld;
     ArrayRealVector movement;
     ArrayRealVector acceleration;
     double relevance;
@@ -26,14 +25,13 @@ public class Body {
     ArrayRealVector center;
     boolean centerMoved;
 
-    public Body(@NotNull World world) { //why do I need to pass world to it? that's dumb. fix this.
+    public Body() { //why do I need to pass world to it? that's dumb. fix this.
         points = new ArrayList<>();
         edges = new ArrayList<>();
-        this.parentWorld = world;
         acceleration = new ArrayRealVector(2);
         movement = new ArrayRealVector(2);
         center = new ArrayRealVector(2);
-        world.addBody(this); // might be unnecessary here, could be done outside
+        World.addBody(this); // might be unnecessary here, could be done outside
         relevance = 20;
         mass = 0;
         centerMoved = true;
@@ -72,10 +70,6 @@ public class Body {
             satisfied &= c.satisfy();
         }
         return satisfied;
-    }
-
-    public World getParentWorld() {
-        return parentWorld;
     }
 
     public double getRelevance() {
@@ -142,11 +136,11 @@ public class Body {
     }
 
     public ArrayRealVector getDistance(@NotNull Body b) {
-        return parentWorld.getDistance(getCenter(), b.getCenter());
+        return World.getDistance(getCenter(), b.getCenter());
     }
 
     public ArrayRealVector getDistance(@NotNull ArrayRealVector p) {
-        return parentWorld.getDistance(getCenter(), p);
+        return World.getDistance(getCenter(), p);
     }
 
     public boolean gravitates() {
@@ -167,10 +161,6 @@ public class Body {
 
     public void addEdge(Edge e) {
         edges.add(e);
-    }
-
-    public void setParent(World parent) {
-        this.parentWorld = parent;
     }
 
     public ArrayList<Pair<Double, VPoint>> project(@NotNull ArrayRealVector axis) {//returns minimum to maximum
@@ -202,10 +192,6 @@ public class Body {
             p.stop();
         }
     }
-
-    public void delete() {
-        parentWorld.deleteBody(this);
-    }//ehhhhh
 
     public void decreaseRelevance(double decrease) {
         relevance -= decrease;

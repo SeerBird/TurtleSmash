@@ -21,16 +21,9 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 
 public class Renderer {
-    int height;
-    int width;
-    Graphics g;
-    GameHandler handler;
-
-    public Renderer(GameHandler handler) {
-        this.handler = handler;
-        width = Config.WIDTH;
-        height = Config.HEIGHT;
-    }
+    static int height=Config.HEIGHT;
+    static int width=Config.WIDTH;
+    static Graphics g;
 
     public void update() { //get new info and progress animations
 
@@ -43,16 +36,20 @@ public class Renderer {
     private int yToScreen(double y) { // x origin at center of the screen
         return (int) (Config.HEIGHT / 2 - y * Config.TILE_SIZE);
     }
+    public static void drawImage(Graphics g){
+        drawWorld(g);
+        drawMenu(g);
+        g.dispose();
+    }
 
-    public void drawImage(@NotNull Graphics g, @NotNull World world) { // get all the visible objects, effects, and particles on an image
-        this.g = g;
+    private static void drawWorld(@NotNull Graphics g) { // get all the visible objects, effects, and particles on an image
+        Renderer.g = g;
         fill(Config.BACKGROUND);
 
         // bodies
-        for (Body b : world.getBodies()) {
+        for (Body b : World.getBodies()) {
             drawBody(b);
         }
-        g.dispose();
     }
 
     private void drawWeb(@NotNull Graphics g, @NotNull Web w) {
@@ -60,7 +57,7 @@ public class Renderer {
 
     }
 
-    private void drawBody(@NotNull Body b) {
+    private static void drawBody(@NotNull Body b) {
         g.setColor(Config.EDGES);
         for (Edge e : b.getEdges()) {
             g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
@@ -108,12 +105,12 @@ public class Renderer {
         }
     }
 
-    public void drawImage(@NotNull Graphics g, @NotNull TurtleMenu menu) {
-        this.g = g;
-        if (!(handler.getState() == GameState.playClient || handler.getState() == GameState.playServer)) {
+    private static void drawMenu(@NotNull Graphics g) {
+        Renderer.g = g;
+        if (!(GameHandler.getState() == GameState.playClient || GameHandler.getState() == GameState.playServer)) {
             fill(Config.menuBackground);
         }
-        for (IElement e : menu.getElements()) {
+        for (IElement e : TurtleMenu.getElements()) {
             if (e instanceof GButton) {
                 drawButton((GButton) e);
             } else if (e instanceof ServerList) {
@@ -126,27 +123,26 @@ public class Renderer {
                 }
             }
         }
-        g.dispose();
     }
 
-    private void drawButton(@NotNull GButton button) {
+    private static void drawButton(@NotNull GButton button) {
         g.setColor(Color.ORANGE);
         g.drawRect(button.x, button.y, button.width, button.height);
         g.drawString(button.text, button.x + button.width / 2, button.y + button.height / 2);
     }
 
-    private void drawLabel(@NotNull Label label) {
+    private static void drawLabel(@NotNull Label label) {
         g.setColor(Color.magenta);
         g.drawRect(label.x, label.y, label.width, label.height);
         g.drawString(label.text, label.x + label.width / 2, label.y + label.height / 2);
     }
 
-    public void resize(int width, int height) {
-        this.width = width;
-        this.height = height;
+    public static void resize(int width, int height) {
+        Renderer.width = width;
+        Renderer.height = height;
     }
 
-    private void fill(Color c) {
+    private static void fill(Color c) {
         g.setColor(c);
         g.fillRect(0, 0, width, height);
     }

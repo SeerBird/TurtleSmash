@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 
 public class GameHandler { // make it all static. or try and see whether it's possible either way
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private GameState state;
+    private static GameState state;
     private static final HashMap<Job, Runnable> job = new HashMap<>();
 
     private enum Job {
@@ -50,24 +50,23 @@ public class GameHandler { // make it all static. or try and see whether it's po
     private static final ArrayList<Runnable> jobs = new ArrayList<>();
     private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
-    private static final ServerPacket lastPacket = new ServerPacket();
-    private static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
-    Renderer renderer;
-    TurtleMenu menu;
-    ServerTCP tcpServer;
-    ClientTCP tcpClient;
-    GameWindow window;
-    Sound sound;
-    World world;
+    public static final ServerPacket lastPacket = new ServerPacket();
+    public static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
+    static ServerTCP tcpServer;
+    static ClientTCP tcpClient;
+    static GameWindow window= new GameWindow();
+    static Sound sound= new Sound();
+    static World world= new World();
     // idk what this has become, seems dodgy. I should move this to the actual input module
     // figure out what the different state functions are and whether the order matters, then see
     private static final Map<Integer, Boolean> keyPressEvents = new HashMap<>();
     private static final Map<Integer, Boolean> keyReleaseEvents = new HashMap<>();
     private static final Map<Integer, MouseEvent> mousePressEvents = new HashMap<>();
     private static final Map<Integer, MouseEvent> mouseReleaseEvents = new HashMap<>();
-    private MouseEvent mouseMoveEvent;
+    private static MouseEvent mouseMoveEvent;
     private static final ArrayRealVector mousepos = new ArrayRealVector(2);
     public boolean debug;
+
 
     public GameHandler() {
         // weird? inputs
@@ -79,11 +78,6 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
         //important stuff
         state = GameState.main;
-        menu = new TurtleMenu(this, lastPacket, servers);
-        sound = new Sound();
-        world = new World(this);
-        renderer = new Renderer(this);
-        window = new GameWindow(this);
 
         //jobs
         job.clear();
@@ -94,7 +88,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
         job.put(Job.handlePlayers, () -> this.handlePlayers());
         job.put(Job.sendServer, () -> this.broadcastServerPacket());
         job.put(Job.handleServerPacket, () -> this.handleServerPacket());
-        job.put(Job.updateMenu, () -> menu.update());
+        job.put(Job.updateMenu, () -> TurtleMenu.update());
 
         //starting state
         addJob(Job.menuInput);
@@ -103,7 +97,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
         addJob(Job.handlePlayers);
         addJob(Job.updateWorld);
         players.clear();
-        Player p = new Player(this);
+        Player p = new Player();
         p.getInput().mousepos = mousepos;
         players.add(p);
         //host();
@@ -111,8 +105,8 @@ public class GameHandler { // make it all static. or try and see whether it's po
     }
 
     public void out() {
-        renderer.drawImage(window.getCanvas(), world);
-        renderer.drawImage(window.getCanvas(), menu);
+        Renderer.drawImage(window.getCanvas());
+        Renderer.drawImage(window.getCanvas());
         window.showCanvas();
     }
 
@@ -146,12 +140,12 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     private void handleMenuInput() {
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            if (menu.press(mousepos)) {
+            if (TurtleMenu.press(mousepos)) {
                 mousePressEvents.put(MouseInput.LEFT, null);
             }
         }
         if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
-            if (menu.release()) {
+            if (TurtleMenu.release()) {
                 mouseReleaseEvents.put(MouseInput.LEFT, null);
             }
         }
@@ -243,18 +237,18 @@ public class GameHandler { // make it all static. or try and see whether it's po
     private void handleServerPacket() {
         if (lastPacket.changed) {
             synchronized (lastPacket) {
-                this.world.set(lastPacket.world);
+                world.set(lastPacket.world);
                 lastPacket.changed = false;
             }
         }
     }
 
-    public void receiveServerPacket(ServerPacket packet) {
+    public static void receiveServerPacket(ServerPacket packet) {
         lastPacket.set(packet);
     }
 
     //States
-    public void host() {
+    public static void host() {
         int port = 0;
         {
             ServerSocket socket = null;
@@ -279,14 +273,14 @@ public class GameHandler { // make it all static. or try and see whether it's po
             }
         }// find a free port
         setState(GameState.host);
-        tcpServer = new ServerTCP(this, port);
+        tcpServer = new ServerTCP(port);
         tcpServer.start();
         Broadcaster.setStatus("bababoi", port);
         Broadcaster.start();
         addJob(Job.sendServer);
     }
 
-    public void playServer() {
+    public static void playServer() {
         setState(GameState.playServer);
         world.startGen();
         GameStartPacket packet = new GameStartPacket();
@@ -297,24 +291,24 @@ public class GameHandler { // make it all static. or try and see whether it's po
         }
     }
 
-    public void discover() {
+    public static void discover() {
         setState(GameState.discover);
         Discovery.start(servers);
     }
 
-    public void connect(ServerStatus server) {
+    public static void connect(ServerStatus server) {
         setState(GameState.lobby);
-        tcpClient = new ClientTCP(this, server);
+        tcpClient = new ClientTCP(server);
         tcpClient.start();
         addJob(Job.handleServerPacket);
         addJob(Job.sendClient);
     }
 
-    public void playClient() {
+    public static void playClient() {
         setState(GameState.playClient);
     }
 
-    public void playToDiscover() {
+    public static void playToDiscover() {
         setState(GameState.discover);
         removeJob(Job.sendClient);
     }
@@ -338,9 +332,9 @@ public class GameHandler { // make it all static. or try and see whether it's po
         Discovery.stop();
     }
 
-    private void setState(GameState state) {
-        this.state = state;
-        menu.refreshGameState();
+    private static void setState(GameState gameState) {
+        state = gameState;
+        TurtleMenu.refreshGameState();
     }
 
     Textbox textbox;
@@ -358,7 +352,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
         //iterate through all text keys, get and reset pressed, check for shift and give the right letter to the textbox
     }
 
-    public void refreshLAN() {
+    public static void refreshLAN() {
         for (InetAddress address : servers.keySet()) {
             if (System.nanoTime() - servers.get(address).nanoTime > Config.discoveryMilliTimeout * 1000000) {
                 servers.remove(address);
@@ -378,12 +372,12 @@ public class GameHandler { // make it all static. or try and see whether it's po
         removeJob(Job.sendClient);
         //menu.toMainManu();
         if (cause != null) {
-            menu.popup(cause.getMessage());
+            TurtleMenu.popup(cause.getMessage());
         }
     }
 
     //Simple stuff
-    public Player addPlayer(SocketChannel channel) {
+    public static Player addPlayer(SocketChannel channel) {
         Player dupe = null;
         for (Player player : players) {
             if (player.getChannel() != null) {
@@ -397,54 +391,47 @@ public class GameHandler { // make it all static. or try and see whether it's po
             }
         }
         if (dupe == null) {
-            dupe = new Player(this);
+            dupe = new Player();
             players.add(dupe);
         }
         dupe.setChannel(channel);
         return dupe;
     }
 
-    private void removePlayer(Player player) {
+    private static void removePlayer(Player player) {
         removedPlayers.add(player);
     }
 
     // Input
-    public void postKeyPressedEvent(@NotNull KeyEvent e) {
+    public static void postKeyPressedEvent(@NotNull KeyEvent e) {
         keyPressEvents.put(e.getKeyCode(), true);
     }
 
-    public ArrayRealVector getMousepos() {
+    public static ArrayRealVector getMousepos() {
         return mousepos;
     }
 
-    public void postKeyReleasedEvent(@NotNull KeyEvent e) {
+    public static void postKeyReleasedEvent(@NotNull KeyEvent e) {
         keyReleaseEvents.put(e.getKeyCode(), true);
     }
 
-    public void postMousePressEvent(MouseEvent e) {
+    public static void postMousePressEvent(MouseEvent e) {
         mousePressEvents.put(e.getButton(), e);
     }
 
-    public void postMouseReleaseEvent(MouseEvent e) {
+    public static void postMouseReleaseEvent(MouseEvent e) {
         mouseReleaseEvents.put(e.getButton(), e);
     }
 
-    public void postMouseMoveEvent(@NotNull MouseEvent e) {
+    public static void postMouseMoveEvent(@NotNull MouseEvent e) {
         mouseMoveEvent = e;
         mousepos.setEntry(0, e.getPoint().x);
         mousepos.setEntry(1, e.getPoint().y);
     }
 
     //getters
-    public Renderer getRenderer() {
-        return this.renderer;
-    }
 
-    public World getWorld() {
-        return this.world;
-    }
-
-    public GameState getState() {
+    public static GameState getState() {
         return state;
     }
 }

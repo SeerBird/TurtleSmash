@@ -9,11 +9,6 @@ import java.util.logging.Logger;
 
 public class ExceptionHandler extends ChannelDuplexHandler {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    GameHandler handler;
-
-    public ExceptionHandler(GameHandler handler) {
-        this.handler = handler;
-    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {

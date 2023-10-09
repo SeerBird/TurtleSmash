@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Star extends Body {
     public Star(World world, @NotNull ArrayRealVector pos) {
-        super(world);
+        super();
         VPoint p1 = new VPoint(this, 1, pos.getEntry(0), pos.getEntry(1));
         VPoint p2 = new VPoint(this, 1, pos.getEntry(0) + 20, pos.getEntry(1) - 10);
         VPoint p3 = new VPoint(this, 1, pos.getEntry(0) + 40, pos.getEntry(1));

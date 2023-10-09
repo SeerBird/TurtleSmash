@@ -90,14 +90,14 @@ public class VPoint {
     }
 
     public ArrayRealVector getDistance(@NotNull VPoint b) {
-        return parentBody.getParentWorld().getDistance(pos, b.getPos()); // could be game.world-independent? just geometry if I don't have borderDistance
+        return World.getDistance(pos, b.getPos()); // could be game.world-independent? just geometry if I don't have borderDistance
     }
     public ArrayRealVector getDistance(ArrayRealVector pos) {
-        return parentBody.getParentWorld().getDistance(this.pos, pos); // could be game.world-independent? just geometry if I don't have borderDistance
+        return World.getDistance(this.pos, pos); // could be game.world-independent? just geometry if I don't have borderDistance
     }
 
     public ArrayRealVector getVelocity() {
-        return parentBody.getParentWorld().getDistance(pos, lpos);
+        return World.getDistance(pos, lpos);
     }
 
     public double project(@NotNull ArrayRealVector normalizedAxis) {

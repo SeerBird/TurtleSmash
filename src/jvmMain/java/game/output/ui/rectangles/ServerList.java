@@ -1,5 +1,6 @@
 package game.output.ui.rectangles;
 
+import game.GameHandler;
 import game.connection.packets.containers.ServerStatus;
 import game.output.ui.TurtleMenu;
 
@@ -9,15 +10,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ServerList extends RectElement {
-    TurtleMenu menu;
     private final Map<InetAddress, ServerStatus> servers;
     public final HashMap<GButton, ServerStatus> buttons;
     private final GButton refresh;
     GButton pressed;
 
-    public ServerList(TurtleMenu menu, double x, double y, int width, int height, Map<InetAddress, ServerStatus> servers) {
+    public ServerList(double x, double y, int width, int height, Map<InetAddress, ServerStatus> servers) {
         super(x, y, width, height);
-        this.menu = menu;
         this.servers = servers;
         buttons = new HashMap<>();
         pressed = null;
@@ -40,7 +39,7 @@ public class ServerList extends RectElement {
     }
 
     public void refresh() {
-        menu.getHandler().refreshLAN();
+        GameHandler.refreshLAN();
         int buttonTestHeight = 40;
         buttons.clear();
         int buttCount = 0;
@@ -48,7 +47,7 @@ public class ServerList extends RectElement {
             GButton button = new GButton(x, y + buttCount * buttonTestHeight, width, buttonTestHeight,
                     null, servers.get(address).message);
             buttons.put(button, servers.get(address));
-            button.setAction(() -> menu.getHandler().connect(buttons.get(button)));
+            button.setAction(() -> GameHandler.connect(buttons.get(button)));
             buttCount++;
         }
     }

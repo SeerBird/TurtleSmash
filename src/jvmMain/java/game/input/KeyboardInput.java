@@ -10,19 +10,15 @@ import java.util.Map;
 
 public class KeyboardInput implements KeyListener {
     // Current state of the keyboard
-    GameHandler handler;
     private static final Map<Integer, Boolean> keyPressedEvents = new HashMap<>();
     private static final Map<Integer, Boolean> keyReleasedEvents = new HashMap<>();
-    public KeyboardInput(GameHandler handler) {
-        this.handler = handler;
-    }
 
     public synchronized void keyPressed(@NotNull KeyEvent e) {
-        handler.postKeyPressedEvent(e);
+        GameHandler.postKeyPressedEvent(e);
     }
 
     public synchronized void keyReleased(@NotNull KeyEvent e) {
-        handler.postKeyReleasedEvent(e);
+        GameHandler.postKeyReleasedEvent(e);
     }
 
     public void keyTyped(KeyEvent e) {

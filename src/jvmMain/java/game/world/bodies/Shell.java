@@ -5,6 +5,6 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 
 public class Shell extends Body {
     public Shell(World world, ArrayRealVector pos) {
-        super(world);
+        super();
     }
 }
