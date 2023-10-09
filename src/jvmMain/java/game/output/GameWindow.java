@@ -48,7 +48,7 @@ public class GameWindow extends JFrame {
         addMouseListener(mouse);
         canvas.addMouseListener(mouse);
         addMouseMotionListener(mouse);
-        canvas.addMouseMotionListener(mouse);//I think two of the last four lines are redundant. can't be asked to check
+        canvas.addMouseMotionListener(mouse);
         setVisible(true);
     }
     public void showCanvas() {

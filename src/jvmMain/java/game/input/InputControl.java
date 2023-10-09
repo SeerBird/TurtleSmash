@@ -19,7 +19,6 @@ public class InputControl {
     private static MouseEvent mouseMoveEvent;
     public static final ArrayRealVector mousepos = new ArrayRealVector(new Double[]{0.0,0.0});
     static InputInfo input=new InputInfo();
-    static GameState state=GameHandler.getState();
     static{
         input.mousepos=mousepos;
         // weird? inputs
@@ -29,6 +28,7 @@ public class InputControl {
         }
     }
     public static void handleMenuInput() {
+        GameState state=GameHandler.getState();
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
             if (TurtleMenu.press(mousepos)) {
                 mousePressEvents.put(MouseInput.LEFT, null);
@@ -47,7 +47,7 @@ public class InputControl {
             GameHandler.debug = false;
             keyReleaseEvents.put(KeyEvent.VK_SPACE, false);
         }
-        if (keyPressEvents.get(KeyEvent.VK_ESCAPE)) {
+        if (keyReleaseEvents.get(KeyEvent.VK_ESCAPE)) {
             if (state == GameState.playClient) {
                 GameHandler.disconnectTCPClient();
             } else if (state == GameState.lobby) {
@@ -60,11 +60,7 @@ public class InputControl {
                 GameHandler.hostToMain();
             }
             keyPressEvents.put(KeyEvent.VK_ESCAPE, false);
-        }
-        if (keyReleaseEvents.get(KeyEvent.VK_A)) {
-            getGameInput();
-            keyPressEvents.put(KeyEvent.VK_A, false);
-            keyReleaseEvents.put(KeyEvent.VK_A, false);
+            keyReleaseEvents.put(KeyEvent.VK_ESCAPE,false);
         }
     }
 
