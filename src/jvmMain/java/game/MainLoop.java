@@ -26,7 +26,6 @@ public class MainLoop {
         }
         run = true;
         int minFrameTime = 1000000000 / 60; // nanoseconds
-        GameHandler handler = new GameHandler();
         long last = 0;
         long now;
         while (run) {
@@ -34,7 +33,7 @@ public class MainLoop {
             long timeLeft = minFrameTime - now + last;
             if (timeLeft <= 0) { // if a time of a frame has passed, tick
                 GameHandler.update();
-                handler.out();
+                GameHandler.out();
                 last = now;
             } else{ // otherwise, sleep for the time left
                 try {

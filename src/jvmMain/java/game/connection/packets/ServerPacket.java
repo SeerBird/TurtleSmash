@@ -12,8 +12,8 @@ public class ServerPacket extends Packet {
     public LobbyData lobby;
     public transient boolean changed;
 
-    public ServerPacket(World world, ArrayList<Player> players) {
-        this.world=new WorldData(world);
+    public ServerPacket(ArrayList<Player> players) {
+        this.world=new WorldData();
         lobby=new LobbyData(players);
     }
 

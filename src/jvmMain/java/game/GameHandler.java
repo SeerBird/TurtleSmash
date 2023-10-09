@@ -56,7 +56,6 @@ public class GameHandler { // make it all static. or try and see whether it's po
     static ClientTCP tcpClient;
     static GameWindow window= new GameWindow();
     static Sound sound= new Sound();
-    static World world= new World();
     // idk what this has become, seems dodgy. I should move this to the actual input module
     // figure out what the different state functions are and whether the order matters, then see
     private static final Map<Integer, Boolean> keyPressEvents = new HashMap<>();
@@ -65,12 +64,9 @@ public class GameHandler { // make it all static. or try and see whether it's po
     private static final Map<Integer, MouseEvent> mouseReleaseEvents = new HashMap<>();
     private static MouseEvent mouseMoveEvent;
     private static final ArrayRealVector mousepos = new ArrayRealVector(2);
-    public boolean debug;
-
-
-    public GameHandler() {
+    public static boolean debug;
+    static{
         // weird? inputs
-        keyPressEvents.clear();
         for (int i = 0x10; i <= 0xE3; i++) {
             keyPressEvents.put(i, false);
             keyReleaseEvents.put(i, false);
@@ -81,13 +77,13 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
         //jobs
         job.clear();
-        job.put(Job.sendClient, () -> this.sendClientPacket());
-        job.put(Job.updateWorld, () -> world.update());
-        job.put(Job.menuInput, () -> this.handleMenuInput());
-        job.put(Job.gameInput, () -> this.getGameInput());
-        job.put(Job.handlePlayers, () -> this.handlePlayers());
-        job.put(Job.sendServer, () -> this.broadcastServerPacket());
-        job.put(Job.handleServerPacket, () -> this.handleServerPacket());
+        job.put(Job.sendClient, () -> sendClientPacket());
+        job.put(Job.updateWorld, () -> World.update());
+        job.put(Job.menuInput, () -> handleMenuInput());
+        job.put(Job.gameInput, () -> getGameInput());
+        job.put(Job.handlePlayers, () -> handlePlayers());
+        job.put(Job.sendServer, () -> broadcastServerPacket());
+        job.put(Job.handleServerPacket, () -> handleServerPacket());
         job.put(Job.updateMenu, () -> TurtleMenu.update());
 
         //starting state
@@ -97,14 +93,12 @@ public class GameHandler { // make it all static. or try and see whether it's po
         addJob(Job.handlePlayers);
         addJob(Job.updateWorld);
         players.clear();
-        Player p = new Player();
+        Player p = new Player(); // the player on this device
         p.getInput().mousepos = mousepos;
         players.add(p);
-        //host();
-        //playServer();
     }
 
-    public void out() {
+    public static void out() {
         Renderer.drawImage(window.getCanvas());
         Renderer.drawImage(window.getCanvas());
         window.showCanvas();
@@ -138,7 +132,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     //Jobs
 
-    private void handleMenuInput() {
+    private static void handleMenuInput() {
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
             if (TurtleMenu.press(mousepos)) {
                 mousePressEvents.put(MouseInput.LEFT, null);
@@ -178,7 +172,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
         }
     }
 
-    private void getGameInput() {
+    private static void getGameInput() {
         players.get(0).getInput().reset();
         if (mousePressEvents.get(MouseInput.LEFT) != null) {
             players.get(0).getInput().teleport();
@@ -198,7 +192,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
         }
     }
 
-    private void handlePlayers() {
+    private static void handlePlayers() {
         for (Player ghost : removedPlayers) {
             players.remove(ghost);
         }
@@ -212,7 +206,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
                     body.stop();
                 }
                 if (input.create) {
-                    world.spawn(input.mousepos);
+                    World.spawn(input.mousepos);
                 }
                 if (input.webFling) {
                     player.getBody().webFling(input.mousepos.copy());
@@ -221,8 +215,8 @@ public class GameHandler { // make it all static. or try and see whether it's po
         }
     }
 
-    private void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo
-        ServerPacket packet = new ServerPacket(world, players);
+    private static void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo
+        ServerPacket packet = new ServerPacket(players);
         synchronized (players) {
             for (Player player : players) {//potential for sending different info
                 player.send(packet);
@@ -230,14 +224,14 @@ public class GameHandler { // make it all static. or try and see whether it's po
         }
     }
 
-    private void sendClientPacket() {
+    private static void sendClientPacket() {
         tcpClient.send(players.get(0).input);
     }
 
-    private void handleServerPacket() {
+    private static void handleServerPacket() {
         if (lastPacket.changed) {
             synchronized (lastPacket) {
-                world.set(lastPacket.world);
+                World.set(lastPacket.world);
                 lastPacket.changed = false;
             }
         }
@@ -282,7 +276,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     public static void playServer() {
         setState(GameState.playServer);
-        world.startGen();
+        World.startGen();
         GameStartPacket packet = new GameStartPacket();
         synchronized (players) { // make this a procedure
             for (int i = 1; i < players.size(); i++) {//potential for sending different info
@@ -313,21 +307,21 @@ public class GameHandler { // make it all static. or try and see whether it's po
         removeJob(Job.sendClient);
     }
 
-    public void playToHost() {
+    public static void playToHost() {
         setState(GameState.host);
     }
 
-    public void hostToMain() {
+    public static void hostToMain() {
         setState(GameState.main);
         Broadcaster.stop();
         tcpServer.disconnect();
     }
 
-    private void lobbyToDiscover() {
+    private static void lobbyToDiscover() {
         setState(GameState.discover);
     }
 
-    private void discoverToMain() {
+    private static void discoverToMain() {
         setState(GameState.main);
         Discovery.stop();
     }
@@ -377,6 +371,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
     }
 
     //Simple stuff
+    @NotNull
     public static Player addPlayer(SocketChannel channel) {
         Player dupe = null;
         for (Player player : players) {

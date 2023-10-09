@@ -17,11 +17,11 @@ import java.util.ArrayList;
 
 public class World {
     static ArrayList<Body> bodies= new ArrayList<>();
-    ArrayList<Body> toRemove= new ArrayList<>();
+    static ArrayList<Body> toRemove= new ArrayList<>();
     static ArrayList<Body> toAdd= new ArrayList<>();
 
 
-    public void update() { // make it all multiplied by dt
+    public static void update() { // make it all multiplied by dt
         //any required magic is done before movement
         //gravity
         gravitate();
@@ -47,7 +47,7 @@ public class World {
         toAdd.clear();
     }
 
-    public void startGen() {
+    public static void startGen() {
 
     }
 
@@ -63,7 +63,7 @@ public class World {
         toAdd.add(b);
     }
 
-    void gravitate() {//optimize
+    static void gravitate() {//optimize
         Body b1;
         Body b2;
         for (int i = 0; i < bodies.size(); i++) {
@@ -82,13 +82,13 @@ public class World {
         }
     }
 
-    void collide(@NotNull CollisionData collision) {
+    static void collide(@NotNull CollisionData collision) {
         Body b1 = collision.getVertex().getParentBody();
         b1.collide(collision);
         //sounds, particles, and other stuff need to happen here
     }
 
-    ArrayList<CollisionData> checkCollisions(@NotNull Body b1) { // separating axis theorem, only works for convex shapes
+    static ArrayList<CollisionData> checkCollisions(@NotNull Body b1) { // separating axis theorem, only works for convex shapes
         //pray for your turtles
         //returns
         ArrayList<CollisionData> collisions = new ArrayList<>();
@@ -326,7 +326,7 @@ public class World {
         return pos2.combine(1, -1, pos1);
     }
 
-    public void set(@NotNull WorldData data) {
+    public static void set(@NotNull WorldData data) {
         bodies.clear();
         for(BodyImage body:data.bodyImages){
             bodies.add(body.getIsolatedBody());
@@ -336,7 +336,7 @@ public class World {
         }
     }
 
-    public void spawn(ArrayRealVector pos) {
+    public static void spawn(ArrayRealVector pos) {
         new Box(pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
     }
 }

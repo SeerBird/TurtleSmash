@@ -9,12 +9,10 @@ import java.util.ArrayList;
 
 public class WorldData {
     public ArrayList<BodyImage> bodyImages;
-    public WorldData(@NotNull World world) {//unnecessary containers
+    public WorldData() {//unnecessary containers
         bodyImages =new ArrayList<>();
-        for(Body body:world.getBodies()){
+        for(Body body:World.getBodies()){
             bodyImages.add(new BodyImage(body));
         }
-    }
-    public WorldData(){
     }
 }
