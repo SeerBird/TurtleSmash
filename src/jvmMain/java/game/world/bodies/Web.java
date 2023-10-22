@@ -1,10 +1,8 @@
 package game.world.bodies;
 
 import game.Config;
-import game.connection.packets.containers.images.WebImage;
+import game.world.BPoint;
 import game.world.CollisionData;
-import game.world.VPoint;
-import game.world.World;
 import game.world.constraints.Edge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -14,7 +12,7 @@ import java.util.ArrayList;
 
 public class Web extends Body {
     boolean attached;
-    public VPoint source; //I don't like the fact that all of this is public
+    public BPoint source; //I don't like the fact that all of this is public
     public Edge target;
     public transient Edge sourceEdge; //those will handle themselves, dw
     public transient Edge targetEdge1;
@@ -22,10 +20,10 @@ public class Web extends Body {
     boolean isGrowing;
 
     // points are ordered end to source
-    public Web(@NotNull VPoint source, ArrayRealVector velocity) {
+    public Web(@NotNull BPoint source, ArrayRealVector velocity) {
         super();
         this.source = source;
-        addPoint(new VPoint(this, 1, source.getPos()));
+        addPoint(new BPoint(this, 1, source.getPos()));
         points.get(0).accelerate(velocity);
         isGrowing = true;
     }
@@ -46,7 +44,7 @@ public class Web extends Body {
 
                         dist.mapMultiplyToSelf(1 / distance); // get a rest distance in the right direction
                         for (int i = 1; i < distance; i++) {
-                            addPoint(new VPoint(this, 1, root.combineToSelf(1, 1, dist)));
+                            addPoint(new BPoint(this, 1, root.combineToSelf(1, 1, dist)));
                             addEdge(points.get(points.size() - 2), points.get(points.size() - 1));
                         }
                     }// grow
@@ -64,18 +62,18 @@ public class Web extends Body {
     }
 
     @Override
-    public ArrayList<Pair<Double, VPoint>> project(@NotNull ArrayRealVector axis) {
+    public ArrayList<Pair<Double, BPoint>> project(@NotNull ArrayRealVector axis) {
         double norm = axis.getNorm();
         if (norm != 1.0) {
             axis.mapMultiplyToSelf(1 / norm);
         }
-        VPoint minp = points.get(0);
-        VPoint maxp = points.get(0);
+        BPoint minp = points.get(0);
+        BPoint maxp = points.get(0);
         double min = axis.dotProduct(minp.getPos());
         double max = min;
         double projection;
-        VPoint p;
-        for (VPoint point : points) {//doing the first point over, idc
+        BPoint p;
+        for (BPoint point : points) {//doing the first point over, idc
             p = point;
             projection = axis.dotProduct(p.getPos());
             if (projection > max) {
@@ -86,19 +84,19 @@ public class Web extends Body {
                 minp = p;
             }
         }
-        ArrayList<Pair<Double, VPoint>> res = new ArrayList<>(); // I should probably change this to a pair. I hate pairs.
+        ArrayList<Pair<Double, BPoint>> res = new ArrayList<>(); // I should probably change this to a pair. I hate pairs.
         res.add(new Pair<>(min, minp));
         res.add(new Pair<>(max, maxp));
         return res;
     }
 
-    private void stick(@NotNull VPoint webPoint, @NotNull Edge edge) {//create a new one-sided distance constraint class?
+    private void stick(@NotNull BPoint webPoint, @NotNull Edge edge) {//create a new one-sided distance constraint class?
     }
 
     @Override
     public void collide(@NotNull CollisionData collision) {
         target = collision.edge;
-        VPoint sticky = collision.getVertex();
+        BPoint sticky = collision.getVertex();
         ArrayRealVector distance = target.getEdge1().getDistance(target.getEdge2());
         distance.mapMultiply(target.getDistance() / distance.getNorm()); // make it work on the rest distance rather than the real distance
         double edgeX = distance.getEntry(0);
@@ -108,6 +106,10 @@ public class Web extends Body {
         sticky.setPos(target.getEdge1().getPos().combine(1, 1, distance.mapMultiply(placement)));
         targetEdge1 = new Edge(sticky, target.getEdge1(), distance.getNorm() * placement);
         targetEdge2 = new Edge(sticky, target.getEdge2(), distance.getNorm() * (1 - placement));
+    }
+
+    @Override
+    public void gravitate(Body b) {
     }
 
     @Override
@@ -126,7 +128,7 @@ public class Web extends Body {
         return sat;
     }
 
-    public VPoint getSticky() {
+    public BPoint getSticky() {
         return points.get(0);
     }
 

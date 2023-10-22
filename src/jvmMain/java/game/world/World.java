@@ -1,7 +1,6 @@
 package game.world;
 
 import game.Config;
-import game.GameHandler;
 import game.connection.packets.containers.WorldData;
 import game.util.Maths;
 import game.world.bodies.Body;
@@ -16,9 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public class World {
-    static ArrayList<Body> bodies= new ArrayList<>();
-    static ArrayList<Body> toRemove= new ArrayList<>();
-    static ArrayList<Body> toAdd= new ArrayList<>();
+    static ArrayList<Body> bodies = new ArrayList<>();
+    static ArrayList<Body> toRemove = new ArrayList<>();
+    static ArrayList<Body> toAdd = new ArrayList<>();
 
 
     public static void update() { // make it all multiplied by dt
@@ -72,10 +71,7 @@ public class World {
                 for (int j = i + 1; j < bodies.size(); j++) {
                     b2 = bodies.get(j);
                     if (b2.gravitates()) {
-                        ArrayRealVector force = b1.getDistance(b2);
-                        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3) * 10); //arbitrary factor of 10, make it into a variable thingy ig
-                        b1.accelerate(force.mapMultiply(b2.getMass()));
-                        b2.accelerate(force.mapMultiply(-b1.getMass()));
+                        b1.gravitate(b2);
                     }
                 }
             }
@@ -84,17 +80,19 @@ public class World {
 
     static void collide(@NotNull CollisionData collision) {
         Body b1 = collision.getVertex().getParentBody();
+        Body b2 = collision.getEdge1().getParentBody();
         b1.collide(collision);
         //sounds, particles, and other stuff need to happen here
     }
 
+    @NotNull
     static ArrayList<CollisionData> checkCollisions(@NotNull Body b1) { // separating axis theorem, only works for convex shapes
         //pray for your turtles
         //returns
         ArrayList<CollisionData> collisions = new ArrayList<>();
         ArrayRealVector collisionAxis = null;
         Edge collisionEdge = null;
-        VPoint collisionVertex = null;
+        BPoint collisionVertex = null;
 
         //locals
         ArrayRealVector normalAxis;
@@ -102,11 +100,11 @@ public class World {
         ArrayList<Edge> edges1 = b1.getSides();
         ArrayList<Edge> edges2;
         double minDistance; // from vertex to edge in the direction of the axis
-        ArrayList<Pair<Double, VPoint>> projection2;
+        ArrayList<Pair<Double, BPoint>> projection2;
 
         if (b1.getClass() == Web.class) {
             if (((Web) b1).isSticky()) {
-                VPoint sticky = ((Web) b1).getSticky();
+                BPoint sticky = ((Web) b1).getSticky();
                 for (Body b2 : bodies) {
                     if (b2 == b1 || b2.getClass() == Web.class) {
                         continue;
@@ -122,12 +120,12 @@ public class World {
                                 parallelAxis.getEntry(1), -parallelAxis.getEntry(0)});
                         {
                             projection1 = sticky.project(normalAxis); //double, point is sticky
-                            projection2 = b2.project(normalAxis); //ArrayList<Pair<Double, VPoint>>
+                            projection2 = b2.project(normalAxis); //ArrayList<Pair<Double, BPoint>>
                         }
                         if ((projection1 > projection2.get(0).getKey()) && (projection1 < projection2.get(1).getKey())) {
                             if (sticky.project(parallelAxis) > e.getEdge1().project(parallelAxis) &&
                                     sticky.project(parallelAxis) < e.getEdge2().project(parallelAxis)) {
-                                distance = Math.abs(sticky.project(normalAxis)-e.getEdge1().project(normalAxis));
+                                distance = Math.abs(sticky.project(normalAxis) - e.getEdge1().project(normalAxis));
                                 if (distance < minDistance) {
                                     minDistance = distance;
                                     collisionEdge = e;
@@ -155,7 +153,7 @@ public class World {
                 edges2 = b2.getSides();
                 double distance; // between the two projections. collision on negative values
                 boolean collided = true;
-                ArrayList<Pair<Double, VPoint>> projection1;
+                ArrayList<Pair<Double, BPoint>> projection1;
                 for (int i = 0; i < edges1.size() + edges2.size(); i++) {
                     {
                         if (i < edges1.size()) {
@@ -174,8 +172,8 @@ public class World {
                     {
                         projection1 = b1.project(normalAxis);
                         projection2 = b2.project(normalAxis);
-                    }//get projections of both bodies onto the axis, in the form of <projection value, corresponding VPoint>
-                    VPoint potentialVertex;
+                    }//get projections of both bodies onto the axis, in the form of <projection value, corresponding BPoint>
+                    BPoint potentialVertex;
                     {
                         double min1 = projection1.get(0).getKey();
                         double max1 = projection1.get(1).getKey();
@@ -244,8 +242,8 @@ public class World {
     }
 
     void wrapAround(@NotNull Body b) {
-        ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
-        ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
+        ArrayList<Pair<Double, BPoint>> projectionX = b.project(Maths.i);
+        ArrayList<Pair<Double, BPoint>> projectionY = b.project(Maths.j);
         if (projectionX.get(0).getKey() > Config.WIDTH) {
             b.shift(new ArrayRealVector(new Double[]{-projectionX.get(1).getKey(), 0.0}));
         } else if (projectionX.get(1).getKey() < 0) {
@@ -262,8 +260,8 @@ public class World {
     }
 
     void fadeBodies(@NotNull Body b) {
-        ArrayList<Pair<Double, VPoint>> projectionX = b.project(Maths.i);
-        ArrayList<Pair<Double, VPoint>> projectionY = b.project(Maths.j);
+        ArrayList<Pair<Double, BPoint>> projectionX = b.project(Maths.i);
+        ArrayList<Pair<Double, BPoint>> projectionY = b.project(Maths.j);
         //boolean gone = false;
         if (projectionX.get(0).getKey() > Config.WIDTH) {
             b.decreaseRelevance(1 / 60.0);
@@ -328,10 +326,10 @@ public class World {
 
     public static void set(@NotNull WorldData data) {
         bodies.clear();
-        for(BodyImage body:data.bodyImages){
+        for (BodyImage body : data.bodyImages) {
             bodies.add(body.getIsolatedBody());
         }
-        for(int i=0;i<data.bodyImages.size();i++){
+        for (int i = 0; i < data.bodyImages.size(); i++) {
             data.bodyImages.get(i).connectBody(bodies.get(i));
         }
     }

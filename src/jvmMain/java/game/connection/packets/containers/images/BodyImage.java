@@ -1,7 +1,6 @@
 package game.connection.packets.containers.images;
 
-import game.world.VPoint;
-import game.world.World;
+import game.world.BPoint;
 import game.world.bodies.Body;
 import game.world.constraints.Edge;
 import javafx.util.Pair;
@@ -31,7 +30,7 @@ public class BodyImage {
     @NotNull
     private ArrayList<Pair<Double, ArrayRealVector>> getPointsImage(@NotNull Body body) {
         ArrayList<Pair<Double, ArrayRealVector>> points = new ArrayList<>();
-        for (VPoint point : body.getPoints()) {
+        for (BPoint point : body.getPoints()) {
             points.add(new Pair<>(point.getMass(), point.getPos()));
         }
         return points;
@@ -42,7 +41,7 @@ public class BodyImage {
         for (Pair<Double, ArrayRealVector> point : points) {
             body.addPoint(point.getKey(), point.getValue());
         }
-        ArrayList<VPoint> bodyPoints = body.getPoints();
+        ArrayList<BPoint> bodyPoints = body.getPoints();
         for (EdgeImage e : edges) {
             body.addEdge(new Edge(bodyPoints.get(e.index1), bodyPoints.get(e.index2), e.distance));
         }

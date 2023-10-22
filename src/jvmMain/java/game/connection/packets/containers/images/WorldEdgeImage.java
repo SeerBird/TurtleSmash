@@ -1,12 +1,9 @@
 package game.connection.packets.containers.images;
 
-import game.world.VPoint;
 import game.world.World;
 import game.world.bodies.Body;
 import game.world.constraints.Edge;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 public class WorldEdgeImage {
     public int bodyindex1;

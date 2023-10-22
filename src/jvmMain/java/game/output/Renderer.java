@@ -10,9 +10,10 @@ import game.GameState;
 import game.output.ui.TurtleMenu;
 import game.output.ui.rectangles.PlayerList;
 import game.output.ui.rectangles.ServerList;
-import game.world.VPoint;
+import game.world.BPoint;
 import game.world.World;
 import game.world.bodies.Body;
+import game.world.bodies.Shell;
 import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 import game.world.constraints.Edge;
@@ -21,8 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 
 public class Renderer {
-    static int height=Config.HEIGHT;
-    static int width=Config.WIDTH;
+    static int height = Config.HEIGHT;
+    static int width = Config.WIDTH;
     static Graphics g;
 
     public void update() { //get new info and progress animations
@@ -36,7 +37,8 @@ public class Renderer {
     private int yToScreen(double y) { // x origin at center of the screen
         return (int) (Config.HEIGHT / 2 - y * Config.TILE_SIZE);
     }
-    public static void drawImage(Graphics g){
+
+    public static void drawImage(Graphics g) {
         drawWorld(g);
         drawMenu(g);
         g.dispose();
@@ -62,24 +64,17 @@ public class Renderer {
         for (Edge e : b.getEdges()) {
             g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
         }
-        if (b instanceof Turtle) {
-            int i=0;
+        if (b instanceof Shell) {
             g.setColor(Config.POINTS);
-            for(VPoint p:b.getPoints()){
-                if(i==4){
-                    g.setColor(Color.ORANGE);
-                }else if(i==8){
-                    g.setColor(Color.CYAN);
-                } else if (i == 12) {
-                    g.setColor(Color.magenta);
-                }
-                i++;
+            for (BPoint p : b.getPoints()) {
+                g.setColor(Color.ORANGE);
+                g.setColor(Color.CYAN);
                 g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
             }
-        }else if(b instanceof Web){
-            int i=0;
+        } else if (b instanceof Turtle) {
+            int i = 0;
             g.setColor(Config.POINTS);
-            for(VPoint p:b.getPoints()) {
+            for (BPoint p : b.getPoints()) {
                 if (i == 4) {
                     g.setColor(Color.ORANGE);
                 } else if (i == 8) {
@@ -90,16 +85,30 @@ public class Renderer {
                 i++;
                 g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
             }
-            if(((Web) b).targetEdge1!=null&&((Web) b).targetEdge2!=null){
-                Edge e=((Web) b).targetEdge1;
+        } else if (b instanceof Web) {
+            int i = 0;
+            g.setColor(Config.POINTS);
+            for (BPoint p : b.getPoints()) {
+                if (i == 4) {
+                    g.setColor(Color.ORANGE);
+                } else if (i == 8) {
+                    g.setColor(Color.CYAN);
+                } else if (i == 12) {
+                    g.setColor(Color.magenta);
+                }
+                i++;
+                g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
+            }
+            if (((Web) b).targetEdge1 != null && ((Web) b).targetEdge2 != null) {
+                Edge e = ((Web) b).targetEdge1;
                 g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
-                e=((Web) b).targetEdge2;
+                e = ((Web) b).targetEdge2;
                 g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
             }
 
-        }else {
+        } else {
             g.setColor(Config.POINTS);
-            for (VPoint p : b.getPoints()) {
+            for (BPoint p : b.getPoints()) {
                 g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
             }
         }

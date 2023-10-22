@@ -1,8 +1,8 @@
 package game.world.bodies;
 
 import game.util.Maths;
+import game.world.BPoint;
 import game.world.CollisionData;
-import game.world.VPoint;
 import game.world.World;
 import game.world.constraints.Edge;
 import javafx.util.Pair;
@@ -10,12 +10,11 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Body {
-    ArrayList<VPoint> points;
+    ArrayList<BPoint> points;
     ArrayList<Edge> edges;
     ArrayRealVector movement;
     ArrayRealVector acceleration;
@@ -38,14 +37,14 @@ public class Body {
     }
 
     public void move() {
-        for (VPoint p : points) {
+        for (BPoint p : points) {
             p.accelerate(acceleration);
             p.move(movement);
         }//maybe merging the loops is okay
         movement.set(0);
         acceleration.set(0);
         //move
-        for (VPoint p : points) {
+        for (BPoint p : points) {
             p.move();
         }
         centerMoved = true;
@@ -84,7 +83,7 @@ public class Body {
         if (centerMoved) {
             mass = 0;
             center.set(0);
-            for (VPoint p : points) {
+            for (BPoint p : points) {
                 mass += p.getMass();
                 center.combineToSelf(1, p.getMass(), p.getPos());
             }
@@ -104,7 +103,7 @@ public class Body {
     public void refreshMass() {
         mass = 0;
         center.set(0);
-        for (VPoint p : points) {
+        for (BPoint p : points) {
             mass += p.getMass();
             center.combineToSelf(1, p.getMass(), p.getPos());
         }
@@ -112,24 +111,24 @@ public class Body {
         centerMoved = false;
     }
 
-    void addPoint(VPoint p) {
+    void addPoint(BPoint p) {
         points.add(p);
         centerMoved = true;
     }
     public void addPoint(double mass, @NotNull ArrayRealVector pos){
-        addPoint(new VPoint(this,mass,pos));
+        addPoint(new BPoint(this,mass,pos));
     }
 
-    public void addPoints(VPoint... points) {
+    public void addPoints(BPoint... points) {
         this.points.addAll(List.of(points));
         centerMoved = true;
     }
 
-    public void addEdge(VPoint p1, VPoint p2) {
+    public void addEdge(BPoint p1, BPoint p2) {
         addEdge(new Edge(p1, p2, p1.getDistance(p2).getNorm()));
     }
 
-    public void addEdgeChain(VPoint... points) {
+    public void addEdgeChain(BPoint... points) {
         for (int i = 1; i < points.length; i++) {
             addEdge(points[i - 1], points[i]);
         }
@@ -147,7 +146,7 @@ public class Body {
         return true;
     }
 
-    public ArrayList<VPoint> getPoints() {
+    public ArrayList<BPoint> getPoints() {
         return points;
     }
 
@@ -163,15 +162,15 @@ public class Body {
         edges.add(e);
     }
 
-    public ArrayList<Pair<Double, VPoint>> project(@NotNull ArrayRealVector axis) {//returns minimum to maximum
+    public ArrayList<Pair<Double, BPoint>> project(@NotNull ArrayRealVector axis) {//returns minimum to maximum
         double norm = axis.getNorm();
         axis.mapMultiplyToSelf(1 / norm);//normalize
-        VPoint minp = points.get(0);
-        VPoint maxp = points.get(0);
+        BPoint minp = points.get(0);
+        BPoint maxp = points.get(0);
         double min = axis.dotProduct(minp.getPos());
         double max = min;
         double projection;
-        for (VPoint p : points) {//doing the first point over, idc
+        for (BPoint p : points) {//doing the first point over, idc
             projection = p.project(axis);
             if (projection > max) {
                 max = projection;
@@ -181,14 +180,14 @@ public class Body {
                 minp = p;
             }
         }
-        ArrayList<Pair<Double, VPoint>> res = new ArrayList<>(); // I should probably change this to a pair. I hate pairs
+        ArrayList<Pair<Double, BPoint>> res = new ArrayList<>(); // I should probably change this to a pair. I hate pairs
         res.add(new Pair<>(min, minp));
         res.add(new Pair<>(max, maxp));
         return res;
     }
 
     public void stop() {
-        for (VPoint p : points) {
+        for (BPoint p : points) {
             p.stop();
         }
     }
@@ -200,6 +199,7 @@ public class Body {
     public void resetRelevance() {
         relevance = defaultRelevance;
     }
+    
 
     public void collide(@NotNull CollisionData collision) { //I can play with elasticity here - accelerate vs move
         ArrayRealVector overlap = collision.getOverlap().copy(); //possibly unnecessary copy and therefore declaration
@@ -231,7 +231,7 @@ public class Body {
     }
 
     public void checkPointParent() {
-        for (VPoint p : points) {
+        for (BPoint p : points) {
             p.setParentBody(this);
         }
         for (Edge e : edges) {
@@ -242,5 +242,12 @@ public class Body {
 
     static boolean intersect(@NotNull Edge edge1, @NotNull Edge edge2) {
         return Maths.intersect(edge1.getEdge1().getPos(), edge1.getEdge2().getPos(), edge2.getEdge1().getPos(), edge2.getEdge2().getPos());
+    }
+
+    public void gravitate(Body b) {
+        ArrayRealVector force = getDistance(b);
+        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3) * 10); //arbitrary factor of 10, make it into a variable thingy ig
+        accelerate(force.mapMultiply(b.getMass()));
+        b.accelerate(force.mapMultiply(-getMass()));
     }
 }

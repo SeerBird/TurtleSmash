@@ -1,6 +1,6 @@
 package game.connection.packets.containers.images;
 
-import game.world.VPoint;
+import game.world.BPoint;
 import game.world.bodies.Body;
 import game.world.constraints.Edge;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +12,7 @@ public class EdgeImage {
     public int index2;
     public double distance;
     public EdgeImage(@NotNull Edge e){
-        ArrayList<VPoint> points=e.getEdge1().getParentBody().getPoints();
+        ArrayList<BPoint> points=e.getEdge1().getParentBody().getPoints();
         index1=points.indexOf(e.getEdge1());
         index2=points.indexOf(e.getEdge2());
         distance=e.getDistance();

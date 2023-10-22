@@ -1,6 +1,6 @@
 package game.world.bodies;
 
-import game.world.VPoint;
+import game.world.BPoint;
 import game.world.World;
 import game.world.constraints.Edge;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -11,11 +11,11 @@ import java.util.ArrayList;
 public class Star extends Body {
     public Star(World world, @NotNull ArrayRealVector pos) {
         super();
-        VPoint p1 = new VPoint(this, 1, pos.getEntry(0), pos.getEntry(1));
-        VPoint p2 = new VPoint(this, 1, pos.getEntry(0) + 20, pos.getEntry(1) - 10);
-        VPoint p3 = new VPoint(this, 1, pos.getEntry(0) + 40, pos.getEntry(1));
-        VPoint p4 = new VPoint(this, 1, pos.getEntry(0) + 30, pos.getEntry(1) + 30);
-        VPoint p5 = new VPoint(this, 1, pos.getEntry(0) + 10, pos.getEntry(1) + 30);
+        BPoint p1 = new BPoint(this, 1, pos.getEntry(0), pos.getEntry(1));
+        BPoint p2 = new BPoint(this, 1, pos.getEntry(0) + 20, pos.getEntry(1) - 10);
+        BPoint p3 = new BPoint(this, 1, pos.getEntry(0) + 40, pos.getEntry(1));
+        BPoint p4 = new BPoint(this, 1, pos.getEntry(0) + 30, pos.getEntry(1) + 30);
+        BPoint p5 = new BPoint(this, 1, pos.getEntry(0) + 10, pos.getEntry(1) + 30);
         points.add(p1);
         points.add(p2);
         points.add(p3);

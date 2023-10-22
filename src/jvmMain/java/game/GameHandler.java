@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class GameHandler { // make it all static. or try and see whether it's possible either way
+public class GameHandler {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static GameState state;
     private static final HashMap<Job, Runnable> job = new HashMap<>();
@@ -61,8 +61,6 @@ public class GameHandler { // make it all static. or try and see whether it's po
     public static boolean debug;
 
     static {
-
-
         //important stuff
         state = GameState.main;
 
@@ -335,7 +333,7 @@ public class GameHandler { // make it all static. or try and see whether it's po
 
     @Nullable
     public static Player getPlayer() {
-        if(players.size()==0){
+        if (players.size() == 0) {
             return null;
         }
         return players.get(0);

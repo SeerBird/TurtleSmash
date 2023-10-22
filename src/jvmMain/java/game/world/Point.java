@@ -1,31 +1,22 @@
 package game.world;
 
-import game.world.bodies.Body;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
-
-public class VPoint {
+public class Point {
     ArrayRealVector pos;
     ArrayRealVector lpos;
     double mass;
-    transient Body parentBody;
-
-    public VPoint(Body body, double mass, double x, double y) {
-        pos = new ArrayRealVector(2);
-        pos.setEntry(0, x);
-        pos.setEntry(1, y);
-        lpos = pos.copy();
-        this.mass = mass;
-        this.parentBody = body;
-    }
-
-    public VPoint(Body body, double mass, @NotNull ArrayRealVector pos) {
+    public Point(double mass, @NotNull ArrayRealVector pos){
         this.pos = pos.copy();
         lpos = pos.copy();
         this.mass = mass;
-        this.parentBody = body;
+    }
+    public Point(double mass, double x, double y){
+        pos = new ArrayRealVector(new Double[]{x,y});
+        lpos = pos.copy();
+        this.mass = mass;
     }
 
     public void move() {
@@ -55,14 +46,6 @@ public class VPoint {
         return this.mass;
     }
 
-    public Body getParentBody() {
-        return parentBody;
-    }
-
-    public void setParentBody(Body p) {
-        this.parentBody = p;
-    }
-
     public double getX() {
         return this.pos.getEntry(0);
     }
@@ -89,9 +72,10 @@ public class VPoint {
         return this.pos.copy();
     }
 
-    public ArrayRealVector getDistance(@NotNull VPoint b) {
+    public ArrayRealVector getDistance(@NotNull BPoint b) {
         return World.getDistance(pos, b.getPos()); // could be game.world-independent? just geometry if I don't have borderDistance
     }
+
     public ArrayRealVector getDistance(ArrayRealVector pos) {
         return World.getDistance(this.pos, pos); // could be game.world-independent? just geometry if I don't have borderDistance
     }

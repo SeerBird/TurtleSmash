@@ -24,4 +24,5 @@ public final class Maths {
 
     public static ArrayRealVector i = new ArrayRealVector(new Double[]{1.0, 0.0});
     public static ArrayRealVector j = new ArrayRealVector(new Double[]{0.0, 1.0});
+    public static ArrayRealVector o = new ArrayRealVector(new Double[]{0.0, 0.0});
 }

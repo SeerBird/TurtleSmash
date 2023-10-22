@@ -24,8 +24,7 @@ public class Player {
 
     public Player() {
         input = new InputInfo();
-        body = new Turtle(InputControl.getMousepos(),
-                (ArrayRealVector) Maths.i.mapMultiply(20), (ArrayRealVector) Maths.j.mapMultiply(20));
+        body = new Turtle(InputControl.getMousepos());
     }
 
     public void setBody(Turtle body) {

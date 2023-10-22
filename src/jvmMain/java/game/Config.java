@@ -24,4 +24,5 @@ public class Config {
     public static Color menuBackground =new Color(12, 11, 0, 61);
     public static long discoveryMilliTimeout = 3000;
     public static long multicastMilliPeriod = 1000;
+    public static double turtleSize = 1.0;
 }

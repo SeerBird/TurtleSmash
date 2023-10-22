@@ -1,21 +1,21 @@
 package game.world.constraints;
 
 import game.util.CONSTANTS;
-import game.world.VPoint;
+import game.world.BPoint;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 
 public class Edge implements Constraint {
-    VPoint p1;
-    VPoint p2;
+    BPoint p1;
+    BPoint p2;
     double rest_d;
 
-    public Edge(VPoint p1, VPoint p2, double distance) {
+    public Edge(BPoint p1, BPoint p2, double distance) {
         this.p1 = p1;
         this.p2 = p2;
         this.rest_d = distance;
     }
-    public Edge(VPoint p1, VPoint p2){
+    public Edge(BPoint p1, BPoint p2){
         this(p1,p2,p1.getDistance(p2).getNorm());
     }
 
@@ -33,13 +33,13 @@ public class Edge implements Constraint {
         }
     }
 
-    public Pair<VPoint, VPoint> getPoints() {
+    public Pair<BPoint, BPoint> getPoints() {
         return new Pair<>(p1, p2);
     }
-    public VPoint getEdge1(){
+    public BPoint getEdge1(){
         return p1;
     }
-    public VPoint getEdge2(){
+    public BPoint getEdge2(){
         return p2;
     }
 

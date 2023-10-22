@@ -1,12 +1,10 @@
 package game.connection.packets.containers.images;
 
-import game.world.VPoint;
+import game.world.BPoint;
 import game.world.World;
 import game.world.bodies.Body;
 import game.world.constraints.Edge;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 public class BodyEdgeImage {
     public int bodyindex;
@@ -21,8 +19,8 @@ public class BodyEdgeImage {
     }
     public Edge findEdge(){
         Body parent = World.getBodies().get(bodyindex);
-        VPoint p1=parent.getPoints().get(index1);
-        VPoint p2=parent.getPoints().get(index2);
+        BPoint p1=parent.getPoints().get(index1);
+        BPoint p2=parent.getPoints().get(index2);
         for(Edge e: parent.getEdges()){
             if(e.getEdge1()==p1){
                 if(e.getEdge2()==p2){
