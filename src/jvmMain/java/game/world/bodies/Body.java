@@ -12,8 +12,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Body {
+    final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     ArrayList<BPoint> points;
     ArrayList<Edge> edges;
     ArrayRealVector movement;

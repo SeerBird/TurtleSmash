@@ -6,23 +6,25 @@ import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
 
-public class BPoint extends Point{
+public class BPoint extends Point {
     transient Body parentBody;
 
     public BPoint(Body body, double mass, double x, double y) {
-        super(mass,x,y);
+        super(mass, x, y);
         this.parentBody = body;
     }
-    public BPoint(Body body, @NotNull Point point){
-        super(point.mass,point.getPos());
-        parentBody=body;
+
+    public BPoint(Body body, @NotNull Point point) {
+        super(point.mass, point.getPos());
+        parentBody = body;
     }
 
     public BPoint(Body body, double mass, @NotNull ArrayRealVector pos) {
-        super(mass,pos);
+        super(mass, pos);
         this.parentBody = body;
     }
 
+    @NotNull
     public Body getParentBody() {
         return parentBody;
     }

@@ -33,7 +33,7 @@ public class Turtle extends Body {
         double hlength = 60;
         double tlength = 70;
         double twidth = 20;
-        double size = Config.turtleSize/6;
+        double size = Config.turtleSize / 6;
         length *= size;
         width *= size;
         awidth *= size;
@@ -157,10 +157,8 @@ public class Turtle extends Body {
     @Override
     public void collide(@NotNull CollisionData collision) {
         Body b2 = collision.getEdge1().getParentBody();
-        if (b2.getClass() == Shell.class) {
-            if (b2 == shell) {
-                return;
-            }
+        if (b2 == shell) {
+            return;
         }
         super.collide(collision);
     }
@@ -170,5 +168,9 @@ public class Turtle extends Body {
         if (b != shell) {
             super.gravitate(b);
         }
+    }
+
+    public void abandonShell() {
+        shell = null;
     }
 }

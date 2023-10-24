@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public class World {
+public final class World {
     static ArrayList<Body> bodies = new ArrayList<>();
     static ArrayList<Body> toRemove = new ArrayList<>();
     static ArrayList<Body> toAdd = new ArrayList<>();
@@ -80,7 +80,6 @@ public class World {
 
     static void collide(@NotNull CollisionData collision) {
         Body b1 = collision.getVertex().getParentBody();
-        Body b2 = collision.getEdge1().getParentBody();
         b1.collide(collision);
         //sounds, particles, and other stuff need to happen here
     }

@@ -15,8 +15,9 @@ public class Edge implements Constraint {
         this.p2 = p2;
         this.rest_d = distance;
     }
-    public Edge(BPoint p1, BPoint p2){
-        this(p1,p2,p1.getDistance(p2).getNorm());
+
+    public Edge(BPoint p1, BPoint p2) {
+        this(p1, p2, p1.getDistance(p2).getNorm());
     }
 
     public boolean satisfy() {
@@ -33,13 +34,19 @@ public class Edge implements Constraint {
         }
     }
 
+    public double getExtension() {
+        return p1.getDistance(p2).getNorm() / rest_d;
+    }
+
     public Pair<BPoint, BPoint> getPoints() {
         return new Pair<>(p1, p2);
     }
-    public BPoint getEdge1(){
+
+    public BPoint getEdge1() {
         return p1;
     }
-    public BPoint getEdge2(){
+
+    public BPoint getEdge2() {
         return p2;
     }
 

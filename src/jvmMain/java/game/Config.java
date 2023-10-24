@@ -12,17 +12,15 @@ public class Config {
     public static Color BACKGROUND = new Color(64, 128, 0, 255);
     public static Color POINTS = new Color(0, 30, 234, 255);
     public static Color EDGES = new Color(196, 36, 0, 255);
-    public static double turtleMass = 50;
-    public static double shellMass = 3;
-    public static int stringLimit = 3;
+    public static Color menuBackground = new Color(12, 11, 0, 61);
     public static int stringLengthLimit = 20;
-    public static double webMaxDisplacement = 6000;
     public static double stringRestNodeDistance = 14;
-    public static double gravity = 1;
     public static double stringFling = 24;
     public static double noReturnTime = 10; //seconds
-    public static Color menuBackground =new Color(12, 11, 0, 61);
     public static long discoveryMilliTimeout = 3000;
     public static long multicastMilliPeriod = 1000;
     public static double turtleSize = 1.0;
+    public static double shellMergeThreshold = 3.0;
+    public static double shellStrapExtensionLimit = 6.0;
+    public static double shellMass = 8.0;
 }
