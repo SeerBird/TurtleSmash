@@ -1,6 +1,7 @@
 package game.util;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public final class Maths {
@@ -25,4 +26,9 @@ public final class Maths {
     public static ArrayRealVector i = new ArrayRealVector(new Double[]{1.0, 0.0});
     public static ArrayRealVector j = new ArrayRealVector(new Double[]{0.0, 1.0});
     public static ArrayRealVector o = new ArrayRealVector(new Double[]{0.0, 0.0});
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    public static ArrayRealVector getVector(double... coords){
+        return new ArrayRealVector(coords);
+    }
 }

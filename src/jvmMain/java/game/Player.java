@@ -17,14 +17,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.logging.Logger;
 
 public class Player {
-    Turtle body; //should be turtle
+    Turtle body;
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    int score;
+    public int deathTimer;
     InputInfo input;
     SocketChannel channel;
 
     public Player() {
+        score=0;
+        deathTimer=0;
         input = new InputInfo();
-        body = new Turtle(InputControl.getMousepos());
+        body = new Turtle(InputControl.getMousepos(), this);
     }
 
     public void setBody(Turtle body) {
@@ -65,5 +69,10 @@ public class Player {
     }
     public void connectInput(@NotNull InputInfo input){
         this.input=input;
+    }
+
+    public void die() {
+        score++;
+        GameHandler.killPlayer(this);
     }
 }

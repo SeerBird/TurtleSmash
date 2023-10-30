@@ -2,7 +2,6 @@ package game.output.ui.rectangles;
 
 import game.GameHandler;
 import game.connection.packets.containers.ServerStatus;
-import game.output.ui.TurtleMenu;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class ServerList extends RectElement {
             GButton button = new GButton(x, y + buttCount * buttonTestHeight, width, buttonTestHeight,
                     null, servers.get(address).message);
             buttons.put(button, servers.get(address));
-            button.setAction(() -> GameHandler.connect(buttons.get(button)));
+            button.setAction(() -> GameHandler.discoverToLobby(buttons.get(button)));
             buttCount++;
         }
     }

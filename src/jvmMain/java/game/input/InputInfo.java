@@ -12,7 +12,7 @@ public class InputInfo {
     public void create(){
         create=true;
     }
-    public void teleport(){
+    public void drag(){
         teleport=true;
     }
     public void webFling(){

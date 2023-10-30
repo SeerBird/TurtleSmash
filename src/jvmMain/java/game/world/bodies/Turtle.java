@@ -1,12 +1,14 @@
 package game.world.bodies;
 
 import game.Config;
+import game.Player;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;
 import game.world.constraints.Edge;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -18,9 +20,11 @@ public class Turtle extends Body {
     ArrayList<BPoint> spinnerets;
     ArrayList<BPoint> shellAttachment;
     Shell shell;
+    Player owner;
 
-    public Turtle(@NotNull ArrayRealVector pos) {
+    public Turtle(@NotNull ArrayRealVector pos, @Nullable Player owner) {
         super();
+        this.owner = owner;
         spinnerets = new ArrayList<>();
         shellAttachment = new ArrayList<>();
         double length = 500;
@@ -150,10 +154,6 @@ public class Turtle extends Body {
         return shellAttachment;
     }
 
-    public void growShell() {
-        this.shell = new Shell(getCenter(), this);
-    }
-
     @Override
     public void collide(@NotNull CollisionData collision) {
         Body b2 = collision.getEdge1().getParentBody();
@@ -168,6 +168,33 @@ public class Turtle extends Body {
         if (b != shell) {
             super.gravitate(b);
         }
+    }
+
+    @Override
+    public boolean constrain() {
+        boolean satisfied = true;
+        for (Edge c : edges) {
+            if (owner != null) {
+                if (c.getExtension() > Config.turtleDeformThreshold) {
+                    die();
+                }
+            }
+            satisfied &= c.satisfy();
+        }
+        return satisfied;
+    }
+
+    private void die() {
+        owner.die();
+        owner = null;
+    }
+
+    public boolean isDead() {
+        return owner == null;
+    }
+
+    public void growShell() {
+        this.shell = new Shell(getCenter(), this);
     }
 
     public void abandonShell() {

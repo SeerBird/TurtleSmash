@@ -18,7 +18,7 @@ public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
         if(msg instanceof ServerPacket){
             GameHandler.receiveServerPacket((ServerPacket)msg);
         }else if (msg instanceof GameStartPacket){
-            GameHandler.playClient();
+            GameHandler.lobbyToPlayClient();
         }else{
             logger.warning("Unknown message type received by client");
         }

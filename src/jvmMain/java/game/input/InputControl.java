@@ -11,78 +11,122 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+import static game.GameState.*;
+import static game.input.InputControl.Mousebutton.*;
+import static java.awt.event.KeyEvent.*;
+
 public class InputControl {
+    //region Events
     private static final Map<Integer, Boolean> keyPressEvents = new HashMap<>();
     private static final Map<Integer, Boolean> keyReleaseEvents = new HashMap<>();
-    private static final Map<Integer, MouseEvent> mousePressEvents = new HashMap<>();
-    private static final Map<Integer, MouseEvent> mouseReleaseEvents = new HashMap<>();
+    private static final Map<Mousebutton, MouseEvent> mousePressEvents = new HashMap<>();
+    private static final Map<Mousebutton, MouseEvent> mouseReleaseEvents = new HashMap<>();
     private static MouseEvent mouseMoveEvent;
-    public static final ArrayRealVector mousepos = new ArrayRealVector(new Double[]{0.0,0.0});
-    static InputInfo input=new InputInfo();
-    static{
-        input.mousepos=mousepos;
-        // weird? inputs
+
+    //endregion
+    enum Mousebutton {
+        Left,
+        Right
+    }
+
+    private static StringBuffer text;
+    public static final ArrayRealVector mousepos = new ArrayRealVector(new Double[]{0.0, 0.0});
+    static InputInfo input = new InputInfo();
+
+    static {
+        input.mousepos = mousepos;
         for (int i = 0x10; i <= 0xE3; i++) {
             keyPressEvents.put(i, false);
             keyReleaseEvents.put(i, false);
         }
     }
-    public static void handleMenuInput() {
-        GameState state=GameHandler.getState();
-        if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            if (TurtleMenu.press(mousepos)) {
-                mousePressEvents.put(MouseInput.LEFT, null);
+
+    public static void handleInput() {
+        input.reset();
+        GameState state = GameHandler.getState();
+        //region Always
+        if (text != null) {
+            text.append(getText());
+            if (pressed(VK_ESCAPE)) {
+                TurtleMenu.unfocus();
             }
         }
-        if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
-            if (TurtleMenu.release()) {
-                mouseReleaseEvents.put(MouseInput.LEFT, null);
-            }
-        }
-        if (keyPressEvents.get(KeyEvent.VK_SPACE)) {
-            GameHandler.debug = true;
-            keyPressEvents.put(KeyEvent.VK_SPACE, false);
-        }
-        if (keyReleaseEvents.get(KeyEvent.VK_SPACE)) {
-            GameHandler.debug = false;
-            keyReleaseEvents.put(KeyEvent.VK_SPACE, false);
-        }
-        if (keyReleaseEvents.get(KeyEvent.VK_ESCAPE)) {
-            if (state == GameState.playClient) {
-                GameHandler.disconnectTCPClient();
+        if (released(VK_ESCAPE)) {
+            if (state == playClient) {
+                GameHandler.disconnectTCPClient(); // why this????? why not playClientToDiscover??
             } else if (state == GameState.lobby) {
                 GameHandler.lobbyToDiscover();
             } else if (state == GameState.discover) {
                 GameHandler.discoverToMain();
             } else if (state == GameState.playServer) {
-                GameHandler.playToHost();
+                GameHandler.playServerToHost();
             } else if (state == GameState.host) {
                 GameHandler.hostToMain();
             }
-            keyPressEvents.put(KeyEvent.VK_ESCAPE, false);
-            keyReleaseEvents.put(KeyEvent.VK_ESCAPE,false);
+            dispatch(VK_ESCAPE);
         }
+        if (pressed(VK_SPACE)) {
+            GameHandler.debug = true;
+            unpress(KeyEvent.VK_SPACE);
+        }
+        if (released(VK_SPACE)) {
+            GameHandler.debug = false;
+            unrelease(KeyEvent.VK_SPACE);
+        }
+        //endregion
+        //region Menu
+        if (pressed(Left)) {
+            if (TurtleMenu.press(mousepos)) {
+                unpress(Left);
+            }
+        }
+        if (released(Left)) {
+            if (TurtleMenu.release()) {
+                unrelease(Left);
+            }
+        }
+        //endregion
+        //region Play
+        if (state == playClient || state == playServer) {
+            if (pressed(Left)) {
+                input.drag();
+            }
+            if (released(Left)) {
+                dispatch(Left);
+            }
+            if (pressed(VK_C)) {
+                input.create();
+                dispatch(KeyEvent.VK_C);
+            }
+            if (released(Right)) {
+                input.webFling();
+                dispatch(Right);
+            }
+        }
+        //endregion
     }
 
-    public static void getGameInput() {
-        input.reset();
-        if (mousePressEvents.get(MouseInput.LEFT) != null) {
-            input.teleport();
-        }
-        if (mouseReleaseEvents.get(MouseInput.LEFT) != null) {
-            mousePressEvents.put(MouseInput.LEFT, null);
-            mouseReleaseEvents.put(MouseInput.LEFT, null);
-        }
-        if (keyPressEvents.get(KeyEvent.VK_C)) {
-            input.create();
-            keyPressEvents.put(KeyEvent.VK_C, false);
-        }
-        if (mouseReleaseEvents.get(MouseInput.RIGHT) != null) {
-            input.webFling();
-            mousePressEvents.put(MouseInput.RIGHT, null);
-            mouseReleaseEvents.put(MouseInput.RIGHT, null);
-        }
+    public static void connectTextInput(StringBuffer text) {
+        InputControl.text = text;
     }
+
+    @NotNull
+    private static StringBuilder getText() { //actually do this at some point
+        StringBuilder text = new StringBuilder();
+        for (Integer key : keyReleaseEvents.keySet()) {
+            if (keyReleaseEvents.get(key)) {
+                text.append(KeyEvent.getKeyText(key));
+                keyReleaseEvents.put(key, false);
+                keyPressEvents.put(key, false);
+            }
+        }
+        return text;
+    }
+
+    public static void disconnectTextInput() {
+        text = null;
+    }
+
     public static void postKeyPressedEvent(@NotNull KeyEvent e) {
         keyPressEvents.put(e.getKeyCode(), true);
     }
@@ -96,11 +140,11 @@ public class InputControl {
     }
 
     public static void postMousePressEvent(MouseEvent e) {
-        mousePressEvents.put(e.getButton(), e);
+        mousePressEvents.put(getButton(e.getButton()), e);
     }
 
     public static void postMouseReleaseEvent(MouseEvent e) {
-        mouseReleaseEvents.put(e.getButton(), e);
+        mouseReleaseEvents.put(getButton(e.getButton()), e);
     }
 
     public static void postMouseMoveEvent(@NotNull MouseEvent e) {
@@ -109,7 +153,58 @@ public class InputControl {
         mousepos.setEntry(1, e.getPoint().y);
     }
 
+    private static Mousebutton getButton(int button) {
+        if (button == MouseEvent.BUTTON1) {
+            return Left;
+        } else {
+            return Right;
+        }
+    }
+
     public static InputInfo getInput() {
         return input;
     }
+
+    private static boolean pressed(int key) {
+        return keyPressEvents.get(key);
+    }
+
+    private static boolean released(int key) {
+        return keyReleaseEvents.get(key);
+    }
+
+    private static void unrelease(int key) {
+        keyReleaseEvents.put(key, false);
+    }
+
+    private static void unpress(int key) {
+        keyPressEvents.put(key, false);
+    }
+
+    private static void dispatch(int key) {
+        keyReleaseEvents.put(key, false);
+        keyPressEvents.put(key, false);
+    }
+
+    private static boolean pressed(Mousebutton button) {
+        return mousePressEvents.get(button) != null;
+    }
+
+    private static boolean released(Mousebutton button) {
+        return mouseReleaseEvents.get(button) != null;
+    }
+
+    private static void unrelease(Mousebutton button) {
+        mouseReleaseEvents.put(button, null);
+    }
+
+    private static void unpress(Mousebutton button) {
+        mousePressEvents.put(button, null);
+    }
+
+    private static void dispatch(Mousebutton button) {
+        mouseReleaseEvents.put(button, null);
+        mousePressEvents.put(button, null);
+    }
+
 }

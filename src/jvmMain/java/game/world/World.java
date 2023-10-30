@@ -1,18 +1,23 @@
 package game.world;
 
 import game.Config;
+import game.Player;
 import game.connection.packets.containers.WorldData;
 import game.util.Maths;
 import game.world.bodies.Body;
 import game.world.bodies.Box;
+import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 import game.connection.packets.containers.images.BodyImage;
 import game.world.constraints.Edge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+
+import static game.util.Maths.getVector;
 
 public final class World {
     static ArrayList<Body> bodies = new ArrayList<>();
@@ -335,5 +340,26 @@ public final class World {
 
     public static void spawn(ArrayRealVector pos) {
         new Box(pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+    }
+
+    public static void playerSpawn(Player player) {
+        double x, y;
+        if ((x = Math.random()) > 0.5) {
+            x = Config.WIDTH + x * Config.playerSpawnSpread;
+        } else {
+            x = -x * Config.playerSpawnSpread;
+        }
+        if ((y = Math.random()) > 0.5) {
+            y = Config.HEIGHT + y * Config.playerSpawnSpread;
+        } else {
+            y = -y * Config.playerSpawnSpread;
+        }
+        ArrayRealVector pos = new ArrayRealVector(new Double[]{x, y});
+        Turtle turtle = new Turtle(pos, player);
+        pos.addToEntry(0, -Config.WIDTH / 2.0);
+        pos.addToEntry(0, -Config.HEIGHT / 2.0); // get position relative to center of screen
+        turtle.accelerate(pos.mapMultiply(-Config.approxPlayerSpawnVelocity / pos.getNorm()) // get velocity to the center of the screen
+                .combine(1, Config.playerSpawnVelocitySpread, getVector(Math.random(), Math.random()))); // add spread
+        player.setBody(turtle);
     }
 }

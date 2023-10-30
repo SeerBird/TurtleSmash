@@ -74,8 +74,8 @@ public class ClientTCP extends Thread {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
-            GameHandler.playToDiscover();
-            disconnect();
+            GameHandler.playClientToDiscover(); // why the hell is this here.
+            disconnect(); // how is this meaningful. shouldn't do anything.
             group.shutdownGracefully().addListener(future -> logger.info("TCP client off"));
         }
     }

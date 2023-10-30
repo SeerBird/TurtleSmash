@@ -9,14 +9,12 @@ import game.connection.packets.ServerPacket;
 import game.output.GameWindow;
 import game.output.Renderer;
 import game.output.audio.Sound;
-import game.output.ui.rectangles.Textbox;
 import game.output.ui.TurtleMenu;
 import game.world.World;
 import game.world.bodies.Body;
 import io.netty.channel.socket.SocketChannel;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,55 +27,55 @@ import java.util.logging.Logger;
 public class GameHandler {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static GameState state;
+    //region Jobs
     private static final HashMap<Job, Runnable> job = new HashMap<>();
 
     private enum Job {
         sendClient,
         sendServer,
         handlePlayers,
-        menuInput,
-        textInput,
+        handleInput,
         handleServerPacket,
         updateMenu,
-        gameInput,
-        updateWorld
+        updateWorld,
+        revivePlayers
     }
 
     private static final ArrayList<Job> toRemove = new ArrayList<>();
     private static final ArrayList<Job> toAdd = new ArrayList<>();
 
     private static final ArrayList<Runnable> jobs = new ArrayList<>();
+    //endregion
+    //region Players
     private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
+    private static final ArrayList<Player> deadPlayers = new ArrayList<>();
+    //endregion
+    //region Connection
     public static final ServerPacket lastPacket = new ServerPacket();
     public static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
     static ServerTCP tcpServer;
     static ClientTCP tcpClient;
+    //endregion
     static final GameWindow window = new GameWindow();
     static final Sound sound = new Sound();
-    // idk what this has become, seems dodgy. I should move this to the actual input module
-    // figure out what the different state functions are and whether the order matters, then see
-
     public static boolean debug;
 
     static {
-        //important stuff
         state = GameState.main;
-
-        //jobs
+        //region Define job dictionary
         job.clear();
         job.put(Job.sendClient, () -> sendClientPacket());
         job.put(Job.updateWorld, () -> World.update());
-        job.put(Job.menuInput, () -> InputControl.handleMenuInput());
-        job.put(Job.gameInput, () -> InputControl.getGameInput());
+        job.put(Job.handleInput, () -> InputControl.handleInput());
         job.put(Job.handlePlayers, () -> handlePlayers());
         job.put(Job.sendServer, () -> broadcastServerPacket());
         job.put(Job.handleServerPacket, () -> handleServerPacket());
         job.put(Job.updateMenu, () -> TurtleMenu.update());
-
-        //starting state
-        addJob(Job.menuInput);
-        addJob(Job.gameInput);
+        job.put(Job.revivePlayers, () -> revivePlayers());
+        //endregion
+        //region Set starting state
+        addJob(Job.handleInput);
         addJob(Job.updateMenu);
         addJob(Job.handlePlayers);
         addJob(Job.updateWorld);
@@ -85,6 +83,9 @@ public class GameHandler {
         Player p = new Player(); // the player on this device
         p.connectInput(InputControl.getInput());
         players.add(p);
+        //endregion
+        mainToHost();
+        hostToPlayServer();
     }
 
     public static void out() {
@@ -94,23 +95,22 @@ public class GameHandler {
     }
 
     public static void update() {
-        {
-            for (Job added : toAdd) {
-                jobs.add(job.get(added));
-            }
-            toAdd.clear();
-            for (Job removed : toRemove) {
-                jobs.remove(job.get(removed));
-            }
-            toRemove.clear();
-        }// remove and add jobs
-        {
-            for (Runnable job : jobs) {
-                job.run();
-            }
-        }// get em done
+        //region Remove and add jobs
+        for (Job added : toAdd) {
+            jobs.add(job.get(added));
+        }
+        toAdd.clear();
+        for (Job removed : toRemove) {
+            jobs.remove(job.get(removed));
+        }
+        toRemove.clear();
+        //endregion
+        for (Runnable job : jobs) {
+            job.run();
+        }//get em done
     }
 
+    //region Job Methods
     public static void addJob(Job job) {
         toAdd.add(job);
     }
@@ -118,9 +118,6 @@ public class GameHandler {
     public static void removeJob(Job job) {
         toRemove.add(job);
     }
-
-    //Jobs
-
 
     private static void handlePlayers() {
         for (Player ghost : removedPlayers) {
@@ -144,6 +141,16 @@ public class GameHandler {
             }
         }
     }
+
+    private static void revivePlayers() {
+        for (Player player : deadPlayers) {
+            player.deathTimer -= 1;
+            if (player.deathTimer == 0) {
+                World.playerSpawn(player);
+            }
+        }
+    }
+
 
     private static void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo
         ServerPacket packet = new ServerPacket(players);
@@ -170,9 +177,18 @@ public class GameHandler {
     public static void receiveServerPacket(ServerPacket packet) {
         lastPacket.set(packet);
     }
+    //endregion
 
-    //States
-    public static void host() {
+    //region State traversal
+    private static void setState(GameState gameState) {
+        state = gameState;
+        TurtleMenu.refreshGameState();
+    }
+    public static GameState getState() {
+        return state;
+    }
+
+    public static void mainToHost() {
         int port = 0;
         {
             ServerSocket socket = null;
@@ -204,7 +220,7 @@ public class GameHandler {
         addJob(Job.sendServer);
     }
 
-    public static void playServer() {
+    public static void hostToPlayServer() {
         setState(GameState.playServer);
         World.startGen();
         GameStartPacket packet = new GameStartPacket();
@@ -213,36 +229,12 @@ public class GameHandler {
                 players.get(i).send(packet);//code proper disconnect handling, breaks at the moment
             }
         }
+        addJob(Job.revivePlayers);
     }
 
-    public static void discover() {
-        setState(GameState.discover);
-        Discovery.start(servers);
-    }
-
-    public static void connect(ServerStatus server) {
-        setState(GameState.lobby);
-        tcpClient = new ClientTCP(server);
-        tcpClient.start();
-        addJob(Job.handleServerPacket);
-        addJob(Job.sendClient);
-    }
-
-    public static void disconnectTCPClient() {
-        tcpClient.disconnect();
-    }
-
-    public static void playClient() {
-        setState(GameState.playClient);
-    }
-
-    public static void playToDiscover() {
-        setState(GameState.discover);
-        removeJob(Job.sendClient);
-    }
-
-    public static void playToHost() {
+    public static void playServerToHost() {
         setState(GameState.host);
+        removeJob(Job.revivePlayers);
     }
 
     public static void hostToMain() {
@@ -251,33 +243,41 @@ public class GameHandler {
         tcpServer.disconnect();
     }
 
+    public static void mainToDiscover() {
+        setState(GameState.discover);
+        Discovery.start(servers);
+    }
+
+    public static void discoverToLobby(ServerStatus server) {
+        setState(GameState.lobby);
+        tcpClient = new ClientTCP(server);
+        tcpClient.start();
+        addJob(Job.handleServerPacket);
+        addJob(Job.sendClient);
+    }
+
     public static void lobbyToDiscover() {
         setState(GameState.discover);
+    }
+
+    public static void lobbyToPlayClient() {
+        setState(GameState.playClient);
+    }
+
+    public static void playClientToDiscover() {
+        setState(GameState.discover);
+        removeJob(Job.sendClient);
     }
 
     public static void discoverToMain() {
         setState(GameState.main);
         Discovery.stop();
     }
+//endregion
 
-    private static void setState(GameState gameState) {
-        state = gameState;
-        TurtleMenu.refreshGameState();
-    }
-
-    Textbox textbox;
-
-    public void enterTextbox(Textbox textbox) {//move to menu
-        this.textbox = textbox;
-        addJob(Job.textInput);
-    }
-
-    public void leaveTextbox() {
-        removeJob(Job.textInput);
-    }
-
-    private void getTextInput() {//move to input
-        //iterate through all text keys, get and reset pressed, check for shift and give the right letter to the textbox
+    //region Connection
+    public static void disconnectTCPClient() {
+        tcpClient.disconnect();
     }
 
     public static void refreshLAN() {
@@ -286,10 +286,6 @@ public class GameHandler {
                 servers.remove(address);
             }
         }
-    }
-
-    public void terminate() {
-        // you think you can stop me?
     }
 
     public void shutDownTCPServer() {
@@ -303,8 +299,9 @@ public class GameHandler {
             TurtleMenu.popup(cause.getMessage());
         }
     }
+    //endregion
 
-    //Simple stuff
+    //region Player handling
     @NotNull
     public static Player addPlayer(SocketChannel channel) {
         Player dupe = null;
@@ -331,20 +328,13 @@ public class GameHandler {
         removedPlayers.add(player);
     }
 
-    @Nullable
-    public static Player getPlayer() {
-        if (players.size() == 0) {
-            return null;
-        }
-        return players.get(0);
+    public static void killPlayer(Player player) {
+        deadPlayers.add(player);
+        player.deathTimer = Config.deathFrames;
     }
 
-    // Input
-
-
-    //getters
-
-    public static GameState getState() {
-        return state;
+    //endregion
+    public void terminate() {
+        // you think you can stop me?
     }
 }

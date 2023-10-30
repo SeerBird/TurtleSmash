@@ -2,17 +2,14 @@ package game.output.ui;
 
 import game.GameHandler;
 import game.GameState;
-import game.connection.packets.ServerPacket;
-import game.connection.packets.containers.ServerStatus;
 import game.output.ui.rectangles.GButton;
 import game.output.ui.rectangles.PlayerList;
 import game.output.ui.rectangles.ServerList;
+import game.output.ui.rectangles.Textbox;
 import org.apache.commons.math3.linear.ArrayRealVector;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class TurtleMenu {
@@ -20,18 +17,19 @@ public class TurtleMenu {
     private static final ArrayList<IElement> elements = new ArrayList<>();
     private static final HashMap<GameState, ArrayList<IElement>> menuPresets = new HashMap<>();
     private static IElement pressed;
+    private static Focusable focused;
     //cringe element references
     static final ServerList serverList = new ServerList(200, 200, 600, 600, GameHandler.servers);
     static final PlayerList playerList = new PlayerList(100, 100, 600, 600, GameHandler.lastPacket);
 
-    static{
+    static {
         // Create the presets
         // main
-        elements.add(new GButton(200, 200, 100, 100, GameHandler::discover, "Discover"));// discover UDP
-        elements.add(new GButton(400, 200, 100, 100, GameHandler::host, "Host"));// host UDP and open TCP server
+        elements.add(new GButton(200, 200, 100, 100, GameHandler::mainToDiscover, "Discover"));// discover UDP
+        elements.add(new GButton(400, 200, 100, 100, GameHandler::mainToHost, "Host"));// host UDP and open TCP server
         savePreset(GameState.main);
         //host
-        elements.add(new GButton(400, 200, 100, 100, GameHandler::playServer, "Play"));
+        elements.add(new GButton(400, 200, 100, 100, GameHandler::hostToPlayServer, "Play"));
         savePreset(GameState.host);
         //connect
         elements.add(serverList);
@@ -96,5 +94,14 @@ public class TurtleMenu {
     private static void savePreset(GameState state) {
         menuPresets.put(state, new ArrayList<>(elements));
         elements.clear();
+    }
+
+    public static void focus(Focusable element) {
+        focused = element;
+    }
+
+    public static void unfocus() {
+        focused.leave();
+        focused = null;
     }
 }

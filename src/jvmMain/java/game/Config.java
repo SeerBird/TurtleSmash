@@ -20,7 +20,12 @@ public class Config {
     public static long discoveryMilliTimeout = 3000;
     public static long multicastMilliPeriod = 1000;
     public static double turtleSize = 1.0;
+    public static double turtleDeformThreshold = 2.0;
     public static double shellMergeThreshold = 3.0;
     public static double shellStrapExtensionLimit = 6.0;
     public static double shellMass = 8.0;
+    public static double playerSpawnSpread = 80;
+    public static double approxPlayerSpawnVelocity = 20;
+    public static double playerSpawnVelocitySpread = 20;
+    public static int deathFrames = 600;
 }
