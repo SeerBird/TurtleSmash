@@ -49,6 +49,7 @@ public class GameHandler {
     private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
     private static final ArrayList<Player> deadPlayers = new ArrayList<>();
+    private static final ArrayList<Player> revivedPlayers = new ArrayList<>();
     //endregion
     //region Connection
     public static final ServerPacket lastPacket = new ServerPacket();
@@ -145,8 +146,13 @@ public class GameHandler {
             player.deathTimer -= 1;
             if (player.deathTimer < 0) {
                 World.playerSpawn(player);
+                revivedPlayers.add(player);
             }
         }
+        for(Player player:revivedPlayers){
+            deadPlayers.remove(player);
+        }
+        revivedPlayers.clear();
     }
 
 

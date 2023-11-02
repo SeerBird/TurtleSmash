@@ -22,7 +22,7 @@ public class Audio {
         } catch (LineUnavailableException e) {
             throw new RuntimeException(e);
         }
-        soundStreams.put(death, Audio.class.getResource("villager.wav"));
+        soundStreams.put(death, Audio.class.getResource("goodnight.wav"));
     }
 
     public static void playSound(Sound sound) {// design some kind of notifiable object to stop the clip

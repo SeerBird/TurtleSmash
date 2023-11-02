@@ -141,7 +141,6 @@ public class InputControl extends MouseAdapter implements KeyListener {
             }
             if (released(Left)) {
                 dispatch(Left);
-                Audio.playSound(Sound.death);
             }
             if (pressed(VK_C)) {
                 input.create();

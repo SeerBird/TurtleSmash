@@ -16,7 +16,7 @@ public class Config {
     public static long discoveryMilliTimeout = 3000;
     public static long multicastMilliPeriod = 1000;
     public static double turtleSize = 1.0;
-    public static double turtleDeformThreshold = 2.0;
+    public static double turtleDeformThreshold = 3.0;
     public static double turtleMass = 10.0;
     public static double shellMergeThreshold = 3.0;
     public static double shellStrapExtensionLimit = 6.0;

@@ -77,6 +77,8 @@ public class Player {
 
     public void die() {
         score++;
+        setBody(null);
         GameHandler.killPlayer(this);
+        Audio.playSound(Sound.death);
     }
 }
