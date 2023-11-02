@@ -6,6 +6,7 @@ import game.input.InputControl;
 import game.input.InputInfo;
 import game.util.Maths;
 import game.util.Util;
+import game.world.World;
 import game.world.bodies.Body;
 import game.world.bodies.Box;
 import game.world.bodies.Turtle;
@@ -25,10 +26,10 @@ public class Player {
     SocketChannel channel;
 
     public Player() {
-        score=0;
-        deathTimer=0;
+        score = 0;
+        deathTimer = 0;
         input = new InputInfo();
-        body = new Turtle(InputControl.getMousepos(), this);
+        World.playerSpawn(this);
     }
 
     public void setBody(Turtle body) {
@@ -47,7 +48,6 @@ public class Player {
         return input;
     }
 
-    //Player Actions
 
     public void receive(@NotNull ClientPacket packet) {
         input = packet.getInput();
@@ -67,8 +67,9 @@ public class Player {
     public Turtle getBody() {
         return body;
     }
-    public void connectInput(@NotNull InputInfo input){
-        this.input=input;
+
+    public void connectInput(@NotNull InputInfo input) {
+        this.input = input;
     }
 
     public void die() {

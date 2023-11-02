@@ -6,8 +6,7 @@ import game.output.ui.TurtleMenu;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +14,7 @@ import static game.GameState.*;
 import static game.input.InputControl.Mousebutton.*;
 import static java.awt.event.KeyEvent.*;
 
-public class InputControl {
+public class InputControl extends MouseAdapter implements KeyListener {
     //region Events
     private static final Map<Integer, Boolean> keyPressEvents = new HashMap<>();
     private static final Map<Integer, Boolean> keyReleaseEvents = new HashMap<>();
@@ -24,6 +23,51 @@ public class InputControl {
     private static MouseEvent mouseMoveEvent;
 
     //endregion
+    //region MouseListener methods
+    @Override
+    public void mousePressed(MouseEvent e) {
+        mousePressEvents.put(getButton(e.getButton()), e);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        mouseReleaseEvents.put(getButton(e.getButton()), e);
+    }
+
+    @Override
+    public void mouseMoved(@NotNull MouseEvent e) {
+        mouseMoveEvent = e;
+        mousepos.setEntry(0, e.getPoint().x);
+        mousepos.setEntry(1, e.getPoint().y);
+    }
+
+    @Override
+    public void mouseDragged(@NotNull MouseEvent e) {
+        mouseMoveEvent = e;
+        mousepos.setEntry(0, e.getPoint().x);
+        mousepos.setEntry(1, e.getPoint().y);
+    }
+
+    //endregion
+    //region KeyListener methods
+    @Override
+    public void keyPressed(@NotNull KeyEvent e) {
+        keyPressEvents.put(e.getKeyCode(), true);
+    }
+
+    @Override
+    public void keyReleased(@NotNull KeyEvent e) {
+        keyReleaseEvents.put(e.getKeyCode(), true);
+    }
+
+    //region (not used)
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+    //endregion
+    //endregion
+
     enum Mousebutton {
         Left,
         Right
@@ -45,11 +89,13 @@ public class InputControl {
         input.reset();
         GameState state = GameHandler.getState();
         //region Always
-        if (text != null) {
-            text.append(getText());
+        if (TurtleMenu.isFocused()) {
             if (pressed(VK_ESCAPE)) {
                 TurtleMenu.unfocus();
             }
+        }
+        if (text != null) {
+            text.append(getText());
         }
         if (released(VK_ESCAPE)) {
             if (state == playClient) {
@@ -127,32 +173,6 @@ public class InputControl {
         text = null;
     }
 
-    public static void postKeyPressedEvent(@NotNull KeyEvent e) {
-        keyPressEvents.put(e.getKeyCode(), true);
-    }
-
-    public static ArrayRealVector getMousepos() {
-        return mousepos;
-    }
-
-    public static void postKeyReleasedEvent(@NotNull KeyEvent e) {
-        keyReleaseEvents.put(e.getKeyCode(), true);
-    }
-
-    public static void postMousePressEvent(MouseEvent e) {
-        mousePressEvents.put(getButton(e.getButton()), e);
-    }
-
-    public static void postMouseReleaseEvent(MouseEvent e) {
-        mouseReleaseEvents.put(getButton(e.getButton()), e);
-    }
-
-    public static void postMouseMoveEvent(@NotNull MouseEvent e) {
-        mouseMoveEvent = e;
-        mousepos.setEntry(0, e.getPoint().x);
-        mousepos.setEntry(1, e.getPoint().y);
-    }
-
     private static Mousebutton getButton(int button) {
         if (button == MouseEvent.BUTTON1) {
             return Left;
@@ -165,6 +185,7 @@ public class InputControl {
         return input;
     }
 
+    //region Private key/mousebutton getters and setters
     private static boolean pressed(int key) {
         return keyPressEvents.get(key);
     }
@@ -206,5 +227,5 @@ public class InputControl {
         mouseReleaseEvents.put(button, null);
         mousePressEvents.put(button, null);
     }
-
+    //endregion
 }

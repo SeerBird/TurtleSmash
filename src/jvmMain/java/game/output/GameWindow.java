@@ -2,9 +2,7 @@ package game.output;
 
 
 import game.Config;
-import game.GameHandler;
-import game.input.KeyboardInput;
-import game.input.MouseInput;
+import game.input.InputControl;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,9 +14,8 @@ public class GameWindow extends JFrame {
     BufferStrategy strategy;
 
     public GameWindow() {
-        // Basic functionality
         setIgnoreRepaint(true);
-        setResizable(false); //not forever?
+        setResizable(false);
         setSize(Config.WIDTH, Config.HEIGHT);
         this.setLocation(400, 10);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -29,26 +26,26 @@ public class GameWindow extends JFrame {
             }
         });
 
-        // Add canvas(for buffer strategy I think?? might be unnecessary)
+        //region Add canvas(for buffer strategy I think?? might be unnecessary)
         Canvas canvas = new Canvas();
         canvas.setIgnoreRepaint(true);
         canvas.setSize(Config.WIDTH, Config.HEIGHT);
         add(canvas);
         pack();
-
-        //Buffer strategy
+        //endregion
+        //region buffer strategy
         canvas.createBufferStrategy(2);
         strategy = canvas.getBufferStrategy();
-
-        // Hookup game.input
-        KeyboardInput keyboard = new KeyboardInput();
-        addKeyListener(keyboard);
-        canvas.addKeyListener(keyboard);
-        MouseInput mouse = new MouseInput();
-        addMouseListener(mouse);
-        canvas.addMouseListener(mouse);
-        addMouseMotionListener(mouse);
-        canvas.addMouseMotionListener(mouse);
+        //endregion
+        //region hookup game.input
+        InputControl input = new InputControl();
+        addKeyListener(input);
+        canvas.addKeyListener(input);
+        addMouseListener(input);
+        canvas.addMouseListener(input);
+        addMouseMotionListener(input);
+        canvas.addMouseMotionListener(input);
+        //endregion
         setVisible(true);
     }
     public void showCanvas() {

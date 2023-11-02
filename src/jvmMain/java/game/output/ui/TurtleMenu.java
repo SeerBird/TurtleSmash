@@ -10,6 +10,7 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class TurtleMenu {
@@ -18,30 +19,46 @@ public class TurtleMenu {
     private static final HashMap<GameState, ArrayList<IElement>> menuPresets = new HashMap<>();
     private static IElement pressed;
     private static Focusable focused;
-    //cringe element references
     static final ServerList serverList = new ServerList(200, 200, 600, 600, GameHandler.servers);
     static final PlayerList playerList = new PlayerList(100, 100, 600, 600, GameHandler.lastPacket);
 
     static {
-        // Create the presets
-        // main
-        elements.add(new GButton(200, 200, 100, 100, GameHandler::mainToDiscover, "Discover"));// discover UDP
-        elements.add(new GButton(400, 200, 100, 100, GameHandler::mainToHost, "Host"));// host UDP and open TCP server
-        savePreset(GameState.main);
-        //host
-        elements.add(new GButton(400, 200, 100, 100, GameHandler::hostToPlayServer, "Play"));
-        savePreset(GameState.host);
-        //connect
-        elements.add(serverList);
-        savePreset(GameState.discover);
-        //lobby
-        elements.add(playerList);
-        savePreset(GameState.lobby);
-        //playServer
+        //region create the presets for all the game states
+        //region main
+        savePreset(GameState.main,
+                new GButton(200, 200, 100, 100, GameHandler::mainToDiscover, "Discover"),
+                new GButton(400, 200, 100, 100, GameHandler::mainToHost, "Host"));
+        //endregion
+        //region host
+        savePreset(GameState.host,
+                new GButton(400, 200, 100, 100, GameHandler::hostToPlayServer, "Play"));
+        //endregion
+        //region connect
+        savePreset(GameState.discover,
+                serverList);
+        //endregion
+        //region lobby
+        savePreset(GameState.lobby,
+                playerList);
+        //endregion
+        //region playServer
         savePreset(GameState.playServer);
-        //playClient
+        //endregion
+        //region playClient
         savePreset(GameState.playClient);
+        //endregion
+        //endregion
         refreshGameState();
+    }
+
+    private static void savePreset(GameState state, IElement... presetElements) {
+        menuPresets.put(state, new ArrayList<>(List.of(presetElements)));
+        elements.clear();
+    }
+
+    public static void refreshGameState() {
+        elements.clear();
+        elements.addAll(menuPresets.get(GameHandler.getState()));
     }
 
     public static boolean press(ArrayRealVector pos) {
@@ -54,15 +71,6 @@ public class TurtleMenu {
         return false;
     }
 
-    public static GameState getState() {
-        return GameHandler.getState();
-    }
-
-    public static void refreshGameState() {
-        elements.clear();
-        elements.addAll(menuPresets.get(GameHandler.getState()));
-    }
-
     public static boolean release() {
         if (pressed != null) {
             pressed.release();
@@ -70,6 +78,15 @@ public class TurtleMenu {
             return true;
         }
         return false;
+    }
+
+    public static void focus(Focusable element) {
+        focused = element;
+    }
+
+    public static void unfocus() { //I can make this multilevel. no need though.
+        focused.leave();
+        focused = null;
     }
 
     public static void update() {
@@ -91,17 +108,7 @@ public class TurtleMenu {
 
     }
 
-    private static void savePreset(GameState state) {
-        menuPresets.put(state, new ArrayList<>(elements));
-        elements.clear();
-    }
-
-    public static void focus(Focusable element) {
-        focused = element;
-    }
-
-    public static void unfocus() {
-        focused.leave();
-        focused = null;
+    public static boolean isFocused() {
+        return focused!=null;
     }
 }

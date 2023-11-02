@@ -30,14 +30,6 @@ public class Renderer {
 
     }
 
-    private int xToScreen(double x) { // x origin at center of the screen
-        return (int) (Config.WIDTH / 2 + x * Config.TILE_SIZE);
-    }
-
-    private int yToScreen(double y) { // x origin at center of the screen
-        return (int) (Config.HEIGHT / 2 - y * Config.TILE_SIZE);
-    }
-
     public static void drawImage(Graphics g) {
         drawWorld(g);
         drawMenu(g);

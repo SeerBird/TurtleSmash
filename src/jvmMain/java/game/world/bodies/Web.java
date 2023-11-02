@@ -31,81 +31,62 @@ public class Web extends Body {
     @Override
     public void move() {
         super.move();
+        //region behavior when still attached
         if (source != null) {
             if (isGrowing) {
-                if (points.size() >= Config.stringLengthLimit) {
-                    isGrowing=false;
-                }// stop growth when limit is reached
-                else {
-                    ArrayRealVector root = points.get(points.size() - 1).getPos();
-                    ArrayRealVector dist = points.get(points.size() - 1).getDistance(source);
-                    double distance = dist.getNorm() / Config.stringRestNodeDistance; // not in pixels but in rest distances
-                    if (distance > 1) {
-
-                        dist.mapMultiplyToSelf(1 / distance); // get a rest distance in the right direction
-                        for (int i = 1; i < distance; i++) {
-                            addPoint(new BPoint(this, 1, root.combineToSelf(1, 1, dist)));
-                            addEdge(points.get(points.size() - 2), points.get(points.size() - 1));
+                //region add web points and edges so that there isn't a gap between the web and the source
+                ArrayRealVector root = points.get(points.size() - 1).getPos();
+                ArrayRealVector dist = points.get(points.size() - 1).getDistance(source);
+                double distance = dist.getNorm() / Config.stringRestNodeDistance; // not in pixels but in rest distances
+                if (distance > 1) {// if the gap is greater than a web edge rest distance
+                    dist.mapMultiplyToSelf(1 / distance); // get the rest distance vector in the right direction
+                    //region add points while there is a gap and the length limit has not been reached
+                    for (int i = 1; i < distance; i++) {
+                        if (points.size() >= Config.stringLengthLimit) {
+                            sourceEdge = new Edge(source, points.get(points.size() - 1), Config.stringRestNodeDistance);
+                            isGrowing = false;
+                            break;
                         }
-                    }// grow
+                        addPoint(new BPoint(this, 1, root.combineToSelf(1, 1, dist)));
+                        addEdge(points.get(points.size() - 2), points.get(points.size() - 1));
+                    }
+                    //endregion
                 }
+                //endregion
             } else {
                 // what does it do when attached but not growing? just moves? maybe collapse ifs
             }
-        }// still attached
+        }
+        //endregion
+        //region behavior when disconnected from source turtle
         else {
             if (target == null) {
 
             }
             // eh idk. space for content ig
         }
-    }
-
-    @Override
-    public ArrayList<Pair<Double, BPoint>> project(@NotNull ArrayRealVector axis) {
-        double norm = axis.getNorm();
-        if (norm != 1.0) {
-            axis.mapMultiplyToSelf(1 / norm);
-        }
-        BPoint minp = points.get(0);
-        BPoint maxp = points.get(0);
-        double min = axis.dotProduct(minp.getPos());
-        double max = min;
-        double projection;
-        BPoint p;
-        for (BPoint point : points) {//doing the first point over, idc
-            p = point;
-            projection = axis.dotProduct(p.getPos());
-            if (projection > max) {
-                max = projection;
-                maxp = p;
-            } else if (projection < min) {
-                min = projection;
-                minp = p;
-            }
-        }
-        ArrayList<Pair<Double, BPoint>> res = new ArrayList<>(); // I should probably change this to a pair. I hate pairs.
-        res.add(new Pair<>(min, minp));
-        res.add(new Pair<>(max, maxp));
-        return res;
-    }
-
-    private void stick(@NotNull BPoint webPoint, @NotNull Edge edge) {//create a new one-sided distance constraint class?
+        //endregion
     }
 
     @Override
     public void collide(@NotNull CollisionData collision) {
+        //region get the two things that are sticking to one another
         target = collision.edge;
         BPoint sticky = collision.getVertex();
+        //endregion
+        //region move the sticky point onto its projection onto the target edge
         ArrayRealVector distance = target.getEdge1().getDistance(target.getEdge2());
-        distance.mapMultiply(target.getDistance() / distance.getNorm()); // make it work on the rest distance rather than the real distance
+        distance.mapMultiply(target.getDistance() / distance.getNorm());
         double edgeX = distance.getEntry(0);
         double edgeY = distance.getEntry(1);
         // should be 0 to 1, indicating where between edge1 and edge2 the vertex projection is
         double placement = (distance.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (sticky.getX() - target.getEdge1().getX()) / (edgeX) : (sticky.getY() - target.getEdge1().getY()) / (edgeY) : 0.5;
         sticky.setPos(target.getEdge1().getPos().combine(1, 1, distance.mapMultiply(placement)));
+        //endregion
+        //region create the two connections between the sticky point and the ends of the target edge
         targetEdge1 = new Edge(sticky, target.getEdge1(), distance.getNorm() * placement);
         targetEdge2 = new Edge(sticky, target.getEdge2(), distance.getNorm() * (1 - placement));
+        //endregion
     }
 
     @Override
@@ -114,16 +95,17 @@ public class Web extends Body {
 
     @Override
     public boolean constrain() {
-        boolean sat = super.constrain();
-        if (!isGrowing) {
-            if (sourceEdge == null) {
-                sourceEdge = new Edge(source, points.get(points.size() - 1), Config.stringRestNodeDistance);
+        boolean sat = true;
+        for (int i = 0; i < Config.webTensileStrength; i++) {
+            sat &= super.constrain();
+
+            if (sourceEdge != null) {
+                sat &= sourceEdge.satisfy();
             }
-            sat &= sourceEdge.satisfy();
-        }
-        if (target != null) {
-            sat &= targetEdge1.satisfy();
-            sat &= targetEdge2.satisfy();
+            if (target != null) {
+                sat &= targetEdge1.satisfy();
+                sat &= targetEdge2.satisfy();
+            }
         }
         return sat;
     }
@@ -161,6 +143,10 @@ public class Web extends Body {
     }
 
     public void setGrowing(boolean isGrowing) {
-        this.isGrowing=isGrowing;
+        this.isGrowing = isGrowing;
+    }
+    public void disconnect(){
+        sourceEdge=null;
+        source=null;
     }
 }

@@ -14,6 +14,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static game.Config.turtleMass;
 import static game.util.Maths.*;
 
 public class Turtle extends Body {
@@ -27,6 +28,7 @@ public class Turtle extends Body {
         this.owner = owner;
         spinnerets = new ArrayList<>();
         shellAttachment = new ArrayList<>();
+        //region shape controls
         double length = 500;
         double width = 330;
         ArrayRealVector arm = new ArrayRealVector(new Double[]{55.0, 35.0});
@@ -37,6 +39,8 @@ public class Turtle extends Body {
         double hlength = 60;
         double tlength = 70;
         double twidth = 20;
+        //endregion
+        //region scaling
         double size = Config.turtleSize / 6;
         length *= size;
         width *= size;
@@ -48,41 +52,48 @@ public class Turtle extends Body {
         twidth *= size; //this is for testing only, don't leave this here
         arm.mapMultiplyToSelf(size);
         leg.mapMultiplyToSelf(size);
-        //head
+        //endregion
+        //region head
         ArrayRealVector temp = pos.combine(1, length / 2 + hlength, j).combine(1, hwidth / 2, i);
-        BPoint head3 = new BPoint(this, 2, temp);
-        BPoint head4 = new BPoint(this, 2, temp.combine(1, -hlength, j));
-        BPoint head2 = new BPoint(this, 2, temp.combine(1, -hwidth, i));
-        BPoint head1 = new BPoint(this, 2, temp.combine(1, -hlength, j).combine(1, -hwidth, i));
-        //right arm
+        BPoint head3 = new BPoint(this, turtleMass, temp);
+        BPoint head4 = new BPoint(this, turtleMass, temp.combine(1, -hlength, j));
+        BPoint head2 = new BPoint(this, turtleMass, temp.combine(1, -hwidth, i));
+        BPoint head1 = new BPoint(this, turtleMass, temp.combine(1, -hlength, j).combine(1, -hwidth, i));
+        //endregion
+        //region right arm
         temp = pos.combine(1, length / 2, j).combine(1, width / 2, i);
         double norm = arm.getNorm();
-        BPoint rightArm1 = new BPoint(this, 2, temp.combine(1, -awidth * arm.getEntry(1) / norm, i));
-        BPoint rightArm4 = new BPoint(this, 2, temp.combine(1, -awidth * arm.getEntry(0) / norm, j));
-        BPoint rightArm2 = new BPoint(this, 2, rightArm1.getPos().add(arm));
-        BPoint rightArm3 = new BPoint(this, 2, rightArm4.getPos().add(arm));
-        //left arm
-        BPoint leftArm4 = new BPoint(this, 2, reflect(rightArm1.getPos(), pos, j));
-        BPoint leftArm1 = new BPoint(this, 2, reflect(rightArm4.getPos(), pos, j));
-        BPoint leftArm3 = new BPoint(this, 2, reflect(rightArm2.getPos(), pos, j));
-        BPoint leftArm2 = new BPoint(this, 2, reflect(rightArm3.getPos(), pos, j));
-        //right leg
+        BPoint rightArm1 = new BPoint(this, turtleMass, temp.combine(1, -awidth * arm.getEntry(1) / norm, i));
+        BPoint rightArm4 = new BPoint(this, turtleMass, temp.combine(1, -awidth * arm.getEntry(0) / norm, j));
+        BPoint rightArm2 = new BPoint(this, turtleMass, rightArm1.getPos().add(arm));
+        BPoint rightArm3 = new BPoint(this, turtleMass, rightArm4.getPos().add(arm));
+        //endregion
+        //region left arm
+        BPoint leftArm4 = new BPoint(this, turtleMass, reflect(rightArm1.getPos(), pos, j));
+        BPoint leftArm1 = new BPoint(this, turtleMass, reflect(rightArm4.getPos(), pos, j));
+        BPoint leftArm3 = new BPoint(this, turtleMass, reflect(rightArm2.getPos(), pos, j));
+        BPoint leftArm2 = new BPoint(this, turtleMass, reflect(rightArm3.getPos(), pos, j));
+        //endregion
+        //region right leg
         temp = pos.combine(1, -length / 2, j).combine(1, width / 2, i);
         norm = leg.getNorm();
-        BPoint rightLeg4 = new BPoint(this, 2, temp.combine(1, lwidth * leg.getEntry(1) / norm, i));
-        BPoint rightLeg1 = new BPoint(this, 2, temp.combine(1, lwidth * leg.getEntry(0) / norm, j));
-        BPoint rightLeg3 = new BPoint(this, 2, rightLeg4.getPos().add(leg));
-        BPoint rightLeg2 = new BPoint(this, 2, rightLeg1.getPos().add(leg));
-        //left leg
-        BPoint leftLeg1 = new BPoint(this, 2, reflect(rightLeg4.getPos(), pos, j));
-        BPoint leftLeg4 = new BPoint(this, 2, reflect(rightLeg1.getPos(), pos, j));
-        BPoint leftLeg2 = new BPoint(this, 2, reflect(rightLeg3.getPos(), pos, j));
-        BPoint leftLeg3 = new BPoint(this, 2, reflect(rightLeg2.getPos(), pos, j));
-        //tail
-        BPoint tail2 = new BPoint(this, 2, pos.combine(1, -length / 2 - tlength, j));
-        BPoint tail1 = new BPoint(this, 2, pos.combine(1, -length / 2, j).combine(1, twidth / 2, i));
-        BPoint tail3 = new BPoint(this, 2, reflect(tail1.getPos(), pos, j));
-        //add
+        BPoint rightLeg4 = new BPoint(this, turtleMass, temp.combine(1, lwidth * leg.getEntry(1) / norm, i));
+        BPoint rightLeg1 = new BPoint(this, turtleMass, temp.combine(1, lwidth * leg.getEntry(0) / norm, j));
+        BPoint rightLeg3 = new BPoint(this, turtleMass, rightLeg4.getPos().add(leg));
+        BPoint rightLeg2 = new BPoint(this, turtleMass, rightLeg1.getPos().add(leg));
+        //endregion
+        //region left leg
+        BPoint leftLeg1 = new BPoint(this, turtleMass, reflect(rightLeg4.getPos(), pos, j));
+        BPoint leftLeg4 = new BPoint(this, turtleMass, reflect(rightLeg1.getPos(), pos, j));
+        BPoint leftLeg2 = new BPoint(this, turtleMass, reflect(rightLeg3.getPos(), pos, j));
+        BPoint leftLeg3 = new BPoint(this, turtleMass, reflect(rightLeg2.getPos(), pos, j));
+        //endregion
+        //region tail
+        BPoint tail2 = new BPoint(this, turtleMass, pos.combine(1, -length / 2 - tlength, j));
+        BPoint tail1 = new BPoint(this, turtleMass, pos.combine(1, -length / 2, j).combine(1, twidth / 2, i));
+        BPoint tail3 = new BPoint(this, turtleMass, reflect(tail1.getPos(), pos, j));
+        //endregion
+        //region add all the points to their sets, create the side chain(clockwise)
         addPoints(head3, head4, head2, head1, rightArm1, rightArm4, rightArm2, rightArm3, leftArm4, leftArm1, leftArm3, leftArm2, rightLeg4, rightLeg1, rightLeg3, rightLeg2, leftLeg1, leftLeg4, leftLeg2, leftLeg3, tail2, tail1, tail3);
         addEdgeChain(head1, head2, head3, head4,
                 rightArm1, rightArm2, rightArm3, rightArm4,
@@ -93,7 +104,8 @@ public class Turtle extends Body {
                 head1);
         spinnerets.addAll(new ArrayList<>(Arrays.asList(rightArm2, leftArm3, rightLeg2, leftLeg3)));
         shellAttachment.addAll(new ArrayList<>(Arrays.asList(rightArm1, rightLeg1, leftLeg1, leftArm1)));
-        //structure
+        //endregion
+        //region internal structure
         addEdge(rightArm4, leftLeg4);
         addEdge(leftArm1, rightLeg1);
         addEdge(rightArm1, rightArm3);
@@ -119,6 +131,9 @@ public class Turtle extends Body {
         addEdge(tail1, tail3);
         addEdge(leftLeg4, tail1);
         addEdge(rightLeg1, tail3);
+        addEdge(head1,tail1);
+        addEdge(head4,tail3);
+        //endregion
         growShell();
     }
 
@@ -137,6 +152,7 @@ public class Turtle extends Body {
         int spinneretID = 0;
         ArrayRealVector compareDist;
         double compareNorm;
+        //region find nearest spinneret
         for (int i = 1; i < spinnerets.size(); i++) {
             compareDist = spinnerets.get(i).getDistance(pos);
             compareNorm = compareDist.getNorm();
@@ -145,7 +161,8 @@ public class Turtle extends Body {
                 dist = compareDist;
                 spinneretID = i;
             }
-        }//find closest spinneret
+        }
+        //endregion
         dist.mapMultiplyToSelf(Config.stringFling / minNorm);//set vector to the configured velocity
         new Web(spinnerets.get(spinneretID), dist.add(spinnerets.get(spinneretID).getVelocity()));//FLING
     }
@@ -174,7 +191,7 @@ public class Turtle extends Body {
     public boolean constrain() {
         boolean satisfied = true;
         for (Edge c : edges) {
-            if (owner != null) {
+            if (!isDead()) {
                 if (c.getExtension() > Config.turtleDeformThreshold) {
                     die();
                 }
@@ -185,8 +202,8 @@ public class Turtle extends Body {
     }
 
     private void die() {
-        owner.die();
-        owner = null;
+        owner.die(); //let the player know they died
+        owner = null; //become a lifeless remnant of what once used to be
     }
 
     public boolean isDead() {

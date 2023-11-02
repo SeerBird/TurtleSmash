@@ -10,10 +10,7 @@ import java.util.logging.Logger;
 public class MainLoop {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     static boolean run;
-    private final static Thread onShutdown = new Thread(new Runnable(){
-        @Override
-        public void run() {
-        }
+    private final static Thread onShutdown = new Thread(() -> {
     });
 
     public static void run() {
@@ -35,9 +32,9 @@ public class MainLoop {
                 GameHandler.update();
                 GameHandler.out();
                 last = now;
-            } else{ // otherwise, sleep for the time left
+            } else { // otherwise, sleep for the time left
                 try {
-                    Thread.sleep(timeLeft/1001000);
+                    Thread.sleep(timeLeft / 1001000);
                 } catch (InterruptedException e) {
                     logger.info(e.getMessage());
                 }
