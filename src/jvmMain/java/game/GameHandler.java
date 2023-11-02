@@ -8,7 +8,6 @@ import game.input.InputInfo;
 import game.connection.packets.ServerPacket;
 import game.output.GameWindow;
 import game.output.Renderer;
-import game.output.audio.Sound;
 import game.output.ui.TurtleMenu;
 import game.world.World;
 import game.world.bodies.Body;
@@ -58,7 +57,6 @@ public class GameHandler {
     static ClientTCP tcpClient;
     //endregion
     static final GameWindow window = new GameWindow();
-    static final Sound sound = new Sound();
     public static boolean debug;
 
     static {
@@ -145,7 +143,7 @@ public class GameHandler {
     private static void revivePlayers() {
         for (Player player : deadPlayers) {
             player.deathTimer -= 1;
-            if (player.deathTimer == 0) {
+            if (player.deathTimer < 0) {
                 World.playerSpawn(player);
             }
         }
@@ -184,6 +182,7 @@ public class GameHandler {
         state = gameState;
         TurtleMenu.refreshGameState();
     }
+
     public static GameState getState() {
         return state;
     }

@@ -24,6 +24,6 @@ public class Config {
     public static double playerSpawnSpread = 80;
     public static double approxPlayerSpawnVelocity = 10;
     public static double playerSpawnVelocitySpread = 5;
-    public static int deathFrames = 600;
+    public static int deathFrames = 360;
     public static int webTensileStrength=10;
 }
