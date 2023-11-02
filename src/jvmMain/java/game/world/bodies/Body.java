@@ -193,6 +193,9 @@ public class Body {
             p.stop();
         }
     }
+    public boolean collides(Body body){
+        return true;
+    }
 
     public void decreaseRelevance(double decrease) {
         relevance -= decrease;

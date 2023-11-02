@@ -7,11 +7,13 @@ import game.world.constraints.Edge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
 public class Web extends Body {
     boolean attached;
+    @Nullable
     public BPoint source; //I don't like the fact that all of this is public
     public Edge target;
     public transient Edge sourceEdge; //those will handle themselves, dw
@@ -145,8 +147,14 @@ public class Web extends Body {
     public void setGrowing(boolean isGrowing) {
         this.isGrowing = isGrowing;
     }
-    public void disconnect(){
-        sourceEdge=null;
-        source=null;
+
+    public void disconnect() {
+        sourceEdge = null;
+        source = null;
+    }
+
+    @Override
+    public boolean collides(@NotNull Body body) {
+        return body.getClass() != Web.class&&isSticky();
     }
 }

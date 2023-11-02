@@ -3,9 +3,11 @@ package game.world.bodies;
 import game.Config;
 import game.world.BPoint;
 import game.world.CollisionData;
+import game.world.World;
 import game.world.constraints.Edge;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -15,20 +17,23 @@ public class Shell extends Body {
     int size;
     Turtle parent;
     ArrayList<Edge> straps;
-    boolean leaveParentFlag;
+    boolean leaveParentFlag = true;
 
-    public Shell(@NotNull ArrayRealVector pos, @NotNull Turtle parent) {
+    public Shell(@NotNull ArrayRealVector pos, @Nullable Turtle parent) {
         super();
         straps = new ArrayList<>();
         this.parent = parent;
         form(pos.combine(1, 1, new ArrayRealVector(new Double[]{0.0, -25.0 * size})), Config.shellMass);
-        //straps
-        int i = 0;
-        for (BPoint p : this.parent.getShellAttachment()) {
-            straps.add(new Edge(p, points.get(i)));
-            i++;
+        //region if there is a parent, attach
+        if (parent != null) {
+            int i = 0;
+            for (BPoint p : this.parent.getShellAttachment()) {
+                straps.add(new Edge(p, points.get(i)));
+                i++;
+            }
+            leaveParentFlag = false;
         }
-        leaveParentFlag = false;
+        //endregion
     }
 
     @Override
@@ -45,15 +50,15 @@ public class Shell extends Body {
             }
         }//try to leave parent if free (and stop being collisionless with it)
         boolean sat = super.constrain();
-        boolean snap=false;
+        boolean snap = false;
         for (Edge e : straps) {
             if (e.getExtension() > Config.shellStrapExtensionLimit) {
-                snap=true;
+                snap = true;
                 break;
             }
             sat &= e.satisfy();
         }
-        if(snap){
+        if (snap) {
             straps.clear();
         }
         return sat;
@@ -68,6 +73,8 @@ public class Shell extends Body {
                     double mass2 = b2.getMass();
                     double tot = mass2 + getMass();
                     form(getCenter().combine(getMass() / (tot), mass2 / (tot), b2.getCenter()), tot); //merge
+                    ((Shell) b2).form(getCenter(), 0);
+                    World.deleteBody(b2);
                     return;
                 }
             }
@@ -75,6 +82,17 @@ public class Shell extends Body {
         } else if (isFree()) {
             leaveParentFlag = false;
         }
+    }
+
+    @Override
+    public boolean collides(@NotNull Body body) {
+        if (body.getClass() != Web.class) {
+            if (parent != null) {
+                return body != parent;
+            }
+            return true;
+        }
+        return false;
     }
 
     private void form(@NotNull ArrayRealVector pos, double mass) {

@@ -94,7 +94,7 @@ public class GameHandler {
     }
 
     public static void update() {
-        //region Remove and add jobs
+        //region remove and add jobs
         for (Job added : toAdd) {
             jobs.add(job.get(added));
         }
@@ -104,9 +104,11 @@ public class GameHandler {
         }
         toRemove.clear();
         //endregion
+        //region get em done
         for (Runnable job : jobs) {
             job.run();
-        }//get em done
+        }
+        //endregion
     }
 
     //region Job Methods

@@ -18,7 +18,7 @@ public class Config {
     public static double turtleSize = 1.0;
     public static double turtleDeformThreshold = 3.0;
     public static double turtleMass = 10.0;
-    public static double shellMergeThreshold = 3.0;
+    public static double shellMergeThreshold = 0.0;
     public static double shellStrapExtensionLimit = 6.0;
     public static double shellMass = 8.0;
     public static double playerSpawnSpread = 80;

@@ -181,6 +181,11 @@ public class Turtle extends Body {
     }
 
     @Override
+    public boolean collides(@NotNull Body body) {
+        return body!=shell&&body.getClass()!=Web.class;
+    }
+
+    @Override
     public void gravitate(Body b) {
         if (b != shell) {
             super.gravitate(b);

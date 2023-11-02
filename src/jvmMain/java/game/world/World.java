@@ -4,18 +4,18 @@ import game.Config;
 import game.Player;
 import game.connection.packets.containers.WorldData;
 import game.util.Maths;
-import game.world.bodies.Body;
-import game.world.bodies.Box;
-import game.world.bodies.Turtle;
-import game.world.bodies.Web;
+import game.world.bodies.*;
 import game.connection.packets.containers.images.BodyImage;
 import game.world.constraints.Edge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import static game.util.Maths.getVector;
 
@@ -35,10 +35,29 @@ public final class World {
         }
         //endregion
         //region Constraints and collisions
-        for (Body b : bodies) {
-            b.constrain(); //optimise? I made constrain give a boolean return to help with that
-            for (CollisionData collision : checkCollisions(b)) {
-                collide(collision);
+        Body b1;
+        Body b2;
+        Body body1;
+        Body body2;
+        for (int i = 0; i < bodies.size(); i++) {
+            b1 = bodies.get(i);
+            b1.constrain(); //optimise? I made constrain give a boolean return to help with that
+            for (int j = i + 1; j < bodies.size(); j++) {
+                b2 = bodies.get(j);
+                //region check if the bodies should collide and figure out which one will be the main actor
+                if (!b1.collides(b2)) {
+                    if (!b2.collides(b1)) {
+                        continue;
+                    } else {
+                        body1=b2;
+                        body2=b1;
+                    }
+                }else{
+                    body1=b1;
+                    body2=b2;
+                }
+                CollisionData collision = checkCollision(body1, body2);
+                if(collision!=null){body1.collide(collision);}
             }
         }
         //endregion
@@ -60,7 +79,7 @@ public final class World {
         return bodies;
     }
 
-    public void deleteBody(Body b) {
+    public static void deleteBody(Body b) {
         toRemove.add(b);
     }
 
@@ -94,187 +113,167 @@ public final class World {
     }
 
 
-    @NotNull
-    static ArrayList<CollisionData> checkCollisions(@NotNull Body b1) { // separating axis theorem, should only work for convex shapes
+    @Nullable
+    static CollisionData checkCollision(@NotNull Body b1, @NotNull Body b2) { // separating axis theorem, should only work for convex shapes
         //pray for your turtles
         //region Returns and locals
-        ArrayList<CollisionData> collisions = new ArrayList<>();
         ArrayRealVector collisionAxis = null;
         Edge collisionEdge = null;
         BPoint collisionVertex = null;
 
+        double distance;
+        boolean collided = true;
         ArrayRealVector normalAxis;
         ArrayRealVector parallelAxis;
         ArrayList<Edge> edges1 = b1.getSides();
-        ArrayList<Edge> edges2;
-        double minDistance; // from vertex to edge in the direction of the axis
+        ArrayList<Edge> edges2 = b2.getSides();
+        double minDistance = Double.MAX_VALUE; // from vertex to edge in the direction of the axis
         ArrayList<Pair<Double, BPoint>> projection2;
         //endregion
         //region Web collision algorithm
         if (b1.getClass() == Web.class) {
             if (((Web) b1).isSticky()) {
                 BPoint sticky = ((Web) b1).getSticky();
-                for (Body b2 : bodies) {
-                    if (b2 == b1 || b2.getClass() == Web.class) {
-                        continue;
-                    } // don't collide with yourself ;) and webs are different
-                    //region reset
-                    minDistance = Double.MAX_VALUE;
-                    double distance;
-                    boolean collided = true;
+                for (Edge e : b2.getSides()) {
+                    //region get the axis perpendicular to Edge e and project the sticky point and the body onto it
                     double projection1;
+                    parallelAxis = e.getEdge1().getDistance(e.getEdge2()); // first vertex to second
+                    parallelAxis.mapMultiplyToSelf(1 / parallelAxis.getNorm()); //normalize
+                    normalAxis = new ArrayRealVector(new Double[]{
+                            parallelAxis.getEntry(1), -parallelAxis.getEntry(0)});
+                    projection1 = sticky.project(normalAxis); //double, point is sticky
+                    projection2 = b2.project(normalAxis); //ArrayList<Pair<Double, BPoint>>
                     //endregion
-                    for (Edge e : b2.getSides()) {
-                        //region get the axis perpendicular to Edge e and project the sticky point and the body onto it
-                        parallelAxis = e.getEdge1().getDistance(e.getEdge2()); // first vertex to second
-                        parallelAxis.mapMultiplyToSelf(1 / parallelAxis.getNorm()); //normalize
-                        normalAxis = new ArrayRealVector(new Double[]{
-                                parallelAxis.getEntry(1), -parallelAxis.getEntry(0)});
-                        projection1 = sticky.project(normalAxis); //double, point is sticky
-                        projection2 = b2.project(normalAxis); //ArrayList<Pair<Double, BPoint>>
-                        //endregion
-                        //region check collision using projection overlap and store the potential collision edge and overlap
-                        if ((projection1 > projection2.get(0).getKey()) && (projection1 < projection2.get(1).getKey())) {
-                            if (sticky.project(parallelAxis) > e.getEdge1().project(parallelAxis) &&
-                                    sticky.project(parallelAxis) < e.getEdge2().project(parallelAxis)) {
-                                distance = Math.abs(sticky.project(normalAxis) - e.getEdge1().project(normalAxis));
-                                if (distance < minDistance) {
-                                    minDistance = distance;
-                                    collisionEdge = e;
-                                    collisionAxis = normalAxis;
-                                }
+                    //region check collision using projection overlap and store the potential collision edge and overlap
+                    if ((projection1 > projection2.get(0).getKey()) && (projection1 < projection2.get(1).getKey())) {
+                        if (sticky.project(parallelAxis) > e.getEdge1().project(parallelAxis) &&
+                                sticky.project(parallelAxis) < e.getEdge2().project(parallelAxis)) {
+                            distance = Math.abs(sticky.project(normalAxis) - e.getEdge1().project(normalAxis));
+                            if (distance < minDistance) {
+                                minDistance = distance;
+                                collisionEdge = e;
+                                collisionAxis = normalAxis;
                             }
-                        } else {
-                            collided = false;
-                            break;
-                        } // no collision
-                        //endregion
-                    }
-                    //region if no separating axis has been found, add the collision data with minimal overlap to the collision list
-                    if (collided) {
-                        assert collisionEdge != null;
-                        collisions.add(new CollisionData(sticky, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
-                    }
+                        }
+                    } else {
+                        collided = false;
+                        break;
+                    } // no collision
                     //endregion
                 }
+                //region if no separating axis has been found, add the collision data with minimal overlap to the collision list
+                if (collided) {
+                    assert collisionEdge != null;
+                    return (new CollisionData(sticky, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
+                }
+                //endregion
             }
         }
         //endregion
         //region Non-web collision algorithm
         else {
             Edge edge; //non-webs can collide with sides, not just points
-            for (Body b2 : bodies) {
-                if (b2 == b1 || b2.getClass() == Web.class) {
-                    continue;
-                } // don't collide with yourself ;) and webs are different
-                //region reset
-                minDistance = Double.MAX_VALUE;
-                edges2 = b2.getSides();
-                double distance; // between the two projections. collision on negative values
-                boolean collided = true;
-                ArrayList<Pair<Double, BPoint>> projection1;
+            ArrayList<Pair<Double, BPoint>> projection1;
+            for (int i = 0; i < edges1.size() + edges2.size(); i++) {
+                //region (iterates through edges of both bodies)
+                if (i < edges1.size()) {
+                    edge = edges1.get(i);
+                } else {
+                    edge = edges2.get(i - edges1.size());
+                }
                 //endregion
-                for (int i = 0; i < edges1.size() + edges2.size(); i++) {
-                    //region (iterates through edges of both bodies)
-                    if (i < edges1.size()) {
-                        edge = edges1.get(i);
-                    } else {
-                        edge = edges2.get(i - edges1.size());
+                //region get the axis perpendicular to the edge and project both bodies onto it
+                normalAxis = edge.getEdge1().getDistance(edge.getEdge2()); // first vertex to second
+                double x = normalAxis.getEntry(0);
+                normalAxis.setEntry(0, normalAxis.getEntry(1));
+                normalAxis.setEntry(1, -x);
+                normalAxis.mapMultiplyToSelf(1 / normalAxis.getNorm());
+                projection1 = b1.project(normalAxis);
+                projection2 = b2.project(normalAxis);
+                //the projections are in the form of <projection value, corresponding BPoint>
+                //endregion
+                //region painstakingly get signed overlap of the two projections, b2 to b1, and record the potential collision vertex
+                //region optimization and code cleanup
+                BPoint potentialVertex;
+                double min1 = projection1.get(0).getKey();
+                double max1 = projection1.get(1).getKey();
+                double min2 = projection2.get(0).getKey();
+                double max2 = projection2.get(1).getKey();
+                boolean minOf2Greater = min2 > min1;
+                boolean maxOf2Greater = max2 > max1;
+                boolean edgeOwnerIs2 = edge.getEdge1().getParentBody() == b2;
+                //endregion
+                //region if one body is inside the other
+                if (minOf2Greater ^ maxOf2Greater) {
+                    if (Math.abs(max2 - min1) < Math.abs(max1 - min2)) { //min1 to max2 is shorter
+                        if (edgeOwnerIs2) {
+                            potentialVertex = projection1.get(0).getValue();
+                            distance = max2 - min1;
+                        } else {
+                            potentialVertex = projection2.get(1).getValue();
+                            distance = min1 - max2;
+                        }
+                    } else {//min2 to max1 is shorter
+                        if (edgeOwnerIs2) {
+                            potentialVertex = projection1.get(1).getValue();
+                            distance = min2 - max1;
+                        } else {
+                            potentialVertex = projection2.get(0).getValue();
+                            distance = max1 - min2;
+                        }
+                    }//get the shortest distance
+                }
+                //endregion
+                else {
+                    //region if body 2 is after body 1
+                    if (minOf2Greater) {
+                        if (edgeOwnerIs2) {
+                            potentialVertex = projection1.get(1).getValue();
+                            distance = Math.min(0, min2 - max1);
+                        } else {
+                            potentialVertex = projection2.get(0).getValue();
+                            distance = Math.max(0, max1 - min2);
+                        }
                     }
                     //endregion
-                    //region get the axis perpendicular to the edge and project both bodies onto it
-                    normalAxis = edge.getEdge1().getDistance(edge.getEdge2()); // first vertex to second
-                    double x = normalAxis.getEntry(0);
-                    normalAxis.setEntry(0, normalAxis.getEntry(1));
-                    normalAxis.setEntry(1, -x);
-                    normalAxis.mapMultiplyToSelf(1 / normalAxis.getNorm());
-                    projection1 = b1.project(normalAxis);
-                    projection2 = b2.project(normalAxis);
-                    //the projections are in the form of <projection value, corresponding BPoint>
-                    //endregion
-                    //region painstakingly get signed overlap of the two projections, b2 to b1, and record the potential collision vertex
-                    //region optimization and code cleanup
-                    BPoint potentialVertex;
-                    double min1 = projection1.get(0).getKey();
-                    double max1 = projection1.get(1).getKey();
-                    double min2 = projection2.get(0).getKey();
-                    double max2 = projection2.get(1).getKey();
-                    boolean minOf2Greater = min2 > min1;
-                    boolean maxOf2Greater = max2 > max1;
-                    boolean edgeOwnerIs2 = edge.getEdge1().getParentBody() == b2;
-                    //endregion
-                    //region if one body is inside the other
-                    if (minOf2Greater ^ maxOf2Greater) {
-                        if (Math.abs(max2 - min1) < Math.abs(max1 - min2)) { //min1 to max2 is shorter
-                            if (edgeOwnerIs2) {
-                                potentialVertex = projection1.get(0).getValue();
-                                distance = max2 - min1;
-                            } else {
-                                potentialVertex = projection2.get(1).getValue();
-                                distance = min1 - max2;
-                            }
-                        } else {//min2 to max1 is shorter
-                            if (edgeOwnerIs2) {
-                                potentialVertex = projection1.get(1).getValue();
-                                distance = min2 - max1;
-                            } else {
-                                potentialVertex = projection2.get(0).getValue();
-                                distance = max1 - min2;
-                            }
-                        }//get the shortest distance
-                    }
-                    //endregion
+                    //region if body 1 is after body 2
                     else {
-                        //region if body 2 is after body 1
-                        if (minOf2Greater) {
-                            if (edgeOwnerIs2) {
-                                potentialVertex = projection1.get(1).getValue();
-                                distance = Math.min(0, min2 - max1);
-                            } else {
-                                potentialVertex = projection2.get(0).getValue();
-                                distance = Math.max(0, max1 - min2);
-                            }
+                        if (edgeOwnerIs2) {
+                            potentialVertex = projection1.get(0).getValue();
+                            distance = Math.max(0, max2 - min1);
+                        } else {
+                            potentialVertex = projection2.get(1).getValue();
+                            distance = Math.min(0, min1 - max2);
                         }
-                        //endregion
-                        //region if body 1 is after body 2
-                        else {
-                            if (edgeOwnerIs2) {
-                                potentialVertex = projection1.get(0).getValue();
-                                distance = Math.max(0, max2 - min1);
-                            } else {
-                                potentialVertex = projection2.get(1).getValue();
-                                distance = Math.min(0, min1 - max2);
-                            }
-                        }
-                        //endregion
-                    }
-                    //endregion
-                    //region if there is overlap, record it and the potential collision vertex and edge
-                    if (distance != 0) {
-                        if (Math.abs(distance) < Math.abs(minDistance)) {
-                            minDistance = distance;
-                            collisionEdge = edge;
-                            collisionAxis = normalAxis;
-                            collisionVertex = potentialVertex;
-                        }
-                    }
-                    //endregion
-                    //region otherwise, there is no collision, finish checking for this body pair
-                    else {
-                        collided = false;
-                        break;
                     }
                     //endregion
                 }
-                //region if no separating axis has been found, add the collision data with minimal overlap to the collision list
-                if (collided && collisionEdge != null) {
-                    collisions.add(new CollisionData(collisionVertex, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
+                //endregion
+                //region if there is overlap, record it and the potential collision vertex and edge
+                if (distance != 0) {
+                    if (Math.abs(distance) < Math.abs(minDistance)) {
+                        minDistance = distance;
+                        collisionEdge = edge;
+                        collisionAxis = normalAxis;
+                        collisionVertex = potentialVertex;
+                    }
+                }
+                //endregion
+                //region otherwise, there is no collision, finish checking for this body pair
+                else {
+                    collided = false;
+                    break;
                 }
                 //endregion
             }
+            //region if no separating axis has been found, add the collision data with minimal overlap to the collision list
+            if (collided && collisionEdge != null) {
+                return (new CollisionData(collisionVertex, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
+            }
+            //endregion
         }
         //endregion
-        return collisions;
+        return null;
     }
     //endregion
 
@@ -372,7 +371,8 @@ public final class World {
     }
 
     public static void spawn(ArrayRealVector pos) {
-        new Box(pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        //new Box(pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
+        new Shell(pos, null);
     }
 
     public static void playerSpawn(Player player) {
