@@ -94,7 +94,12 @@ public class Turtle extends Body {
         BPoint tail3 = new BPoint(this, turtleMass, reflect(tail1.getPos(), pos, j));
         //endregion
         //region add all the points to their sets, create the side chain(clockwise)
-        addPoints(head3, head4, head2, head1, rightArm1, rightArm4, rightArm2, rightArm3, leftArm4, leftArm1, leftArm3, leftArm2, rightLeg4, rightLeg1, rightLeg3, rightLeg2, leftLeg1, leftLeg4, leftLeg2, leftLeg3, tail2, tail1, tail3);
+        addPoints(head1, head2, head3, head4,
+                rightArm1, rightArm2, rightArm3, rightArm4,
+                rightLeg1, rightLeg2, rightLeg3, rightLeg4,
+                tail1, tail2, tail3,
+                leftLeg1, leftLeg2, leftLeg3, leftLeg4,
+                leftArm1, leftArm2, leftArm3, leftArm4);
         addEdgeChain(head1, head2, head3, head4,
                 rightArm1, rightArm2, rightArm3, rightArm4,
                 rightLeg1, rightLeg2, rightLeg3, rightLeg4,
@@ -103,7 +108,7 @@ public class Turtle extends Body {
                 leftArm1, leftArm2, leftArm3, leftArm4,
                 head1);
         spinnerets.addAll(new ArrayList<>(Arrays.asList(rightArm2, leftArm3, rightLeg2, leftLeg3)));
-        shellAttachment.addAll(new ArrayList<>(Arrays.asList(rightArm1, rightLeg1, leftLeg1, leftArm1)));
+        shellAttachment.addAll(new ArrayList<>(Arrays.asList(rightArm4, rightLeg1, leftLeg4, leftArm1)));
         //endregion
         //region internal structure
         addEdge(rightArm4, leftLeg4);

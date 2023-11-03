@@ -20,6 +20,7 @@ import game.world.constraints.Edge;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Renderer {
     static int height = Config.HEIGHT;
@@ -52,44 +53,43 @@ public class Renderer {
     }
 
     private static void drawBody(@NotNull Body b) {
-        g.setColor(Config.EDGES);
-        for (Edge e : b.getEdges()) {
-            g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
-        }
+        //region Shells
         if (b instanceof Shell) {
-            g.setColor(Config.POINTS);
-            for (BPoint p : b.getPoints()) {
-                g.setColor(Color.ORANGE);
-                g.setColor(Color.CYAN);
-                g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
+            ArrayList<BPoint> points=b.getPoints();
+            int n = points.size();
+            int[] x = new int[n];
+            int[] y = new int[n];
+            for (int i=0;i< points.size();i++) {
+                x[i]=(int)points.get(i).getX();
+                y[i]=(int)points.get(i).getY();
             }
-        } else if (b instanceof Turtle) {
-            int i = 0;
-            g.setColor(Config.POINTS);
-            for (BPoint p : b.getPoints()) {
-                if (i == 4) {
-                    g.setColor(Color.ORANGE);
-                } else if (i == 8) {
-                    g.setColor(Color.CYAN);
-                } else if (i == 12) {
-                    g.setColor(Color.magenta);
-                }
-                i++;
-                g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
+            g.setColor(Config.shell);
+            g.fillPolygon(x,y,n);
+        }
+        //endregion
+        //region Turtles
+        else if (b instanceof Turtle) {
+            ArrayList<BPoint> points=b.getPoints();
+            int n = points.size();
+            int[] x = new int[n];
+            int[] y = new int[n];
+            for (int i=0;i< points.size();i++) {
+                x[i]=(int)points.get(i).getX();
+                y[i]=(int)points.get(i).getY();
             }
-        } else if (b instanceof Web) {
+            g.setColor(Config.turtle);
+            g.fillPolygon(x,y,n);
+        }
+        //endregion
+        //region Webs
+        else if (b instanceof Web) {
             int i = 0;
-            g.setColor(Config.POINTS);
+            g.setColor(Config.web);
             for (BPoint p : b.getPoints()) {
-                if (i == 4) {
-                    g.setColor(Color.ORANGE);
-                } else if (i == 8) {
-                    g.setColor(Color.CYAN);
-                } else if (i == 12) {
-                    g.setColor(Color.magenta);
-                }
-                i++;
-                g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
+                g.fillRect((int) p.getX() - 1, (int) p.getY() - 1, 2, 2);
+            }
+            for (Edge e : b.getEdges()) {
+                g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
             }
             if (((Web) b).targetEdge1 != null && ((Web) b).targetEdge2 != null) {
                 Edge e = ((Web) b).targetEdge1;
@@ -97,8 +97,13 @@ public class Renderer {
                 e = ((Web) b).targetEdge2;
                 g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
             }
-
-        } else {
+            if(((Web) b).sourceEdge!=null){
+                Edge e = ((Web) b).sourceEdge;
+                g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
+            }
+        }
+        //endregion
+        else {
             g.setColor(Config.POINTS);
             for (BPoint p : b.getPoints()) {
                 g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
@@ -146,6 +151,9 @@ public class Renderer {
     private static void fill(Color c) {
         g.setColor(c);
         g.fillRect(0, 0, width, height);
+    }
+    private static void drawEdge(@NotNull Edge e){
+        g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
     }
 }
 

@@ -49,15 +49,17 @@ public final class World {
                     if (!b2.collides(b1)) {
                         continue;
                     } else {
-                        body1=b2;
-                        body2=b1;
+                        body1 = b2;
+                        body2 = b1;
                     }
-                }else{
-                    body1=b1;
-                    body2=b2;
+                } else {
+                    body1 = b1;
+                    body2 = b2;
                 }
                 CollisionData collision = checkCollision(body1, body2);
-                if(collision!=null){body1.collide(collision);}
+                if (collision != null) {
+                    body1.collide(collision);
+                }
             }
         }
         //endregion
@@ -387,5 +389,8 @@ public final class World {
         turtle.accelerate(pos.mapMultiply(-Config.approxPlayerSpawnVelocity / pos.getNorm()) // get velocity to the center of the screen
                 .combine(1, Config.playerSpawnVelocitySpread, getVector(Math.random(), Math.random()))); // add spread
         player.setBody(turtle);
+        //player.setBody(new Turtle(getVector(400, 400), player));
     }
+
+
 }

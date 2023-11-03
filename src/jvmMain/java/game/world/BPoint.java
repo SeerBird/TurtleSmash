@@ -36,4 +36,8 @@ public class BPoint extends Point {
     public BPoint copy(Body parent) {
         return new BPoint(parent, mass, pos.copy());
     }
+
+    public void setMass(double mass) {
+        this.mass=mass;
+    }
 }

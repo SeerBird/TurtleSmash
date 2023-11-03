@@ -58,4 +58,7 @@ public class Edge implements Constraint {
     public double getDistance() {
         return rest_d;
     }
+    public void resetRest(){
+        rest_d=p1.getDistance(p2).getNorm();
+    }
 }

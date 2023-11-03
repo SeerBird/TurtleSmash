@@ -1,6 +1,7 @@
 package game.world.bodies;
 
 import game.Config;
+import game.util.Maths;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;
@@ -16,20 +17,33 @@ import static game.util.Maths.*;
 public class Shell extends Body {
     int size;
     Turtle parent;
-    ArrayList<Edge> straps;
+    public ArrayList<Edge> straps;
     boolean leaveParentFlag = true;
+    static int[] attachments = new int[]{0, 3, 4, 7};
 
     public Shell(@NotNull ArrayRealVector pos, @Nullable Turtle parent) {
         super();
         straps = new ArrayList<>();
         this.parent = parent;
-        form(pos.combine(1, 1, new ArrayRealVector(new Double[]{0.0, -25.0 * size})), Config.shellMass);
+        for(int i=0;i<8;i++){
+            addPoint(0, Maths.o);
+        }
+        for(int i=0;i<8;i++){
+            addEdge(points.get(i),points.get((i+1)%8));
+        }
+        //region structure
+        addEdge(points.get(1), points.get(6));
+        addEdge(points.get(2), points.get(5));
+        addEdge(points.get(0), points.get(3));
+        addEdge(points.get(7), points.get(4));
+        addEdge(points.get(1), points.get(5));
+        addEdge(points.get(6), points.get(3));
+        //endregion
+        form(pos.add(new ArrayRealVector(new Double[]{0.0, -5.0})), Config.shellMass);
         //region if there is a parent, attach
         if (parent != null) {
-            int i = 0;
-            for (BPoint p : this.parent.getShellAttachment()) {
-                straps.add(new Edge(p, points.get(i)));
-                i++;
+            for (int i = 0; i < attachments.length; i++) {
+                straps.add(new Edge(points.get(attachments[i]), parent.getShellAttachment().get(i)));
             }
             leaveParentFlag = false;
         }
@@ -104,27 +118,27 @@ public class Shell extends Body {
         if (!isFree()) {
             logger.warning("Reforming a shell while it's still attached to a turtle. This doesn't make sense.");
         }
-        points.clear();
-        edges.clear();
         double size = Config.turtleSize / 6 * Math.pow(mass / Config.shellMass, 0.3333);
         mass /= 8;
-        BPoint p1 = new BPoint(this, mass, pos.getEntry(0) + 140 * size, pos.getEntry(1) + 275 * size);
-        BPoint p2 = new BPoint(this, mass, pos.getEntry(0) + 200 * size, pos.getEntry(1) + 150 * size);
-        BPoint p3 = new BPoint(this, mass, reflect(p2.getPos(), pos, i));
-        BPoint p4 = new BPoint(this, mass, reflect(p1.getPos(), pos, i));
-        BPoint p5 = new BPoint(this, mass, reflect(p4.getPos(), pos, j));
-        BPoint p6 = new BPoint(this, mass, reflect(p3.getPos(), pos, j));
-        BPoint p7 = new BPoint(this, mass, reflect(p2.getPos(), pos, j));
-        BPoint p8 = new BPoint(this, mass, reflect(p1.getPos(), pos, j));
-        addPoints(p2, p3, p6, p7, p1, p4, p5, p8);
-        addEdgeChain(p1, p2, p3, p4, p5, p6, p7, p8, p1);
-        //structure
-        addEdge(p2, p7);
-        addEdge(p3, p6);
-        addEdge(p1, p4);
-        addEdge(p8, p5);
-        addEdge(p2, p6);
-        addEdge(p7, p4);
+        ArrayList<ArrayRealVector> positions = new ArrayList<>();
+        positions.add(pos.add(getVector(140 * size, 278 * size)));
+        positions.add(pos.add(getVector(200 * size, 150 * size)));
+        positions.add(reflect(positions.get(1), pos, i));
+        positions.add(reflect(positions.get(0), pos, i));
+        positions.add(reflect(positions.get(3), pos, j));
+        positions.add(reflect(positions.get(2), pos, j));
+        positions.add(reflect(positions.get(1), pos, j));
+        positions.add(reflect(positions.get(0), pos, j));
+        BPoint p;
+        for (int i = 0; i < 8; i++) {
+            p = points.get(i);
+            p.setPos(positions.get(i));
+            p.stop();
+            p.setMass(mass);
+        }
+        for(Edge e: edges){
+            e.resetRest();
+        }
     }
 
     public boolean isFree() {

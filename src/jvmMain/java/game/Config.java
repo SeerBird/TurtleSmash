@@ -5,10 +5,13 @@ import java.awt.*;
 public class Config {
     public static final int WIDTH = 800;
     public static final int HEIGHT = 800;
-    public static Color BACKGROUND = new Color(64, 128, 0, 255);
+    public static Color BACKGROUND = new Color(52, 0, 206, 255);
     public static Color POINTS = new Color(0, 30, 234, 255);
     public static Color EDGES = new Color(196, 36, 0, 255);
     public static Color menuBackground = new Color(12, 11, 0, 61);
+    public static Color shell = new Color(255, 166, 0, 255);
+    public static Color web = new Color(255, 236, 177, 255);
+    public static Color turtle= new Color(96, 183, 0, 255);
     public static int stringLengthLimit = 20;
     public static double stringRestNodeDistance = 14;
     public static double stringFling = 24;
@@ -25,5 +28,5 @@ public class Config {
     public static double approxPlayerSpawnVelocity = 10;
     public static double playerSpawnVelocitySpread = 5;
     public static int deathFrames = 120;
-    public static int webTensileStrength=10;
+    public static int webTensileStrength = 10;
 }
