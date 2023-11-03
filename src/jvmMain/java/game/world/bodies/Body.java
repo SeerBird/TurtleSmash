@@ -25,6 +25,7 @@ public class Body {
     double mass;
     ArrayRealVector center;
     boolean centerMoved;
+    ArrayRealVector velocity; // relies on getCenter being called every tick
 
     public Body() { //why do I need to pass world to it? that's dumb. fix this.
         points = new ArrayList<>();
@@ -32,10 +33,11 @@ public class Body {
         acceleration = new ArrayRealVector(2);
         movement = new ArrayRealVector(2);
         center = new ArrayRealVector(2);
-        World.addBody(this); // might be unnecessary here, could be done outside
+        velocity = new ArrayRealVector(2);
         relevance = 20;
         mass = 0;
         centerMoved = true;
+        World.addBody(this);
     }
 
     public void move() {
@@ -84,6 +86,7 @@ public class Body {
     public ArrayRealVector getCenter() {
         if (centerMoved) {
             mass = 0;
+            velocity=center.copy();
             center.set(0);
             for (BPoint p : points) {
                 mass += p.getMass();
@@ -91,8 +94,14 @@ public class Body {
             }
             center.mapMultiplyToSelf(1 / mass);
             centerMoved = false;
+            velocity.combineToSelf(-1,1, center);
         }
         return center.copy();
+    }
+
+    public ArrayRealVector getVelocity() {
+        getCenter();
+        return velocity.copy();
     }
 
     public double apprVelocity() {
@@ -117,8 +126,9 @@ public class Body {
         points.add(p);
         centerMoved = true;
     }
-    public void addPoint(double mass, @NotNull ArrayRealVector pos){
-        addPoint(new BPoint(this,mass,pos));
+
+    public void addPoint(double mass, @NotNull ArrayRealVector pos) {
+        addPoint(new BPoint(this, mass, pos));
     }
 
     public void addPoints(BPoint... points) {
@@ -193,7 +203,8 @@ public class Body {
             p.stop();
         }
     }
-    public boolean collides(Body body){
+
+    public boolean collides(Body body) {
         return true;
     }
 
@@ -204,7 +215,7 @@ public class Body {
     public void resetRelevance() {
         relevance = defaultRelevance;
     }
-    
+
 
     public void collide(@NotNull CollisionData collision) { //I can play with elasticity here - accelerate vs move
         ArrayRealVector overlap = collision.getOverlap().copy(); //possibly unnecessary copy and therefore declaration

@@ -38,17 +38,17 @@ public class Shell extends Body {
 
     @Override
     public boolean constrain() {
-        {
-            if (parent != null) {
-                if (isFree()) {
-                    if (leaveParentFlag) {
-                        parent.abandonShell();
-                        parent = null;
-                    }
-                    leaveParentFlag = true;
+        //region try to leave parent if free (and stop being collisionless with it)
+        if (parent != null) {
+            if (isFree()) {
+                if (leaveParentFlag) {
+                    parent.abandonShell();
+                    parent = null;
                 }
+                leaveParentFlag = true;
             }
-        }//try to leave parent if free (and stop being collisionless with it)
+        }
+        //endregion
         boolean sat = super.constrain();
         boolean snap = false;
         for (Edge e : straps) {
@@ -66,33 +66,38 @@ public class Shell extends Body {
 
     @Override
     public void collide(@NotNull CollisionData collision) {
-        Body b2 = collision.getEdge1().getParentBody();
+        Body b2;
+        if (collision.getVertex().getParentBody() == this) {
+            b2 = collision.getEdge1().getParentBody();
+        } else {
+            b2 = collision.getVertex().getParentBody();
+        }
         if (b2 != parent) {
             if (b2.getClass() == Shell.class && isFree()) {
+                //region merge if collision strong enough
                 if (((Shell) b2).isFree() && collision.overlap.getNorm() > Config.shellMergeThreshold) {
+                    double mass1 = getMass();
                     double mass2 = b2.getMass();
-                    double tot = mass2 + getMass();
-                    form(getCenter().combine(getMass() / (tot), mass2 / (tot), b2.getCenter()), tot); //merge
-                    ((Shell) b2).form(getCenter(), 0);
+                    double tot = mass1 + mass2;
+                    ArrayRealVector velocity = getVelocity().combine(mass1 / tot, mass2 / tot, b2.getVelocity());
+                    form(getCenter().combine(mass1 / tot, mass2 / tot, b2.getCenter()), tot); //merge
                     World.deleteBody(b2);
+                    accelerate(velocity);
                     return;
                 }
+                //endregion
             }
-            super.collide(collision);
+            super.collide(collision); // a random body
         } else if (isFree()) {
-            leaveParentFlag = false;
+            leaveParentFlag = false; // we haven't left the parent
         }
     }
 
     @Override
     public boolean collides(@NotNull Body body) {
-        if (body.getClass() != Web.class) {
-            if (parent != null) {
-                return body != parent;
-            }
-            return true;
-        }
-        return false;
+        //region collides if not web and if body isn't parent or if in the process of leaving parent(to check if left)
+        return (body.getClass() != Web.class) && (body != parent || (isFree() && parent != null));
+        //endregion
     }
 
     private void form(@NotNull ArrayRealVector pos, double mass) {
@@ -101,7 +106,7 @@ public class Shell extends Body {
         }
         points.clear();
         edges.clear();
-        double size = Config.turtleSize / 6 * Math.pow(mass / Config.shellMass, 1 / 3.0);
+        double size = Config.turtleSize / 6 * Math.pow(mass / Config.shellMass, 0.3333);
         mass /= 8;
         BPoint p1 = new BPoint(this, mass, pos.getEntry(0) + 140 * size, pos.getEntry(1) + 275 * size);
         BPoint p2 = new BPoint(this, mass, pos.getEntry(0) + 200 * size, pos.getEntry(1) + 150 * size);

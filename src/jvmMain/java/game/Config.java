@@ -17,13 +17,13 @@ public class Config {
     public static long multicastMilliPeriod = 1000;
     public static double turtleSize = 1.0;
     public static double turtleDeformThreshold = 3.0;
-    public static double turtleMass = 10.0;
+    public static double turtleMass = 4.0;
     public static double shellMergeThreshold = 0.0;
     public static double shellStrapExtensionLimit = 6.0;
     public static double shellMass = 8.0;
     public static double playerSpawnSpread = 80;
     public static double approxPlayerSpawnVelocity = 10;
     public static double playerSpawnVelocitySpread = 5;
-    public static int deathFrames = 360;
+    public static int deathFrames = 120;
     public static int webTensileStrength=10;
 }

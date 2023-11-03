@@ -106,13 +106,6 @@ public final class World {
     //endregion
 
     //region Collisions
-    static void collide(@NotNull CollisionData collision) {
-        Body b1 = collision.getVertex().getParentBody();
-        b1.collide(collision);
-        //sounds, particles, and other stuff need to happen here
-    }
-
-
     @Nullable
     static CollisionData checkCollision(@NotNull Body b1, @NotNull Body b2) { // separating axis theorem, should only work for convex shapes
         //pray for your turtles
