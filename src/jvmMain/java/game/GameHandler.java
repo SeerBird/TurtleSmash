@@ -138,6 +138,7 @@ public class GameHandler {
                 }
                 if (input.webFling) {
                     player.getBody().webFling(input.mousepos.copy());
+                    //World.playerSpawn(player);
                 }
             }
         }

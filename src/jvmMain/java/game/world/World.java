@@ -9,14 +9,13 @@ import game.connection.packets.containers.images.BodyImage;
 import game.world.constraints.Edge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
+import static game.Config.HEIGHT;
+import static game.Config.WIDTH;
 import static game.util.Maths.getVector;
 
 public final class World {
@@ -44,7 +43,7 @@ public final class World {
             b1.constrain(); //optimise? I made constrain give a boolean return to help with that
             for (int j = i + 1; j < bodies.size(); j++) {
                 b2 = bodies.get(j);
-                //region check if the bodies should collide and figure out which one will be the main actor
+                //region check if the bodies should collide and figure out which one will be the main actor(body1)
                 if (!b1.collides(b2)) {
                     if (!b2.collides(b1)) {
                         continue;
@@ -56,6 +55,7 @@ public final class World {
                     body1 = b1;
                     body2 = b2;
                 }
+                //endregion
                 CollisionData collision = checkCollision(body1, body2);
                 if (collision != null) {
                     body1.collide(collision);
@@ -81,7 +81,7 @@ public final class World {
         return bodies;
     }
 
-    public static void deleteBody(Body b) {
+    public static void removeBody(Body b) {
         toRemove.add(b);
     }
 
@@ -275,17 +275,17 @@ public final class World {
     void wrapAround(@NotNull Body b) {
         ArrayList<Pair<Double, BPoint>> projectionX = b.project(Maths.i);
         ArrayList<Pair<Double, BPoint>> projectionY = b.project(Maths.j);
-        if (projectionX.get(0).getKey() > Config.WIDTH) {
+        if (projectionX.get(0).getKey() > WIDTH) {
             b.shift(new ArrayRealVector(new Double[]{-projectionX.get(1).getKey(), 0.0}));
         } else if (projectionX.get(1).getKey() < 0) {
-            b.shift(new ArrayRealVector(new Double[]{Config.WIDTH - projectionX.get(0).getKey(), 0.0}));
+            b.shift(new ArrayRealVector(new Double[]{WIDTH - projectionX.get(0).getKey(), 0.0}));
         }
-        if (projectionY.get(0).getKey() > Config.HEIGHT) {
+        if (projectionY.get(0).getKey() > HEIGHT) {
             b.shift(new ArrayRealVector(new Double[]{0.0, -projectionY.get(1).getKey()}));
         } else if (projectionY.get(1).getKey() < 0) {
-            b.shift(new ArrayRealVector(new Double[]{0.0, Config.HEIGHT - projectionY.get(0).getKey() - 1}));
+            b.shift(new ArrayRealVector(new Double[]{0.0, HEIGHT - projectionY.get(0).getKey() - 1}));
         }
-        if (b.apprVelocity() > Config.WIDTH) {
+        if (b.apprVelocity() > WIDTH) {
             b.stop();
         }
     }
@@ -294,14 +294,14 @@ public final class World {
         ArrayList<Pair<Double, BPoint>> projectionX = b.project(Maths.i);
         ArrayList<Pair<Double, BPoint>> projectionY = b.project(Maths.j);
         //boolean gone = false;
-        if (projectionX.get(0).getKey() > Config.WIDTH) {
+        if (projectionX.get(0).getKey() > WIDTH) {
             b.decreaseRelevance(1 / 60.0);
             //gone = true;
         } else if (projectionX.get(1).getKey() < 0) {
             b.decreaseRelevance(1 / 60.0);
             //gone = true;
         }
-        if (projectionY.get(0).getKey() > Config.HEIGHT) {
+        if (projectionY.get(0).getKey() > HEIGHT) {
             b.decreaseRelevance(1 / 60.0);
             //gone = true;
         } else if (projectionY.get(1).getKey() < 0) {
@@ -315,7 +315,7 @@ public final class World {
 
          */
         if (b.getRelevance() <= 0) {
-            deleteBody(b);
+            removeBody(b);
         }
     }
 
@@ -330,22 +330,22 @@ public final class World {
         double y2 = pos2.getEntry(1);
         double dx;
         double dy;
-        if (Math.abs(x2 - x1) < Config.WIDTH / 2.0) {
+        if (Math.abs(x2 - x1) < WIDTH / 2.0) {
             dx = x2 - x1;
         } else {
             if (x2 - x1 > 0) {
-                dx = x2 - x1 - Config.WIDTH;
+                dx = x2 - x1 - WIDTH;
             } else {
-                dx = x2 - x1 + Config.WIDTH;
+                dx = x2 - x1 + WIDTH;
             }
         }
-        if (Math.abs(y2 - y1) < Config.HEIGHT / 2.0) {
+        if (Math.abs(y2 - y1) < HEIGHT / 2.0) {
             dy = y2 - y1;
         } else {
             if (y2 - y1 > 0) {
-                dy = y2 - y1 - Config.HEIGHT;
+                dy = y2 - y1 - HEIGHT;
             } else {
-                dy = y2 - y1 + Config.HEIGHT;
+                dy = y2 - y1 + HEIGHT;
             }
         }
         return new ArrayRealVector(new Double[]{dx, dy});
@@ -370,26 +370,18 @@ public final class World {
         new Shell(pos, null);
     }
 
-    public static void playerSpawn(Player player) {
+    public static void playerSpawn(@NotNull Player player) {
         double x, y;
-        if ((x = Math.random()) > 0.5) {
-            x = Config.WIDTH + x * Config.playerSpawnSpread;
-        } else {
-            x = -x * Config.playerSpawnSpread;
+        if(player.getBody()!=null){
+            player.getBody().delete();
         }
-        if ((y = Math.random()) > 0.5) {
-            y = Config.HEIGHT + y * Config.playerSpawnSpread;
-        } else {
-            y = -y * Config.playerSpawnSpread;
-        }
-        ArrayRealVector pos = new ArrayRealVector(new Double[]{x, y});
-        Turtle turtle = new Turtle(pos, player);
-        pos.addToEntry(0, -Config.WIDTH / 2.0);
-        pos.addToEntry(0, -Config.HEIGHT / 2.0); // get position relative to center of screen
+        x = Math.random()*2-1;
+        y = Math.signum(Math.random() - 0.5) * Math.pow(1 - x * x, 0.5);
+        ArrayRealVector pos = (ArrayRealVector) getVector(x,y).mapMultiplyToSelf(Math.pow(WIDTH*WIDTH+HEIGHT*HEIGHT,0.5)/2+Math.random()*Config.playerSpawnSpread);
+        Turtle turtle = new Turtle(pos.add(getVector(WIDTH/2.0,HEIGHT/2.0)), player);
         turtle.accelerate(pos.mapMultiply(-Config.approxPlayerSpawnVelocity / pos.getNorm()) // get velocity to the center of the screen
                 .combine(1, Config.playerSpawnVelocitySpread, getVector(Math.random(), Math.random()))); // add spread
         player.setBody(turtle);
-        //player.setBody(new Turtle(getVector(400, 400), player));
     }
 
 

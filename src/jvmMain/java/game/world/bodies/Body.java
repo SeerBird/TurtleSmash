@@ -266,4 +266,7 @@ public class Body {
         accelerate(force.mapMultiply(b.getMass()));
         b.accelerate(force.mapMultiply(-getMass()));
     }
+    public void delete(){
+        World.removeBody(this);
+    }
 }

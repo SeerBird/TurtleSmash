@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 public class Web extends Body {
-    boolean attached;
     @Nullable
     public BPoint source; //I don't like the fact that all of this is public
     public Edge target;
@@ -88,6 +87,9 @@ public class Web extends Body {
         //region create the two connections between the sticky point and the ends of the target edge
         targetEdge1 = new Edge(sticky, target.getEdge1(), distance.getNorm() * placement);
         targetEdge2 = new Edge(sticky, target.getEdge2(), distance.getNorm() * (1 - placement));
+        if(target.getEdge1().getParentBody().getClass()==Shell.class){
+            ((Shell)target.getEdge1().getParentBody()).addBinder(this);
+        }
         //endregion
     }
 

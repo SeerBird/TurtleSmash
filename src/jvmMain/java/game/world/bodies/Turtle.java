@@ -227,4 +227,10 @@ public class Turtle extends Body {
     public void abandonShell() {
         shell = null;
     }
+
+    @Override
+    public void delete() {
+        super.delete();
+        World.removeBody(shell);
+    }
 }

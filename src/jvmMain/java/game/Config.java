@@ -5,7 +5,7 @@ import java.awt.*;
 public class Config {
     public static final int WIDTH = 800;
     public static final int HEIGHT = 800;
-    public static Color BACKGROUND = new Color(52, 0, 206, 255);
+    public static Color BACKGROUND = new Color(31, 0, 136, 255);
     public static Color POINTS = new Color(0, 30, 234, 255);
     public static Color EDGES = new Color(196, 36, 0, 255);
     public static Color menuBackground = new Color(12, 11, 0, 61);
@@ -19,14 +19,14 @@ public class Config {
     public static long discoveryMilliTimeout = 3000;
     public static long multicastMilliPeriod = 1000;
     public static double turtleSize = 1.0;
-    public static double turtleDeformThreshold = 3.0;
+    public static double turtleDeformThreshold = 9.0;
     public static double turtleMass = 4.0;
     public static double shellMergeThreshold = 0.0;
     public static double shellStrapExtensionLimit = 6.0;
     public static double shellMass = 8.0;
     public static double playerSpawnSpread = 80;
     public static double approxPlayerSpawnVelocity = 10;
-    public static double playerSpawnVelocitySpread = 5;
+    public static double playerSpawnVelocitySpread = 2;
     public static int deathFrames = 120;
     public static int webTensileStrength = 10;
 }
