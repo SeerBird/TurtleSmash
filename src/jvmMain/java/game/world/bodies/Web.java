@@ -57,8 +57,6 @@ public class Web extends Body {
                     //endregion
                 }
                 //endregion
-            } else {
-                // what does it do when attached but not growing? just moves? could collapse ifs
             }
         }
         //endregion
@@ -140,13 +138,6 @@ public class Web extends Body {
     @Override
     public boolean gravitates() {
         return false;
-    }
-
-    public void keepGrowing() {
-        if (!isGrowing) {
-            isGrowing = true;
-            edges.remove(edges.size() - 1);
-        }
     }
 
     public boolean isSticky() {

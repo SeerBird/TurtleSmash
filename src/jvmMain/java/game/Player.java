@@ -32,7 +32,6 @@ public class Player {
         score = 0;
         deathTimer = 0;
         input = new InputInfo();
-        World.playerSpawn(this);
     }
 
     public void setBody(Turtle body) {

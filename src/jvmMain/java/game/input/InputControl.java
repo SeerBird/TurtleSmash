@@ -128,7 +128,7 @@ public class InputControl extends MouseAdapter implements KeyListener {
         }
         if (released(Left)) {
             if (TurtleMenu.release()) {
-                unrelease(Left);
+                dispatch(Left);
             }
         }
         //endregion
@@ -152,6 +152,8 @@ public class InputControl extends MouseAdapter implements KeyListener {
                 input.detachWeb();
                 dispatch(VK_D);
             }
+        }else{
+            dispatch(Left);
         }
         //endregion
     }

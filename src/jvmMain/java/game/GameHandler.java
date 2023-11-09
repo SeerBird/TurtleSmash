@@ -78,13 +78,11 @@ public class GameHandler {
         addJob(Job.updateMenu);
         addJob(Job.handlePlayers);
         addJob(Job.updateWorld);
-        players.clear();
+
         Player p = new Player(); // the player on this device
         p.connectInput(InputControl.getInput());
-        players.add(p);
+        addPlayer(p);
         //endregion
-        mainToHost();
-        hostToPlayServer();
     }
 
     public static void out() {
@@ -123,6 +121,7 @@ public class GameHandler {
     private static void handlePlayers() {
         for (Player ghost : removedPlayers) {
             players.remove(ghost);
+            deadPlayers.remove(ghost);
         }
         InputInfo input;
         Body body;
@@ -139,7 +138,7 @@ public class GameHandler {
                 if (input.webFling) {
                     player.getBody().webFling(input.mousepos.copy());
                 }
-                if(input.detachWeb){
+                if (input.detachWeb) {
                     player.getBody().detachWeb(input.mousepos.copy());
                 }
             }
@@ -154,7 +153,7 @@ public class GameHandler {
                 revivedPlayers.add(player);
             }
         }
-        for(Player player:revivedPlayers){
+        for (Player player : revivedPlayers) {
             deadPlayers.remove(player);
         }
         revivedPlayers.clear();
@@ -313,7 +312,8 @@ public class GameHandler {
 
     //region Player handling
     @NotNull
-    public static Player addPlayer(SocketChannel channel) {
+    public static Player connectPlayer(SocketChannel channel) {
+        //region try to find the first player with the same address, remove any following players with the same address
         Player dupe = null;
         for (Player player : players) {
             if (player.getChannel() != null) {
@@ -326,12 +326,20 @@ public class GameHandler {
                 }
             }
         }
+        //endregion
+        //region if no such player has been found, create one
         if (dupe == null) {
             dupe = new Player();
             players.add(dupe);
         }
-        dupe.setChannel(channel);
+        //endregion
+        dupe.setChannel(channel); // set or change the channel to the newly connected one
+        addPlayer(dupe);
         return dupe;
+    }
+    public static void addPlayer(Player player){
+        players.add(player);
+        deadPlayers.add(player);
     }
 
     private static void removePlayer(Player player) {

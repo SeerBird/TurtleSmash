@@ -62,7 +62,7 @@ public class ServerTCP extends Thread {
                             pipe.addLast(
                                     new ObjectEncoder(),
                                     new ServerDecoder(1048576, ClassResolvers.cacheDisabled(null)),
-                                    new ServerPlayerHandler(GameHandler.addPlayer(ch)),
+                                    new ServerPlayerHandler(GameHandler.connectPlayer(ch)),
                                     new ExceptionHandler()
                             );
                             logger.info("New connection with "+ch.remoteAddress().getAddress()+":"+ch.remoteAddress().getPort());

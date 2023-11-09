@@ -28,7 +28,7 @@ public class InputInfo {
         teleport = false;
         create = false;
         webFling = false;
-        detachWeb=false;
+        detachWeb = false;
     }
 
     public void detachWeb() {
