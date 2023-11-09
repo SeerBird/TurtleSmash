@@ -11,6 +11,7 @@ Logging.txt.1
 
 ### Private ###
 conveyor.conf
+Release.ps1
 
 ### IntelliJ IDEA ###
 .idea/
