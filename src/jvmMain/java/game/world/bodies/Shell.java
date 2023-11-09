@@ -1,11 +1,11 @@
 package game.world.bodies;
 
 import game.Config;
-import game.util.Maths;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;
 import game.world.constraints.Edge;
+import game.world.constraints.FixedEdge;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +31,7 @@ public class Shell extends Body {
         //region if there is a parent, attach
         if (parent != null) {
             for (int i = 0; i < attachments.length; i++) {
-                straps.add(new Edge(points.get(attachments[i]), parent.getShellAttachment().get(i)));
+                straps.add(new FixedEdge(points.get(attachments[i]), parent.getShellAttachment().get(i)));
             }
             leaveParentFlag = false;
         }

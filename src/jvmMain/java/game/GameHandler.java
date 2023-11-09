@@ -111,7 +111,7 @@ public class GameHandler {
         //endregion
     }
 
-    //region Job Methods
+    //region Job Methods - merge some of them!
     public static void addJob(Job job) {
         toAdd.add(job);
     }
@@ -138,7 +138,9 @@ public class GameHandler {
                 }
                 if (input.webFling) {
                     player.getBody().webFling(input.mousepos.copy());
-                    //World.playerSpawn(player);
+                }
+                if(input.detachWeb){
+                    player.getBody().detachWeb(input.mousepos.copy());
                 }
             }
         }

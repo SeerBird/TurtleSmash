@@ -2,8 +2,6 @@ package game.input;
 
 import game.GameHandler;
 import game.GameState;
-import game.output.audio.Audio;
-import game.output.audio.Sound;
 import game.output.ui.TurtleMenu;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
@@ -149,6 +147,10 @@ public class InputControl extends MouseAdapter implements KeyListener {
             if (released(Right)) {
                 input.webFling();
                 dispatch(Right);
+            }
+            if (released(VK_D)) {
+                input.detachWeb();
+                dispatch(VK_D);
             }
         }
         //endregion

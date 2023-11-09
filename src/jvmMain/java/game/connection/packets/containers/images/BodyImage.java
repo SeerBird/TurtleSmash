@@ -3,6 +3,7 @@ package game.connection.packets.containers.images;
 import game.world.BPoint;
 import game.world.bodies.Body;
 import game.world.constraints.Edge;
+import game.world.constraints.FixedEdge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +44,7 @@ public class BodyImage {
         }
         ArrayList<BPoint> bodyPoints = body.getPoints();
         for (EdgeImage e : edges) {
-            body.addEdge(new Edge(bodyPoints.get(e.index1), bodyPoints.get(e.index2), e.distance));
+            body.addEdge(new FixedEdge(bodyPoints.get(e.index1), bodyPoints.get(e.index2), e.distance));
         }
         return body;
     }

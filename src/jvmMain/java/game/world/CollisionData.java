@@ -15,10 +15,10 @@ public class CollisionData {
         this.overlap = overlap.copy();
     }
     public BPoint getEdge1(){//wtf.... redundant.
-        return edge.getPoints().getKey();
+        return edge.getEdge1();
     }
     public BPoint getEdge2(){
-        return edge.getPoints().getValue();
+        return edge.getEdge2();
     }
     public Edge getEdge(){
         return edge;

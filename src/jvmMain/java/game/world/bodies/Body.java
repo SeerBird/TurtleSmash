@@ -4,8 +4,11 @@ import game.util.Maths;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;
+import game.world.constraints.ControlEdge;
 import game.world.constraints.Edge;
+import game.world.constraints.FixedEdge;
 import javafx.util.Pair;
+import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +55,9 @@ public class Body {
             p.move();
         }
         centerMoved = true;
+        if(relevance<0){
+            delete();
+        }
     }
 
     public void shift(ArrayRealVector v) {
@@ -137,7 +143,10 @@ public class Body {
     }
 
     public void addEdge(BPoint p1, BPoint p2) {
-        addEdge(new Edge(p1, p2, p1.getDistance(p2).getNorm()));
+        addEdge(new FixedEdge(p1, p2, p1.getDistance(p2).getNorm()));
+    }
+    public void addEdge(BPoint p1, BPoint p2, MutableDouble control) {
+        addEdge(new ControlEdge(p1, p2, control));
     }
 
     public void addEdgeChain(BPoint... points) {
@@ -241,7 +250,7 @@ public class Body {
     public ArrayList<Pair<Pair<Integer, Integer>, Double>> getEdgesImage() {
         ArrayList<Pair<Pair<Integer, Integer>, Double>> edgesImage = new ArrayList<>();
         for (Edge e : edges) {
-            edgesImage.add(new Pair<>(new Pair<>(points.indexOf(e.getEdge1()), points.indexOf(e.getEdge2())), e.getDistance()));
+            edgesImage.add(new Pair<>(new Pair<>(points.indexOf(e.getEdge1()), points.indexOf(e.getEdge2())), e.getRestDistance()));
         }
         return edgesImage;
     }
@@ -262,7 +271,7 @@ public class Body {
 
     public void gravitate(Body b) {
         ArrayRealVector force = getDistance(b);
-        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3) * 10); //arbitrary factor of 10, make it into a variable thingy ig
+        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3) * 10); // ~~r^-2
         accelerate(force.mapMultiply(b.getMass()));
         b.accelerate(force.mapMultiply(-getMass()));
     }

@@ -10,24 +10,31 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static game.Config.turtleMass;
 import static game.util.Maths.*;
 
 public class Turtle extends Body {
-    ArrayList<BPoint> spinnerets;
+    Map<BPoint, Web> spinnerets;
     ArrayList<BPoint> shellAttachment;
+    ArrayList<Web> webs;
     Shell shell;
     Player owner;
 
+    /**
+     * @param pos   the position of the center of the main rectangle of the turtle body
+     * @param owner the player object that this turtle object will issue death events to
+     */
     public Turtle(@NotNull ArrayRealVector pos, @Nullable Player owner) {
         super();
         this.owner = owner;
-        spinnerets = new ArrayList<>();
+        spinnerets = new HashMap<>();
         shellAttachment = new ArrayList<>();
+        webs = new ArrayList<>();
         //region shape controls
         double length = 500;
         double width = 330;
@@ -107,7 +114,9 @@ public class Turtle extends Body {
                 leftLeg1, leftLeg2, leftLeg3, leftLeg4,
                 leftArm1, leftArm2, leftArm3, leftArm4,
                 head1);
-        spinnerets.addAll(new ArrayList<>(Arrays.asList(rightArm2, leftArm3, rightLeg2, leftLeg3)));
+        for (BPoint p : Arrays.asList(rightArm2, leftArm3, rightLeg2, leftLeg3)) {
+            spinnerets.put(p, null);
+        }
         shellAttachment.addAll(new ArrayList<>(Arrays.asList(rightArm4, rightLeg1, leftLeg4, leftArm1)));
         //endregion
         //region internal structure
@@ -136,8 +145,8 @@ public class Turtle extends Body {
         addEdge(tail1, tail3);
         addEdge(leftLeg4, tail1);
         addEdge(rightLeg1, tail3);
-        addEdge(head1,tail1);
-        addEdge(head4,tail3);
+        addEdge(head1, tail1);
+        addEdge(head4, tail3);
         //endregion
         growShell();
     }
@@ -152,24 +161,51 @@ public class Turtle extends Body {
     }
 
     public void webFling(ArrayRealVector pos) {
-        ArrayRealVector dist = spinnerets.get(0).getDistance(pos);
-        double minNorm = dist.getNorm();
-        int spinneretID = 0;
+        double minNorm = Double.MAX_VALUE;
+        ArrayRealVector minDist = new ArrayRealVector(2);
+        BPoint spinneret = null;
+        //region find nearest spinneret
         ArrayRealVector compareDist;
         double compareNorm;
-        //region find nearest spinneret
-        for (int i = 1; i < spinnerets.size(); i++) {
-            compareDist = spinnerets.get(i).getDistance(pos);
-            compareNorm = compareDist.getNorm();
-            if (compareNorm < minNorm) {
-                minNorm = compareNorm;
-                dist = compareDist;
-                spinneretID = i;
+        for (BPoint p : spinnerets.keySet()) {
+            if (spinnerets.get(p) == null) {
+                compareDist = p.getDistance(pos);
+                compareNorm = compareDist.getNorm();
+                if (compareNorm < minNorm) {
+                    minNorm = compareNorm;
+                    minDist = compareDist;
+                    spinneret = p;
+                }
             }
         }
         //endregion
-        dist.mapMultiplyToSelf(Config.stringFling / minNorm);//set vector to the configured velocity
-        new Web(spinnerets.get(spinneretID), dist.add(spinnerets.get(spinneretID).getVelocity()));//FLING
+        if (spinneret != null) {
+            minDist.mapMultiplyToSelf(Config.webFling / minNorm);//make the vector size the configured velocity
+            spinnerets.put(spinneret, new Web(spinneret, minDist.add(spinneret.getVelocity())));//FLING and record it
+        }
+    }
+
+    public void detachWeb(ArrayRealVector mousepos) {
+        double minNorm = Double.MAX_VALUE;
+        BPoint spinneret = null;
+        //region find nearest spinneret
+        ArrayRealVector compareDist;
+        double compareNorm;
+        for (BPoint p : spinnerets.keySet()) {
+            if (spinnerets.get(p) != null) {
+                compareDist = p.getDistance(mousepos);
+                compareNorm = compareDist.getNorm();
+                if (compareNorm < minNorm) {
+                    minNorm = compareNorm;
+                    spinneret = p;
+                }
+            }
+        }
+        //endregion
+        if (spinneret != null) {
+            spinnerets.get(spinneret).disconnect();
+            spinnerets.put(spinneret, null);
+        }
     }
 
     ArrayList<BPoint> getShellAttachment() {
@@ -187,7 +223,7 @@ public class Turtle extends Body {
 
     @Override
     public boolean collides(@NotNull Body body) {
-        return body!=shell&&body.getClass()!=Web.class;
+        return body != shell && body.getClass() != Web.class;
     }
 
     @Override

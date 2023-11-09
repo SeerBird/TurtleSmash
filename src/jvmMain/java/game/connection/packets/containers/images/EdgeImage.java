@@ -3,6 +3,7 @@ package game.connection.packets.containers.images;
 import game.world.BPoint;
 import game.world.bodies.Body;
 import game.world.constraints.Edge;
+import game.world.constraints.FixedEdge;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -15,9 +16,9 @@ public class EdgeImage {
         ArrayList<BPoint> points=e.getEdge1().getParentBody().getPoints();
         index1=points.indexOf(e.getEdge1());
         index2=points.indexOf(e.getEdge2());
-        distance=e.getDistance();
+        distance=e.getRestDistance();
     }
     public Edge getEdge(@NotNull Body body){
-        return new Edge(body.getPoints().get(index1),body.getPoints().get(index2),distance);
+        return new FixedEdge(body.getPoints().get(index1),body.getPoints().get(index2),distance);
     }
 }

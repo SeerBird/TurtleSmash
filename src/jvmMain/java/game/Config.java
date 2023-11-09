@@ -11,17 +11,17 @@ public class Config {
     public static Color menuBackground = new Color(12, 11, 0, 61);
     public static Color shell = new Color(255, 166, 0, 255);
     public static Color web = new Color(255, 236, 177, 255);
-    public static Color turtle= new Color(96, 183, 0, 255);
-    public static int stringLengthLimit = 20;
-    public static double stringRestNodeDistance = 14;
-    public static double stringFling = 24;
+    public static Color turtle = new Color(96, 183, 0, 255);
+    public static int webLengthLimit = 20;
+    public static double webRestNodeDistance = 14;
+    public static double webFling = 24;
     public static double noReturnTime = 10; //seconds
     public static long discoveryMilliTimeout = 3000;
     public static long multicastMilliPeriod = 1000;
     public static double turtleSize = 1.0;
     public static double turtleDeformThreshold = 9.0;
     public static double turtleMass = 4.0;
-    public static double shellMergeThreshold = 0.0;
+    public static double shellMergeThreshold = 10.0;
     public static double shellStrapExtensionLimit = 6.0;
     public static double shellMass = 8.0;
     public static double playerSpawnSpread = 80;
@@ -29,4 +29,5 @@ public class Config {
     public static double playerSpawnVelocitySpread = 2;
     public static int deathFrames = 120;
     public static int webTensileStrength = 10;
+    public static double webDecay = 0.1;
 }

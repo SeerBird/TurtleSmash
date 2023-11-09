@@ -3,6 +3,7 @@ package game.connection.packets.containers.images;
 import game.world.World;
 import game.world.bodies.Body;
 import game.world.constraints.Edge;
+import game.world.constraints.FixedEdge;
 import org.jetbrains.annotations.NotNull;
 
 public class WorldEdgeImage {
@@ -19,10 +20,10 @@ public class WorldEdgeImage {
         parent = e.getEdge1().getParentBody();
         bodyindex1 = World.getBodies().indexOf(parent);
         index2 = parent.getPoints().indexOf(e.getEdge2());
-        distance = e.getDistance();
+        distance = e.getRestDistance();
     }
 
     public Edge getEdge() {
-        return new Edge(World.getBodies().get(bodyindex1).getPoints().get(index1), World.getBodies().get(bodyindex2).getPoints().get(index2), distance);
+        return new FixedEdge(World.getBodies().get(bodyindex1).getPoints().get(index1), World.getBodies().get(bodyindex2).getPoints().get(index2), distance);
     }
 }

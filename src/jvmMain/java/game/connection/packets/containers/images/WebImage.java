@@ -1,6 +1,5 @@
 package game.connection.packets.containers.images;
 
-import game.world.World;
 import game.world.bodies.Body;
 import game.world.bodies.Web;
 import game.world.constraints.Edge;

@@ -3,22 +3,23 @@ package game.world.bodies;
 import game.Config;
 import game.world.BPoint;
 import game.world.CollisionData;
+import game.world.constraints.ControlEdge;
 import game.world.constraints.Edge;
-import javafx.util.Pair;
+import game.world.constraints.FixedEdge;
+import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
 
 public class Web extends Body {
     @Nullable
     public BPoint source; //I don't like the fact that all of this is public
     public Edge target;
-    public transient Edge sourceEdge; //those will handle themselves, dw
+    public transient Edge sourceEdge;
     public transient Edge targetEdge1;
     public transient Edge targetEdge2;
     boolean isGrowing;
+    MutableDouble rest_d;
 
     // points are ordered end to source
     public Web(@NotNull BPoint source, ArrayRealVector velocity) {
@@ -27,6 +28,8 @@ public class Web extends Body {
         addPoint(new BPoint(this, 1, source.getPos()));
         points.get(0).accelerate(velocity);
         isGrowing = true;
+        rest_d=new MutableDouble(Config.webRestNodeDistance);
+        relevance = 400; // do something other than relevance. this is stupid. kinda. idk. maybe it's fine
     }
 
     @Override
@@ -38,35 +41,47 @@ public class Web extends Body {
                 //region add web points and edges so that there isn't a gap between the web and the source
                 ArrayRealVector root = points.get(points.size() - 1).getPos();
                 ArrayRealVector dist = points.get(points.size() - 1).getDistance(source);
-                double distance = dist.getNorm() / Config.stringRestNodeDistance; // not in pixels but in rest distances
+                double distance = dist.getNorm() / Config.webRestNodeDistance; // not in pixels but in rest distances
                 if (distance > 1) {// if the gap is greater than a web edge rest distance
                     dist.mapMultiplyToSelf(1 / distance); // get the rest distance vector in the right direction
                     //region add points while there is a gap and the length limit has not been reached
                     for (int i = 1; i < distance; i++) {
-                        if (points.size() >= Config.stringLengthLimit) {
-                            sourceEdge = new Edge(source, points.get(points.size() - 1), Config.stringRestNodeDistance);
+                        if (points.size() >= Config.webLengthLimit) {
+                            sourceEdge = new ControlEdge(source, points.get(points.size() - 1), rest_d);
                             isGrowing = false;
                             break;
                         }
                         addPoint(new BPoint(this, 1, root.combineToSelf(1, 1, dist)));
-                        addEdge(points.get(points.size() - 2), points.get(points.size() - 1));
+                        addEdge(points.get(points.size() - 2), points.get(points.size() - 1), rest_d);
                     }
                     //endregion
                 }
                 //endregion
             } else {
-                // what does it do when attached but not growing? just moves? maybe collapse ifs
+                // what does it do when attached but not growing? just moves? could collapse ifs
             }
         }
         //endregion
         //region behavior when disconnected from source turtle
         else {
-            if (target == null) {
-
+            rest_d.subtract(Config.webDecay);
+            if (rest_d.doubleValue() < 0) {
+                delete();
             }
-            // eh idk. space for content ig
         }
         //endregion
+    }
+
+    @Override
+    public void delete() {
+        super.delete();
+        if (target != null) {
+            Body victim = target.getEdge1().getParentBody();
+            if (victim.getClass() == Shell.class) {
+                ((Shell) victim).unbind(this);
+            }
+        }
+        //source should already be null
     }
 
     @Override
@@ -77,7 +92,7 @@ public class Web extends Body {
         //endregion
         //region move the sticky point onto its projection onto the target edge
         ArrayRealVector distance = target.getEdge1().getDistance(target.getEdge2());
-        distance.mapMultiply(target.getDistance() / distance.getNorm());
+        distance.mapMultiply(target.getRestDistance() / distance.getNorm());
         double edgeX = distance.getEntry(0);
         double edgeY = distance.getEntry(1);
         // should be 0 to 1, indicating where between edge1 and edge2 the vertex projection is
@@ -85,10 +100,10 @@ public class Web extends Body {
         sticky.setPos(target.getEdge1().getPos().combine(1, 1, distance.mapMultiply(placement)));
         //endregion
         //region create the two connections between the sticky point and the ends of the target edge
-        targetEdge1 = new Edge(sticky, target.getEdge1(), distance.getNorm() * placement);
-        targetEdge2 = new Edge(sticky, target.getEdge2(), distance.getNorm() * (1 - placement));
-        if(target.getEdge1().getParentBody().getClass()==Shell.class){
-            ((Shell)target.getEdge1().getParentBody()).addBinder(this);
+        targetEdge1 = new FixedEdge(sticky, target.getEdge1(), distance.getNorm() * placement);
+        targetEdge2 = new FixedEdge(sticky, target.getEdge2(), distance.getNorm() * (1 - placement));
+        if (target.getEdge1().getParentBody().getClass() == Shell.class) {
+            ((Shell) target.getEdge1().getParentBody()).addBinder(this);
         }
         //endregion
     }
@@ -157,6 +172,6 @@ public class Web extends Body {
 
     @Override
     public boolean collides(@NotNull Body body) {
-        return body.getClass() != Web.class&&isSticky();
+        return body.getClass() != Web.class && isSticky();
     }
 }
