@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+
 public class GameHandler {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static GameState state;
@@ -47,6 +48,7 @@ public class GameHandler {
     //endregion
     //region Players
     private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
+    private static final ArrayList<Player> addedPlayers = new ArrayList<>();
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
     private static final ArrayList<Player> deadPlayers = new ArrayList<>();
     private static final ArrayList<Player> revivedPlayers = new ArrayList<>();
@@ -119,9 +121,12 @@ public class GameHandler {
     }
 
     private static void handlePlayers() {
-        for (Player ghost : removedPlayers) {
-            players.remove(ghost);
-            deadPlayers.remove(ghost);
+        players.addAll(addedPlayers);
+        deadPlayers.addAll(addedPlayers);
+        addedPlayers.clear();
+        for (Player removed : removedPlayers) {
+            players.remove(removed);
+            deadPlayers.remove(removed);
         }
         InputInfo input;
         Body body;
@@ -162,10 +167,8 @@ public class GameHandler {
 
     private static void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo
         ServerPacket packet = new ServerPacket(players);
-        synchronized (players) {
-            for (Player player : players) {//potential for sending different info
-                player.send(packet);
-            }
+        for (Player player : players) { //potential for sending different info
+            player.send(packet);
         }
     }
 
@@ -249,12 +252,17 @@ public class GameHandler {
     public static void hostToMain() {
         setState(GameState.main);
         Broadcaster.stop();
+        removeJob(Job.sendServer);
         tcpServer.disconnect();
     }
 
     public static void mainToDiscover() {
         setState(GameState.discover);
-        Discovery.start(servers);
+        try {
+            Discovery.start(servers);
+        } catch (IOException e) {
+            setState(GameState.main);
+        }
     }
 
     public static void discoverToLobby(ServerStatus server) {
@@ -267,6 +275,8 @@ public class GameHandler {
 
     public static void lobbyToDiscover() {
         setState(GameState.discover);
+        removeJob(Job.sendClient);
+        tcpClient.disconnect();
     }
 
     public static void lobbyToPlayClient() {
@@ -276,37 +286,37 @@ public class GameHandler {
     public static void playClientToDiscover() {
         setState(GameState.discover);
         removeJob(Job.sendClient);
+        tcpClient.disconnect();
     }
 
     public static void discoverToMain() {
         setState(GameState.main);
         Discovery.stop();
     }
-//endregion
+
+    public static void escape() {
+        if (state == GameState.playClient) {
+            playClientToDiscover();
+        } else if (state == GameState.lobby) {
+            lobbyToDiscover();
+        } else if (state == GameState.discover) {
+            discoverToMain();
+        } else if (state == GameState.playServer) {
+            playServerToHost();
+        } else if (state == GameState.host) {
+            hostToMain();
+        }
+    }
+    //endregion
 
     //region Connection
-    public static void disconnectTCPClient() {
-        tcpClient.disconnect();
-    }
-
     public static void refreshLAN() {
         for (InetAddress address : servers.keySet()) {
             if (System.nanoTime() - servers.get(address).nanoTime > Config.discoveryMilliTimeout * 1000000) {
                 servers.remove(address);
             }
         }
-    }
-
-    public void shutDownTCPServer() {
-        removeJob(Job.sendServer);
-    }
-
-    public void shutDownTCPClient(Throwable cause) {
-        removeJob(Job.sendClient);
-        //menu.toMainManu();
-        if (cause != null) {
-            TurtleMenu.popup(cause.getMessage());
-        }
+        TurtleMenu.refreshServerList(); // cringe.
     }
     //endregion
 
@@ -330,19 +340,18 @@ public class GameHandler {
         //region if no such player has been found, create one
         if (dupe == null) {
             dupe = new Player();
-            players.add(dupe);
         }
         //endregion
         dupe.setChannel(channel); // set or change the channel to the newly connected one
         addPlayer(dupe);
         return dupe;
     }
-    public static void addPlayer(Player player){
-        players.add(player);
-        deadPlayers.add(player);
+
+    public static void addPlayer(Player player) {
+        addedPlayers.add(player);
     }
 
-    private static void removePlayer(Player player) {
+    public static void removePlayer(Player player) {
         removedPlayers.add(player);
     }
 

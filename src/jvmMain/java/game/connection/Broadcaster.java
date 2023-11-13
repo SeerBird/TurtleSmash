@@ -30,15 +30,15 @@ public class Broadcaster {
     }
 
     public static void start() {
-        {
+        //region initialize socket
             try {
                 socket = new DatagramSocket();
             } catch (IOException e) {
                 logger.warning("Failed to create a broadcaster socket");
             }
-        }// initialize socket
+        //endregion
         future = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
-            byte[] buffer = serverStatus.getStatus().getBytes();// do I need this synchronised?
+            byte[] buffer = serverStatus.getStatus().getBytes(); // do I need this synchronised?
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, groupAddress, multicastPort);
             try {
                 socket.send(packet);

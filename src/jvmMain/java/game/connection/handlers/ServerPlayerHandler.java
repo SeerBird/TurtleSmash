@@ -1,5 +1,6 @@
 package game.connection.handlers;
 
+import game.GameHandler;
 import game.Player;
 import game.connection.packets.ClientPacket;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,4 +31,10 @@ public class ServerPlayerHandler extends ChannelInboundHandlerAdapter {
         ctx.flush();
     }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        GameHandler.removePlayer(player);
+        logger.info("Player "+player.getChannel().remoteAddress() + " disconnected.");
+    }
 }

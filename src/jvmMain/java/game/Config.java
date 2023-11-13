@@ -16,10 +16,10 @@ public class Config {
     public static double webRestNodeDistance = 14;
     public static double webFling = 24;
     public static double noReturnTime = 10; //seconds
-    public static long discoveryMilliTimeout = 3000;
+    public static long discoveryMilliTimeout = 1300;
     public static long multicastMilliPeriod = 1000;
     public static double turtleSize = 1.0;
-    public static double turtleDeformThreshold = 2.0;
+    public static double turtleDeformThreshold = 5.0;
     public static double turtleMass = 4.0;
     public static double shellMergeThreshold = 10.0;
     public static double shellStrapExtensionLimit = 6.0;
@@ -27,7 +27,7 @@ public class Config {
     public static double playerSpawnSpread = 80;
     public static double approxPlayerSpawnVelocity = 10;
     public static double playerSpawnVelocitySpread = 2;
-    public static int deathFrames = 360;
+    public static int deathFrames = 120;
     public static int webTensileStrength = 10;
     public static double webDecay = 0.1;
 }

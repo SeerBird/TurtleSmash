@@ -98,17 +98,7 @@ public class InputControl extends MouseAdapter implements KeyListener {
             text.append(getText());
         }
         if (released(VK_ESCAPE)) {
-            if (state == playClient) {
-                GameHandler.disconnectTCPClient(); // why this????? why not playClientToDiscover??
-            } else if (state == GameState.lobby) {
-                GameHandler.lobbyToDiscover();
-            } else if (state == GameState.discover) {
-                GameHandler.discoverToMain();
-            } else if (state == GameState.playServer) {
-                GameHandler.playServerToHost();
-            } else if (state == GameState.host) {
-                GameHandler.hostToMain();
-            }
+            GameHandler.escape();
             dispatch(VK_ESCAPE);
         }
         if (pressed(VK_SPACE)) {
