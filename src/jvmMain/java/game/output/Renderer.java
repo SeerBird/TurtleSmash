@@ -120,7 +120,7 @@ public class Renderer {
             if (e instanceof GButton) {
                 drawButton((GButton) e);
             } else if (e instanceof ServerList) {
-                for (GButton b : ((ServerList) e).getButtons()) {
+                for (GButton b : ((ServerList) e).getButtonServers()) {
                     drawButton(b);
                 }
             } else if (e instanceof PlayerList) {

@@ -60,7 +60,11 @@ public class Player {
             String json = packet.getClass().toString() + Util.gson.toJson(packet);
             channel.writeAndFlush(json).addListener((ChannelFutureListener) future -> {
                 if (!future.isSuccess()) {
-                    logger.warning(future.cause().getMessage());
+                    if (future.cause().getMessage() == null) {
+                        logger.warning("Can't send packet to a player.");
+                    } else {
+                        logger.warning(future.cause().getMessage());
+                    }
                 }
             });
         }

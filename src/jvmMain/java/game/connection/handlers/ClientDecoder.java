@@ -24,9 +24,9 @@ public class ClientDecoder extends ObjectDecoder {
             } else if (clazz.equals(GameStartPacket.class.toString())) {
                 return Util.gson.fromJson((String) msg, GameStartPacket.class);
             } else {
-                return "welp";
+                return "Failed to decode server packet";
             }
-        } else if (msg == null) {
+        } else if (msg == null) { // I don't really get why I did this. This won't happen either way. or at least it shouldn't
             return Util.gson.fromJson("", ServerPacket.class);
         } else {
             return msg;

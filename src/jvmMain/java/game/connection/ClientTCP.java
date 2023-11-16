@@ -19,6 +19,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.ssl.SslContext;
 
 import javax.net.ssl.SSLException;
+import java.net.ConnectException;
 import java.security.cert.CertificateException;
 import java.util.logging.Logger;
 
@@ -35,12 +36,14 @@ public class ClientTCP extends Thread {
         logger.info("Trying to connect to " + target.address.getHostAddress() + ":" + target.port);
         EventLoopGroup group = new NioEventLoopGroup();
         Runtime.getRuntime().addShutdownHook(new Thread(group::shutdownGracefully));
+        /*
         final SslContext sslCtx;
         try {
             sslCtx = Multiplayer.buildSslContext();
         } catch (CertificateException | SSLException e) {
             throw new RuntimeException(e);
         }
+         */
         try {
             Bootstrap b = new Bootstrap();
             b.group(group)
@@ -49,33 +52,30 @@ public class ClientTCP extends Thread {
                         @Override
                         public void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
+                            /*
                             if (sslCtx != null) {
                                 p.addLast(sslCtx.newHandler(ch.alloc(), "localhost", 5445));
-                            }
+                            }*/
                             p.addLast(
                                     new ObjectEncoder(),
                                     new ClientDecoder(1048576, ClassResolvers.cacheDisabled(null)),
-                                    new ClientTcpHandler(),
-                                    new ExceptionHandler()
+                                    new ClientTcpHandler()
                             );
                         }
                     });
-            try {
-                ChannelFuture connectFuture = b.connect(target.address, target.port).addListener(future -> {
-                    if (future.isSuccess()) {
-                        logger.info("TCP client connected");
-                    }
-                });
-                channel = connectFuture.sync().channel();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            ChannelFuture connectFuture = b.connect(target.address, target.port).addListener(future -> {
+                if (future.isSuccess()) {
+                    logger.info("TCP client connected");
+                } else{
+                    logger.warning("Failed to connect to server: "+future.cause().getMessage());
+                    GameHandler.escape();
+                }
+            });
+            channel = connectFuture.channel();
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            logger.severe(e.getMessage());
         } finally {
-            GameHandler.playClientToDiscover(); // why the hell is this here.
-            disconnect(); // how is this meaningful. shouldn't do anything.
             group.shutdownGracefully().addListener(future -> logger.info("TCP client off"));
         }
     }

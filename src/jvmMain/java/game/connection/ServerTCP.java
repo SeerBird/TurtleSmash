@@ -34,13 +34,14 @@ public class ServerTCP extends Thread {
     }
 
     public synchronized void run() {
-        // Configure SSL.
+        /*
         final SslContext sslCtx;
         try {
             sslCtx = Multiplayer.buildSslContext();
         } catch (CertificateException | SSLException e) {
             throw new RuntimeException(e);
         }
+        */
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -54,16 +55,16 @@ public class ServerTCP extends Thread {
                     .handler(new ChannelDuplexHandler())
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
+                        public void initChannel(SocketChannel ch) {
                             ChannelPipeline pipe = ch.pipeline();
+                            /*
                             if (sslCtx != null) {
                                 pipe.addLast(sslCtx.newHandler(ch.alloc()));
-                            }
+                            }*/
                             pipe.addLast(
                                     new ObjectEncoder(),
                                     new ServerDecoder(1048576, ClassResolvers.cacheDisabled(null)),
-                                    new ServerPlayerHandler(GameHandler.connectPlayer(ch)),
-                                    new ExceptionHandler()
+                                    new ServerPlayerHandler(GameHandler.connectPlayer(ch))
                             );
                             logger.info("New connection with "+ch.remoteAddress().getAddress()+":"+ch.remoteAddress().getPort());
                         }
@@ -75,7 +76,7 @@ public class ServerTCP extends Thread {
                     });
             // Bind and start to accept incoming connections.
             try {
-                ch = b.bind(tcpPort).addListener(future -> logger.info("TCP server on at "+Multiplayer.localAddress.getHostAddress()+":"+tcpPort)).sync().channel();
+                ch = b.bind(tcpPort).addListener(future -> logger.info("TCP server on at "+Multiplayer.localAddress.getHostAddress()+":"+tcpPort)).channel();
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
                 logger.severe(e.getMessage());

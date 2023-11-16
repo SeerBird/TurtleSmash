@@ -3,6 +3,7 @@ package game.connection.handlers;
 import game.GameHandler;
 import io.netty.channel.*;
 
+import java.net.ConnectException;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.logging.Logger;
@@ -11,32 +12,13 @@ public class ExceptionHandler extends ChannelDuplexHandler {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (cause instanceof SocketException) {
-            logger.warning(cause.getMessage());
+    public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) throws Exception {
+        try{
+            super.connect(ctx, remoteAddress, localAddress, promise);
+        }catch(ConnectException e){
+            logger.warning("Failed to connect to server: "+e.getMessage());
+            GameHandler.escape();
         }
     }
-
-
-    @Override
-    public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
-        ctx.connect(remoteAddress, localAddress, promise.addListener((ChannelFutureListener) future -> {
-            if (!future.isSuccess()) {
-                logger.warning(future.cause().getMessage());
-            }
-        }));
-    }
-
-    @Override
-    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-        ctx.write(msg, promise.addListener((ChannelFutureListener) future -> {
-            if (!future.isSuccess()) {
-                // Handle write exception here...
-                Throwable failureCause = future.cause();
-                logger.warning(failureCause.getMessage());
-            }
-        }));
-    }
-
-    // ... override more outbound methods to handle their exceptions as well
+    // ... override more outbound methods to "handle" their exceptions as well
 }

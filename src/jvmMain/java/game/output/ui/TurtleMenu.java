@@ -111,4 +111,8 @@ public class TurtleMenu {
     public static boolean isFocused() {
         return focused!=null;
     }
+
+    public static void refreshServerList() {
+        serverList.refresh();
+    }
 }
