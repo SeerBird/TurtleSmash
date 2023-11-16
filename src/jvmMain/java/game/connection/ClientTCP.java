@@ -74,7 +74,7 @@ public class ClientTCP extends Thread {
             channel = connectFuture.channel();
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            logger.severe(e.getMessage());
         } finally {
             group.shutdownGracefully().addListener(future -> logger.info("TCP client off"));
         }

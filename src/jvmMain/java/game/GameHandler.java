@@ -348,7 +348,9 @@ public class GameHandler {
     }
 
     public static void addPlayer(Player player) {
-        addedPlayers.add(player);
+        synchronized (addedPlayers) {
+            addedPlayers.add(player);
+        }
     }
 
     public static void removePlayer(Player player) {
