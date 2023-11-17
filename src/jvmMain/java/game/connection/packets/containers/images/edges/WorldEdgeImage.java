@@ -1,4 +1,4 @@
-package game.connection.packets.containers.images;
+package game.connection.packets.containers.images.edges;
 
 import game.world.World;
 import game.world.bodies.Body;
@@ -6,7 +6,7 @@ import game.world.constraints.Edge;
 import game.world.constraints.FixedEdge;
 import org.jetbrains.annotations.NotNull;
 
-public class WorldEdgeImage {
+public class WorldEdgeImage implements EdgeImage{
     public int bodyindex1;
     public int bodyindex2;
     public int index1;

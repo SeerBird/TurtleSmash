@@ -2,6 +2,8 @@ package game.world.bodies;
 
 import game.Config;
 import game.Player;
+import game.connection.packets.containers.images.bodies.BodyImage;
+import game.connection.packets.containers.images.bodies.TurtleImage;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;
@@ -19,11 +21,10 @@ import static game.Config.turtleMass;
 import static game.util.Maths.*;
 
 public class Turtle extends Body {
-    Map<BPoint, Web> spinnerets;
-    ArrayList<BPoint> shellAttachment;
-    ArrayList<Web> webs;
-    Shell shell;
-    Player owner;
+    public Map<BPoint, Web> spinnerets;
+    public Shell shell;
+    public Player owner;
+    static ArrayList<Integer> shellAttachment = new ArrayList<>(Arrays.asList(7, 8, 14, 15));
 
     /**
      * @param pos   the position of the center of the main rectangle of the turtle body
@@ -33,8 +34,6 @@ public class Turtle extends Body {
         super();
         this.owner = owner;
         spinnerets = new HashMap<>();
-        shellAttachment = new ArrayList<>();
-        webs = new ArrayList<>();
         //region shape controls
         double length = 500;
         double width = 330;
@@ -117,7 +116,6 @@ public class Turtle extends Body {
         for (BPoint p : Arrays.asList(rightArm2, leftArm3, rightLeg2, leftLeg3)) {
             spinnerets.put(p, null);
         }
-        shellAttachment.addAll(new ArrayList<>(Arrays.asList(rightArm4, rightLeg1, leftLeg4, leftArm1)));
         //endregion
         //region internal structure
         addEdge(rightArm4, leftLeg4);
@@ -149,6 +147,18 @@ public class Turtle extends Body {
         addEdge(head4, tail3);
         //endregion
         growShell();
+    }
+    public Turtle(){
+        points = new ArrayList<>();
+        edges = new ArrayList<>();
+        acceleration = new ArrayRealVector(2);
+        movement = new ArrayRealVector(2);
+        center = new ArrayRealVector(2);
+        velocity = new ArrayRealVector(2);
+        relevance = 20;
+        mass = 0;
+        centerMoved = true;
+        spinnerets = new HashMap<>();
     }
 
     @Override
@@ -209,7 +219,11 @@ public class Turtle extends Body {
     }
 
     ArrayList<BPoint> getShellAttachment() {
-        return shellAttachment;
+        ArrayList<BPoint> attachments = new ArrayList<>();
+        for (int i : shellAttachment) {
+            attachments.add(points.get(i));
+        }
+        return attachments;
     }
 
     @Override

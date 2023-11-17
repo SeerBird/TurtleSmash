@@ -2,7 +2,9 @@ package game;
 
 import game.connection.*;
 import game.connection.packets.GameStartPacket;
+import game.connection.packets.containers.LobbyData;
 import game.connection.packets.containers.ServerStatus;
+import game.connection.packets.containers.WorldData;
 import game.input.InputControl;
 import game.input.InputInfo;
 import game.connection.packets.ServerPacket;
@@ -13,7 +15,9 @@ import game.world.World;
 import game.world.bodies.Body;
 import io.netty.channel.socket.SocketChannel;
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -166,9 +170,11 @@ public class GameHandler {
 
 
     private static void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo
-        ServerPacket packet = new ServerPacket(players);
-        for (Player player : players) { //potential for sending different info
-            player.send(packet);
+        ServerPacket packet = new ServerPacket();
+        packet.world = new WorldData();
+        for (Player recipient : players) {
+            packet.lobby = new LobbyData(players, recipient); // repeated actions inside.
+            recipient.send(packet);
         }
     }
 
@@ -179,14 +185,45 @@ public class GameHandler {
     private static void handleServerPacket() {
         if (lastPacket.changed) {
             synchronized (lastPacket) {
+                setPlayers(lastPacket.lobby);
                 World.set(lastPacket.world);
                 lastPacket.changed = false;
             }
         }
     }
 
+    private static void setPlayers(@NotNull LobbyData lobby) {
+        Player local = players.get(0);
+        boolean dead = deadPlayers.contains(local);
+        deadPlayers.clear();
+        players.clear();
+        players.add(local);
+        for (String name : lobby.players) {
+            if (name != null) {
+                Player dummy = new Player();
+                deadPlayers.add(dummy);
+                players.add(dummy);
+            }
+        }
+
+        if (dead) {
+            deadPlayers.add(local);
+        }
+    }
+
     public static void receiveServerPacket(ServerPacket packet) {
         lastPacket.set(packet);
+    }
+
+    public static Player getLocalPlayerFromServerId(Integer id) {
+        ArrayList<String> playerNames = lastPacket.lobby.players;
+        int localUser = playerNames.indexOf(null);
+        if (id < localUser) {
+            id += 1;
+        } else if (id == localUser) {
+            id = 0;
+        }
+        return GameHandler.getPlayers().get(id);
     }
     //endregion
 
@@ -365,5 +402,9 @@ public class GameHandler {
     //endregion
     public void terminate() {
         // you think you can stop me?
+    }
+
+    public static ArrayList<Player> getPlayers() {
+        return players;
     }
 }

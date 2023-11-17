@@ -15,11 +15,10 @@ import java.util.ArrayList;
 import static game.util.Maths.*;
 
 public class Shell extends Body {
-    int size;
-    Turtle parent;
+    public Turtle parent;
     public ArrayList<Edge> straps;
-    ArrayList<Web> bound;
-    boolean leaveParentFlag = true;
+    public ArrayList<Web> bound;
+    public boolean leaveParentFlag = true;
     static int[] attachments = new int[]{0, 3, 4, 7};
 
     public Shell(@NotNull ArrayRealVector pos, @Nullable Turtle parent) {
@@ -36,6 +35,19 @@ public class Shell extends Body {
             leaveParentFlag = false;
         }
         //endregion
+    }
+    public Shell(){
+        points = new ArrayList<>();
+        edges = new ArrayList<>();
+        acceleration = new ArrayRealVector(2);
+        movement = new ArrayRealVector(2);
+        center = new ArrayRealVector(2);
+        velocity = new ArrayRealVector(2);
+        relevance = 20;
+        mass = 0;
+        centerMoved = true;
+        straps = new ArrayList<>();
+        bound = new ArrayList<>();
     }
 
     @Override

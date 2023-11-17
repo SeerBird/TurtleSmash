@@ -1,4 +1,4 @@
-package game.connection.packets.containers.images;
+package game.connection.packets.containers.images.edges;
 
 import game.world.BPoint;
 import game.world.bodies.Body;
@@ -8,11 +8,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public class EdgeImage {
+public class FixedEdgeImage implements EdgeImage{
     public int index1;
     public int index2;
     public double distance;
-    public EdgeImage(@NotNull Edge e){
+    public FixedEdgeImage(@NotNull Edge e){
         ArrayList<BPoint> points=e.getEdge1().getParentBody().getPoints();
         index1=points.indexOf(e.getEdge1());
         index2=points.indexOf(e.getEdge2());
