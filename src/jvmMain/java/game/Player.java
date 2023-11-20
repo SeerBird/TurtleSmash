@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
 
+import static game.connection.gson.gsonRegistry.gson;
+
 public class Player {
     Turtle body;
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -50,16 +52,18 @@ public class Player {
 
     public void send(Packet packet) {
         if (channel != null) {
-            String json = packet.getClass().toString() + gsonRegistry.gson.toJson(packet);
-            channel.writeAndFlush(json).addListener((ChannelFutureListener) future -> {
-                if (!future.isSuccess()) {
-                    if (future.cause().getMessage() == null) {
-                        logger.warning("Can't send packet to a player.");
-                    } else {
-                        logger.warning(future.cause().getMessage());
+            if (channel.isActive()) {
+                String json = packet.getClass().toString() + gson.toJson(packet);
+                channel.writeAndFlush(json).addListener((ChannelFutureListener) future -> {
+                    if (!future.isSuccess()) {
+                        if (future.cause().getMessage() == null) {
+                            logger.warning("Failed to send a packet to a player.");
+                        } else {
+                            logger.warning(future.cause().getMessage());
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
