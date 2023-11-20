@@ -23,7 +23,7 @@ public class Web extends Body {
     public Edge targetEdge1;
     public Edge targetEdge2;
     boolean isGrowing;
-    MutableDouble rest_d;
+    public MutableDouble rest_d;
 
     // points are ordered end to source
     public Web(@NotNull BPoint source, ArrayRealVector velocity) {

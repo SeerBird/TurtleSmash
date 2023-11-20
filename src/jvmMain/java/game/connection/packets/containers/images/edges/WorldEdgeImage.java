@@ -17,13 +17,14 @@ public class WorldEdgeImage implements EdgeImage{
         Body parent = e.getEdge1().getParentBody();
         bodyindex1 = World.getBodies().indexOf(parent);
         index1 = parent.getPoints().indexOf(e.getEdge1());
-        parent = e.getEdge1().getParentBody();
-        bodyindex1 = World.getBodies().indexOf(parent);
+        parent = e.getEdge2().getParentBody();
+        bodyindex2 = World.getBodies().indexOf(parent);
         index2 = parent.getPoints().indexOf(e.getEdge2());
         distance = e.getRestDistance();
     }
 
     public Edge getEdge() {
-        return new FixedEdge(World.getBodies().get(bodyindex1).getPoints().get(index1), World.getBodies().get(bodyindex2).getPoints().get(index2), distance);
+        return new FixedEdge(World.getBodies().get(bodyindex1).getPoints().get(index1),
+                World.getBodies().get(bodyindex2).getPoints().get(index2), distance);
     }
 }

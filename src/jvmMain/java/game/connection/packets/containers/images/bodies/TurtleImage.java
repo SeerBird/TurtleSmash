@@ -19,12 +19,13 @@ public class TurtleImage extends BodyImage {
 
     public TurtleImage(Turtle turtle) {
         super(turtle);
-        spinnerets=new HashMap<>();
-        for(BPoint p:turtle.spinnerets.keySet()){
-            spinnerets.put(turtle.getPoints().indexOf(p),World.getBodies().indexOf(turtle.spinnerets.get(p)));
+        spinnerets = new HashMap<>();
+        for (BPoint p : turtle.spinnerets.keySet()) {
+            spinnerets.put(turtle.getPoints().indexOf(p),
+                    turtle.spinnerets.get(p) == null ? null : World.getBodies().indexOf(turtle.spinnerets.get(p)));
         }
-        shell=World.getBodies().indexOf(turtle.shell);
-        owner=GameHandler.getPlayers().indexOf(turtle.owner);
+        shell = turtle.shell == null ? null : World.getBodies().indexOf(turtle.shell);
+        owner = GameHandler.getPlayers().indexOf(turtle.owner);
     }
 
     @Override
@@ -40,9 +41,9 @@ public class TurtleImage extends BodyImage {
         Turtle turtle = (Turtle) body;
         for (Integer i : spinnerets.keySet()) {
             turtle.spinnerets.put(turtle.getPoints().get(i),
-                    (Web) World.getBodies().get(spinnerets.get(i)));
+                    spinnerets.get(i) == null ? null : (Web) World.getBodies().get(spinnerets.get(i)));
         }
-        turtle.owner= GameHandler.getLocalPlayerFromServerId(owner);
-        turtle.shell= (Shell) World.getBodies().get(shell);
+        turtle.owner = GameHandler.getLocalPlayerFromServerId(owner);
+        turtle.shell = shell == null ? null : (Shell) World.getBodies().get(shell);
     }
 }

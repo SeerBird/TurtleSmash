@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public class BodyImage {
+public abstract class BodyImage {
     public ArrayList<EdgeImage> edges;
     public ArrayList<Pair<Double, ArrayRealVector>> points;
     transient Body body;
@@ -26,8 +26,11 @@ public class BodyImage {
         points = getPointsImage(body);
     }
 
+    protected BodyImage() {
+    }
+
     @NotNull
-    private ArrayList<EdgeImage> getEdgesImage(@NotNull Body body) {
+    ArrayList<EdgeImage> getEdgesImage(@NotNull Body body) {
         ArrayList<EdgeImage> edgesImage = new ArrayList<>();
         for (Edge e : body.getEdges()) {
             edgesImage.add(new FixedEdgeImage(e));
@@ -36,7 +39,7 @@ public class BodyImage {
     }
 
     @NotNull
-    private ArrayList<Pair<Double, ArrayRealVector>> getPointsImage(@NotNull Body body) {
+    ArrayList<Pair<Double, ArrayRealVector>> getPointsImage(@NotNull Body body) {
         ArrayList<Pair<Double, ArrayRealVector>> points = new ArrayList<>();
         for (BPoint point : body.getPoints()) {
             points.add(new Pair<>(point.getMass(), point.getPos()));
@@ -57,13 +60,7 @@ public class BodyImage {
         }
     }
 
-    public Body getIsolatedBody() {
-        Body body = new Body();
-        addPoints(body);
-        addEdges(body);
-        this.body = body;
-        return body;
-    }
+    public abstract Body getIsolatedBody();
     public void addPoints(Body body){
         for (Pair<Double, ArrayRealVector> point : points) {
             body.addPoint(point.getKey(), point.getValue());

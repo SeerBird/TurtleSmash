@@ -17,7 +17,7 @@ public class BodyEdgePointer implements EdgeImage{
         index1 = parent.getPoints().indexOf(e.getEdge1());
         index2 = parent.getPoints().indexOf(e.getEdge2());
     }
-    public Edge getEdge(){
+    public Edge findEdge(){
         Body parent = World.getBodies().get(bodyindex);
         BPoint p1=parent.getPoints().get(index1);
         BPoint p2=parent.getPoints().get(index2);

@@ -2,7 +2,6 @@ package game.connection.packets.containers.images.bodies;
 
 import game.connection.packets.containers.images.edges.WorldEdgeImage;
 import game.world.World;
-import game.world.bodies.Body;
 import game.world.bodies.Shell;
 import game.world.bodies.Turtle;
 import game.world.bodies.Web;
@@ -20,7 +19,7 @@ public class ShellImage extends BodyImage {
         super(shell);
         straps = new ArrayList<>();
         bound = new ArrayList<>();
-        parent = World.getBodies().indexOf(shell.parent);
+        parent = shell.parent == null ? null : World.getBodies().indexOf(shell.parent);
         leaveParentFlag = shell.leaveParentFlag;
         for (Web web : shell.bound) {
             bound.add(World.getBodies().indexOf(web));

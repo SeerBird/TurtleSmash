@@ -214,17 +214,6 @@ public class GameHandler {
     public static void receiveServerPacket(ServerPacket packet) {
         lastPacket.set(packet);
     }
-
-    public static Player getLocalPlayerFromServerId(Integer id) {
-        ArrayList<String> playerNames = lastPacket.lobby.players;
-        int localUser = playerNames.indexOf(null);
-        if (id < localUser) {
-            id += 1;
-        } else if (id == localUser) {
-            id = 0;
-        }
-        return GameHandler.getPlayers().get(id);
-    }
     //endregion
 
     //region State traversal
@@ -273,9 +262,9 @@ public class GameHandler {
         setState(GameState.playServer);
         World.startGen();
         GameStartPacket packet = new GameStartPacket();
-        synchronized (players) { // make this a procedure
+        synchronized (players) { // make this a procedure?
             for (int i = 1; i < players.size(); i++) {//potential for sending different info
-                players.get(i).send(packet);//code proper disconnect handling, breaks at the moment
+                players.get(i).send(packet);
             }
         }
         addJob(Job.revivePlayers);
@@ -353,7 +342,18 @@ public class GameHandler {
                 servers.remove(address);
             }
         }
-        TurtleMenu.refreshServerList(); // cringe.
+        TurtleMenu.refreshServerList(); // cringe. notify or whatever?
+    }
+
+    public static Player getLocalPlayerFromServerId(Integer id) {
+        ArrayList<String> playerNames = lastPacket.lobby.players;
+        int localUser = playerNames.indexOf(null);
+        if (id < localUser) {
+            id += 1;
+        } else if (id == localUser) {
+            id = 0;
+        }
+        return GameHandler.getPlayers().get(id);
     }
     //endregion
 

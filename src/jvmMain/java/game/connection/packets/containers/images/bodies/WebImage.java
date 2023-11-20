@@ -15,13 +15,19 @@ import java.util.ArrayList;
 
 public class WebImage extends BodyImage {
     public BodyEdgePointer target;
+    public double control;
     public WorldEdgeImage sourceEdge;
     public WorldEdgeImage targetEdge1;
     public WorldEdgeImage targetEdge2;
     public boolean isGrowing;
 
     public WebImage(Web web) {
-        super(web);
+        points = getPointsImage(web);
+        edges = new ArrayList<>();
+        for (Edge e : web.getEdges()) {
+            edges.add(new ControlEdgePointer(e));
+        }
+        control = web.getControl().getValue();
         Edge edge;
         if ((edge = web.getTarget()) != null) {
             target = new BodyEdgePointer(edge);
@@ -37,6 +43,7 @@ public class WebImage extends BodyImage {
     @Override
     public Web getIsolatedBody() {
         Web web = new Web();
+        web.rest_d.setValue(control);
         for (Pair<Double, ArrayRealVector> point : points) {
             web.addPoint(point.getKey(), point.getValue());
         }
@@ -58,7 +65,7 @@ public class WebImage extends BodyImage {
         if (target != null) {
             web.targetEdge1 = targetEdge1.getEdge();
             web.targetEdge2 = targetEdge2.getEdge();
-            web.target = target.getEdge();
+            web.target = target.findEdge();
         }
         if (sourceEdge != null) {
             web.sourceEdge = sourceEdge.getEdge();
