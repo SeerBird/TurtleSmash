@@ -20,5 +20,11 @@ public class ExceptionHandler extends ChannelDuplexHandler {
             GameHandler.escape();
         }
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        //logger.warning(cause.getMessage());
+        super.exceptionCaught(ctx, cause);
+    }
     // ... override more outbound methods to "handle" their exceptions as well
 }

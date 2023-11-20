@@ -1,6 +1,8 @@
 package game.world.bodies;
 
 import game.Config;
+import game.connection.packets.containers.images.bodies.BodyImage;
+import game.connection.packets.containers.images.bodies.WebImage;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.constraints.ControlEdge;
@@ -11,15 +13,17 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+
 public class Web extends Body {
     @Nullable
     public BPoint source; //I don't like the fact that all of this is public
     public Edge target;
-    public transient Edge sourceEdge;
-    public transient Edge targetEdge1;
-    public transient Edge targetEdge2;
+    public Edge sourceEdge;
+    public Edge targetEdge1;
+    public Edge targetEdge2;
     boolean isGrowing;
-    MutableDouble rest_d;
+    public MutableDouble rest_d;
 
     // points are ordered end to source
     public Web(@NotNull BPoint source, ArrayRealVector velocity) {
@@ -28,8 +32,22 @@ public class Web extends Body {
         addPoint(new BPoint(this, 1, source.getPos()));
         points.get(0).accelerate(velocity);
         isGrowing = true;
-        rest_d=new MutableDouble(Config.webRestNodeDistance);
+        rest_d = new MutableDouble(Config.webRestNodeDistance);
         relevance = 400; // do something other than relevance. this is stupid. kinda. idk. maybe it's fine
+    }
+
+    public Web() {
+        points = new ArrayList<>();
+        edges = new ArrayList<>();
+        acceleration = new ArrayRealVector(2);
+        movement = new ArrayRealVector(2);
+        center = new ArrayRealVector(2);
+        velocity = new ArrayRealVector(2);
+        relevance = 400;
+        mass = 0;
+        centerMoved = true;
+        isGrowing = true;
+        rest_d = new MutableDouble(Config.webRestNodeDistance);
     }
 
     @Override
@@ -164,5 +182,9 @@ public class Web extends Body {
     @Override
     public boolean collides(@NotNull Body body) {
         return body.getClass() != Web.class && isSticky();
+    }
+
+    public MutableDouble getControl() {
+        return rest_d;
     }
 }

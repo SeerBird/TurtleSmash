@@ -7,8 +7,7 @@ import game.connection.handlers.ExceptionHandler;
 import game.connection.packets.ClientPacket;
 import game.connection.packets.containers.ServerStatus;
 import game.input.InputInfo;
-import game.util.Multiplayer;
-import game.util.Util;
+import game.connection.gson.gsonRegistry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -16,24 +15,22 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.ssl.SslContext;
 
-import javax.net.ssl.SSLException;
-import java.net.ConnectException;
-import java.security.cert.CertificateException;
 import java.util.logging.Logger;
 
 public class ClientTCP extends Thread {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     Channel channel;
-    ServerStatus target;
+    final ServerStatus target;
 
     public ClientTCP(ServerStatus target) {
         this.target = target;
     }
 
     public void run() {
-        logger.info("Trying to connect to " + target.address.getHostAddress() + ":" + target.port);
+        synchronized (target) {
+            logger.info("Trying to connect to " + target.address.getHostAddress() + ":" + target.port);
+        }
         EventLoopGroup group = new NioEventLoopGroup();
         Runtime.getRuntime().addShutdownHook(new Thread(group::shutdownGracefully));
         /*
@@ -59,15 +56,16 @@ public class ClientTCP extends Thread {
                             p.addLast(
                                     new ObjectEncoder(),
                                     new ClientDecoder(1048576, ClassResolvers.cacheDisabled(null)),
-                                    new ClientTcpHandler()
+                                    new ClientTcpHandler(),
+                                    new ExceptionHandler()
                             );
                         }
                     });
             ChannelFuture connectFuture = b.connect(target.address, target.port).addListener(future -> {
                 if (future.isSuccess()) {
                     logger.info("TCP client connected");
-                } else{
-                    logger.warning("Failed to connect to server: "+future.cause().getMessage());
+                } else {
+                    logger.warning("Failed to connect to server: " + future.cause().getMessage());
                     GameHandler.escape();
                 }
             });
@@ -82,7 +80,7 @@ public class ClientTCP extends Thread {
 
     public void send(InputInfo input) {
         if (channel != null) {
-            channel.writeAndFlush(Util.gson.toJson(new ClientPacket(input)));
+            channel.writeAndFlush(gsonRegistry.gson.toJson(new ClientPacket(input)));
         }
     }
 

@@ -1,5 +1,6 @@
 package game.world.bodies;
 
+import game.connection.packets.containers.images.bodies.BodyImage;
 import game.util.Maths;
 import game.world.BPoint;
 import game.world.CollisionData;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class Body {
+public abstract class Body {
     final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     ArrayList<BPoint> points;
     ArrayList<Edge> edges;
@@ -30,7 +31,7 @@ public class Body {
     boolean centerMoved;
     ArrayRealVector velocity; // relies on getCenter being called every tick
 
-    public Body() { //why do I need to pass world to it? that's dumb. fix this.
+    public Body() {
         points = new ArrayList<>();
         edges = new ArrayList<>();
         acceleration = new ArrayRealVector(2);

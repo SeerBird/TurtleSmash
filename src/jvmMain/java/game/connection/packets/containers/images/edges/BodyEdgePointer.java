@@ -1,4 +1,4 @@
-package game.connection.packets.containers.images;
+package game.connection.packets.containers.images.edges;
 
 import game.world.BPoint;
 import game.world.World;
@@ -6,12 +6,12 @@ import game.world.bodies.Body;
 import game.world.constraints.Edge;
 import org.jetbrains.annotations.NotNull;
 
-public class BodyEdgeImage {
+public class BodyEdgePointer implements EdgeImage{
     public int bodyindex;
     public int index1;
     public int index2;
 
-    public BodyEdgeImage(@NotNull Edge e) {
+    public BodyEdgePointer(@NotNull Edge e) {
         Body parent = e.getEdge1().getParentBody();
         bodyindex = World.getBodies().indexOf(parent);
         index1 = parent.getPoints().indexOf(e.getEdge1());

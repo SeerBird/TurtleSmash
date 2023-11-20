@@ -1,4 +1,5 @@
 package game.connection.packets;
+
 import game.Player;
 import game.connection.packets.containers.LobbyData;
 import game.connection.packets.containers.WorldData;
@@ -12,16 +13,12 @@ public class ServerPacket extends Packet {
     public LobbyData lobby;
     public transient boolean changed;
 
-    public ServerPacket(ArrayList<Player> players) {
-        this.world=new WorldData();
-        lobby=new LobbyData(players);
-    }
-
     public ServerPacket() {
     }
+
     public void set(@NotNull ServerPacket packet) {
-        this.world=packet.world;
-        this.lobby=packet.lobby;
-        changed=true;
+        this.world = packet.world;
+        this.lobby = packet.lobby;
+        changed = true;
     }
 }

@@ -5,7 +5,7 @@ import game.Player;
 import game.connection.packets.containers.WorldData;
 import game.util.Maths;
 import game.world.bodies.*;
-import game.connection.packets.containers.images.BodyImage;
+import game.connection.packets.containers.images.bodies.BodyImage;
 import game.world.constraints.Edge;
 import javafx.util.Pair;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -361,7 +361,7 @@ public final class World {
             bodies.add(body.getIsolatedBody());
         }
         for (int i = 0; i < data.bodyImages.size(); i++) {
-            data.bodyImages.get(i).connectBody(bodies.get(i));
+            data.bodyImages.get(i).connectBody();
         }
     }
 
