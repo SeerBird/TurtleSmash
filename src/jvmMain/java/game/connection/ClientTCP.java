@@ -1,6 +1,7 @@
 package game.connection;
 
 import game.GameHandler;
+import game.GameState;
 import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ClientTcpHandler;
 import game.connection.handlers.ExceptionHandler;
@@ -28,9 +29,7 @@ public class ClientTCP extends Thread {
     }
 
     public void run() {
-        synchronized (target) {
-            logger.info("Trying to connect to " + target.address.getHostAddress() + ":" + target.port);
-        }
+        logger.info("Trying to connect to " + target.address.getHostAddress() + ":" + target.port);
         EventLoopGroup group = new NioEventLoopGroup();
         Runtime.getRuntime().addShutdownHook(new Thread(group::shutdownGracefully));
         /*
@@ -56,8 +55,7 @@ public class ClientTCP extends Thread {
                             p.addLast(
                                     new ObjectEncoder(),
                                     new ClientDecoder(1048576, ClassResolvers.cacheDisabled(null)),
-                                    new ClientTcpHandler(),
-                                    new ExceptionHandler()
+                                    new ClientTcpHandler()
                             );
                         }
                     });
@@ -66,7 +64,11 @@ public class ClientTCP extends Thread {
                     logger.info("TCP client connected");
                 } else {
                     logger.warning("Failed to connect to server: " + future.cause().getMessage());
-                    GameHandler.escape();
+                    if (GameHandler.getState() == GameState.lobby) {
+                        GameHandler.lobbyToDiscover();
+                    } else if (GameHandler.getState() == GameState.playClient) {
+                        GameHandler.playClientToDiscover();
+                    }
                 }
             });
             channel = connectFuture.channel();

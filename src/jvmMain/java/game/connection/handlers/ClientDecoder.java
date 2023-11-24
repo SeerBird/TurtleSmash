@@ -1,7 +1,6 @@
 package game.connection.handlers;
 
 import com.google.gson.JsonIOException;
-import game.connection.packets.GameStartPacket;
 import game.connection.packets.ServerPacket;
 import game.connection.gson.gsonRegistry;
 import io.netty.buffer.ByteBuf;
@@ -26,9 +25,7 @@ public class ClientDecoder extends ObjectDecoder {
                 msg = ((String) msg).substring(clazz.length());
                 if (clazz.equals(ServerPacket.class.toString())) {
                     return gsonRegistry.gson.fromJson((String) msg, ServerPacket.class);
-                } else if (clazz.equals(GameStartPacket.class.toString())) {
-                    return gsonRegistry.gson.fromJson((String) msg, GameStartPacket.class);
-                } else{
+                }else{
                     logger.severe("Unknown message type");
                     return null;
                 }

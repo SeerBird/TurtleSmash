@@ -19,7 +19,7 @@ public class ShellImage extends BodyImage {
         super(shell);
         straps = new ArrayList<>();
         bound = new ArrayList<>();
-        parent = shell.parent == null ? null : World.getBodies().indexOf(shell.parent);
+        parent = World.getBodies().contains(shell.parent) ? World.getBodies().indexOf(shell.parent) : null;
         leaveParentFlag = shell.leaveParentFlag;
         for (Web web : shell.bound) {
             bound.add(World.getBodies().indexOf(web));

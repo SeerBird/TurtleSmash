@@ -41,7 +41,6 @@ public abstract class Body {
         relevance = 20;
         mass = 0;
         centerMoved = true;
-        World.addBody(this);
     }
 
     public void move() {

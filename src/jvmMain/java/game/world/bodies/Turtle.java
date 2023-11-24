@@ -4,6 +4,8 @@ import game.Config;
 import game.Player;
 import game.connection.packets.containers.images.bodies.BodyImage;
 import game.connection.packets.containers.images.bodies.TurtleImage;
+import game.output.audio.Audio;
+import game.output.audio.Sound;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;
@@ -23,6 +25,7 @@ import static game.util.Maths.*;
 public class Turtle extends Body {
     public Map<BPoint, Web> spinnerets;
     public Shell shell;
+    public int nakedFrames;
     public Player owner;
     static ArrayList<Integer> shellAttachment = new ArrayList<>(Arrays.asList(7, 8, 14, 15));
 
@@ -146,19 +149,24 @@ public class Turtle extends Body {
         addEdge(head1, tail1);
         addEdge(head4, tail3);
         //endregion
+        World.addBody(this);
         growShell();
     }
-    public Turtle(){
-        points = new ArrayList<>();
-        edges = new ArrayList<>();
-        acceleration = new ArrayRealVector(2);
-        movement = new ArrayRealVector(2);
-        center = new ArrayRealVector(2);
-        velocity = new ArrayRealVector(2);
-        relevance = 20;
-        mass = 0;
-        centerMoved = true;
+
+    public Turtle() {
+        super();
         spinnerets = new HashMap<>();
+    }
+
+    @Override
+    public void move() {
+        super.move();
+        if(shell==null){
+            nakedFrames--;
+            if(nakedFrames<0){
+                growShell();
+            }
+        }
     }
 
     @Override
@@ -263,6 +271,7 @@ public class Turtle extends Body {
 
     private void die() {
         owner.die(); //let the player know they died
+        Audio.playSound(Sound.death);
         owner = null; //become a lifeless remnant of what once used to be
     }
 
@@ -271,11 +280,15 @@ public class Turtle extends Body {
     }
 
     public void growShell() {
-        this.shell = new Shell(getCenter(), this);
+        this.shell = new Shell(getCenter(),getHeading(), this);
+    }
+    public ArrayRealVector getHeading(){
+        return normalize(points.get(13).getDistance(points.get(1).getPos().combine(0.5,0.5,points.get(2).getPos())));
     }
 
     public void abandonShell() {
         shell = null;
+        nakedFrames=Config.turtleNakedFrames;
     }
 
     @Override

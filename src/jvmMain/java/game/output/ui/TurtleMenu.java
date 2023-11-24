@@ -2,10 +2,7 @@ package game.output.ui;
 
 import game.GameHandler;
 import game.GameState;
-import game.output.ui.rectangles.GButton;
-import game.output.ui.rectangles.PlayerList;
-import game.output.ui.rectangles.ServerList;
-import game.output.ui.rectangles.Textbox;
+import game.output.ui.rectangles.*;
 import org.apache.commons.math3.linear.ArrayRealVector;
 
 import java.util.ArrayList;
@@ -21,6 +18,7 @@ public class TurtleMenu {
     private static Focusable focused;
     static final ServerList serverList = new ServerList(200, 200, 600, 600, GameHandler.servers);
     static final PlayerList playerList = new PlayerList(100, 100, 600, 600, GameHandler.lastPacket);
+    static Toggleable lobbyWaiting = new Toggleable(0,0,100,100, "Wait for game start");
 
     static {
         //region create the presets for all the game states
@@ -39,7 +37,8 @@ public class TurtleMenu {
         //endregion
         //region lobby
         savePreset(GameState.lobby,
-                playerList);
+                playerList,
+                lobbyWaiting);
         //endregion
         //region playServer
         savePreset(GameState.playServer);
@@ -114,5 +113,13 @@ public class TurtleMenu {
 
     public static void refreshServerList() {
         serverList.refresh();
+    }
+
+    public static boolean lobbyWaiting() {
+        return lobbyWaiting.getState();
+    }
+
+    public static void toggleLobbyWaiting() {
+        lobbyWaiting.toggle();
     }
 }

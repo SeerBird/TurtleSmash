@@ -3,13 +3,11 @@ package game.output;
 
 import game.Config;
 import game.GameHandler;
-import game.output.ui.rectangles.GButton;
+import game.output.ui.rectangles.*;
 import game.output.ui.IElement;
-import game.output.ui.rectangles.Label;
 import game.GameState;
 import game.output.ui.TurtleMenu;
-import game.output.ui.rectangles.PlayerList;
-import game.output.ui.rectangles.ServerList;
+import game.output.ui.rectangles.Label;
 import game.world.BPoint;
 import game.world.World;
 import game.world.bodies.Body;
@@ -127,8 +125,15 @@ public class Renderer {
                 for (Label l : ((PlayerList) e).getLabels()) {
                     drawLabel(l);
                 }
+                drawRect((RectElement) e);
+            } else if(e instanceof Label){
+                drawLabel((Label) e);
             }
         }
+    }
+    private static void drawRect(@NotNull RectElement e){
+        g.setColor(Color.GREEN);
+        g.drawRect(e.x,e.y,e.width,e.height);
     }
 
     private static void drawButton(@NotNull GButton button) {

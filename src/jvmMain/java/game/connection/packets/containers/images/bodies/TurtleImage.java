@@ -22,9 +22,9 @@ public class TurtleImage extends BodyImage {
         spinnerets = new HashMap<>();
         for (BPoint p : turtle.spinnerets.keySet()) {
             spinnerets.put(turtle.getPoints().indexOf(p),
-                    turtle.spinnerets.get(p) == null ? null : World.getBodies().indexOf(turtle.spinnerets.get(p)));
+                    World.getBodies().contains(turtle.spinnerets.get(p)) ? World.getBodies().indexOf(turtle.spinnerets.get(p)) : null);
         }
-        shell = turtle.shell == null ? null : World.getBodies().indexOf(turtle.shell);
+        shell = World.getBodies().contains(turtle.shell) ? World.getBodies().indexOf(turtle.shell) : null; // change the rest to this format
         owner = GameHandler.getPlayers().indexOf(turtle.owner);
     }
 

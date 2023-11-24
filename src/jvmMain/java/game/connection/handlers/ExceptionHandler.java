@@ -17,7 +17,7 @@ public class ExceptionHandler extends ChannelDuplexHandler {
             super.connect(ctx, remoteAddress, localAddress, promise);
         }catch(ConnectException e){
             logger.warning("Failed to connect to server: "+e.getMessage());
-            GameHandler.escape();
+            //GameHandler.escape();
         }
     }
 

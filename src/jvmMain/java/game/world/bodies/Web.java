@@ -1,10 +1,9 @@
 package game.world.bodies;
 
 import game.Config;
-import game.connection.packets.containers.images.bodies.BodyImage;
-import game.connection.packets.containers.images.bodies.WebImage;
 import game.world.BPoint;
 import game.world.CollisionData;
+import game.world.World;
 import game.world.constraints.ControlEdge;
 import game.world.constraints.Edge;
 import game.world.constraints.FixedEdge;
@@ -12,8 +11,6 @@ import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
 
 public class Web extends Body {
     @Nullable
@@ -34,18 +31,12 @@ public class Web extends Body {
         isGrowing = true;
         rest_d = new MutableDouble(Config.webRestNodeDistance);
         relevance = 400; // do something other than relevance. this is stupid. kinda. idk. maybe it's fine
+        World.addBody(this);
     }
 
     public Web() {
-        points = new ArrayList<>();
-        edges = new ArrayList<>();
-        acceleration = new ArrayRealVector(2);
-        movement = new ArrayRealVector(2);
-        center = new ArrayRealVector(2);
-        velocity = new ArrayRealVector(2);
+        super();
         relevance = 400;
-        mass = 0;
-        centerMoved = true;
         isGrowing = true;
         rest_d = new MutableDouble(Config.webRestNodeDistance);
     }
@@ -80,7 +71,7 @@ public class Web extends Body {
         //endregion
         //region behavior when disconnected from source turtle
         else {
-            rest_d.subtract(Config.webDecay);
+            rest_d.subtract(Config.webDecayRate);
             if (rest_d.doubleValue() < 0) {
                 delete();
             }

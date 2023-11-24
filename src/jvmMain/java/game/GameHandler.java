@@ -1,7 +1,6 @@
 package game;
 
 import game.connection.*;
-import game.connection.packets.GameStartPacket;
 import game.connection.packets.containers.LobbyData;
 import game.connection.packets.containers.ServerStatus;
 import game.connection.packets.containers.WorldData;
@@ -15,9 +14,7 @@ import game.world.World;
 import game.world.bodies.Body;
 import io.netty.channel.socket.SocketChannel;
 import org.apache.commons.math3.linear.ArrayRealVector;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -83,8 +80,6 @@ public class GameHandler {
         addJob(Job.handleInput);
         addJob(Job.updateMenu);
         addJob(Job.handlePlayers);
-        addJob(Job.updateWorld);
-
         Player p = new Player(); // the player on this device
         p.connectInput(InputControl.getInput());
         addPlayer(p);
@@ -172,6 +167,7 @@ public class GameHandler {
     private static void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo
         ServerPacket packet = new ServerPacket();
         packet.world = new WorldData();
+        packet.playing = state == GameState.playServer;
         for (Player recipient : players) {
             packet.lobby = new LobbyData(players, recipient); // repeated actions inside.
             recipient.send(packet);
@@ -185,6 +181,18 @@ public class GameHandler {
     private static void handleServerPacket() {
         if (lastPacket.changed) {
             synchronized (lastPacket) {
+                if (state == GameState.lobby) {
+                    if (TurtleMenu.lobbyWaiting()) {
+                        if (lastPacket.playing) {
+                            lobbyToPlayClient();
+                            TurtleMenu.toggleLobbyWaiting();
+                        }
+                    }
+                } else if (state == GameState.playClient) {
+                    if (!lastPacket.playing) {
+                        playClientToLobby();
+                    }
+                }
                 setPlayers(lastPacket.lobby);
                 World.set(lastPacket.world);
                 lastPacket.changed = false;
@@ -260,19 +268,21 @@ public class GameHandler {
 
     public static void hostToPlayServer() {
         setState(GameState.playServer);
-        World.startGen();
-        GameStartPacket packet = new GameStartPacket();
-        synchronized (players) { // make this a procedure?
-            for (int i = 1; i < players.size(); i++) {//potential for sending different info
-                players.get(i).send(packet);
-            }
-        }
         addJob(Job.revivePlayers);
+        addJob(Job.updateWorld);
     }
 
     public static void playServerToHost() {
         setState(GameState.host);
+        for (Player player : players) {
+            if (!deadPlayers.contains(player)) {
+                player.die();
+            }
+        }
+        World.clear();
+        World.update();
         removeJob(Job.revivePlayers);
+        removeJob(Job.updateWorld);
     }
 
     public static void hostToMain() {
@@ -302,6 +312,8 @@ public class GameHandler {
     public static void lobbyToDiscover() {
         setState(GameState.discover);
         removeJob(Job.sendClient);
+        World.clear();
+        World.update();
         tcpClient.disconnect();
     }
 
@@ -312,7 +324,13 @@ public class GameHandler {
     public static void playClientToDiscover() {
         setState(GameState.discover);
         removeJob(Job.sendClient);
+        World.update();
+        World.clear();
         tcpClient.disconnect();
+    }
+
+    public static void playClientToLobby() {
+        setState(GameState.lobby);
     }
 
     public static void discoverToMain() {
@@ -322,7 +340,7 @@ public class GameHandler {
 
     public static void escape() {
         if (state == GameState.playClient) {
-            playClientToDiscover();
+            playClientToLobby();
         } else if (state == GameState.lobby) {
             lobbyToDiscover();
         } else if (state == GameState.discover) {

@@ -15,20 +15,36 @@ public final class Maths {
         return (areClockwise(p1, p3, p4) ^ areClockwise(p2, p3, p4)) &&
                 (areClockwise(p1, p2, p3) ^ areClockwise(p1, p2, p4));
     }
-    public static ArrayRealVector reflect(ArrayRealVector point, ArrayRealVector axisPoint, @NotNull ArrayRealVector normalizedAxis){
-        if(normalizedAxis.getNorm()!=1.0){
-            normalizedAxis.mapMultiplyToSelf(1/normalizedAxis.getNorm());
+
+    public static ArrayRealVector reflect(ArrayRealVector point, ArrayRealVector axisPoint, @NotNull ArrayRealVector normalizedAxis) {
+        if (normalizedAxis.getNorm() != 1.0) {
+            normalizedAxis.mapMultiplyToSelf(1 / normalizedAxis.getNorm());
         }
-        ArrayRealVector midpoint=axisPoint.combine(1,1,normalizedAxis.mapMultiply(point.dotProduct(normalizedAxis)-axisPoint.dotProduct(normalizedAxis)));
-        return midpoint.combine(2,-1,point);
+        ArrayRealVector midpoint = axisPoint.combine(1, 1, normalizedAxis.mapMultiply(point.dotProduct(normalizedAxis) - axisPoint.dotProduct(normalizedAxis)));
+        return midpoint.combine(2, -1, point);
+    }
+
+    public static ArrayRealVector normalize(@NotNull ArrayRealVector v) {
+        return (ArrayRealVector) v.mapMultiply(1 / v.getNorm());
+    }
+
+    @NotNull
+    public static ArrayRealVector randomUnitVector() {
+        double x = Math.random()*2-1;
+        double y = Math.sqrt(1-x*x);
+        if(x*10%1>0.5){
+            y*=-1;
+        }
+        return getVector(x,y);
     }
 
     public static ArrayRealVector i = new ArrayRealVector(new Double[]{1.0, 0.0});
     public static ArrayRealVector j = new ArrayRealVector(new Double[]{0.0, 1.0});
     public static ArrayRealVector o = new ArrayRealVector(new Double[]{0.0, 0.0});
+
     @NotNull
     @Contract(value = "_ -> new", pure = true)
-    public static ArrayRealVector getVector(double... coords){
+    public static ArrayRealVector getVector(double... coords) {
         return new ArrayRealVector(coords);
     }
 }

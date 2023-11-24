@@ -5,7 +5,6 @@ import game.connection.packets.Packet;
 import game.input.InputInfo;
 import game.output.audio.Audio;
 import game.output.audio.Sound;
-import game.connection.gson.gsonRegistry;
 import game.world.bodies.Turtle;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.socket.SocketChannel;
@@ -79,6 +78,5 @@ public class Player {
         score++;
         setBody(null);
         GameHandler.killPlayer(this);
-        Audio.playSound(Sound.death);
     }
 }

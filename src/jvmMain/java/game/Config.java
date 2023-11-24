@@ -29,5 +29,6 @@ public class Config {
     public static double playerSpawnVelocitySpread = 2;
     public static int deathFrames = 120;
     public static int webTensileStrength = 10;
-    public static double webDecay = 0.1;
+    public static double webDecayRate = 0.1;
+    public static int turtleNakedFrames=3;
 }

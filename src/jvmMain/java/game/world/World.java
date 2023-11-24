@@ -16,14 +16,14 @@ import java.util.ArrayList;
 
 import static game.Config.HEIGHT;
 import static game.Config.WIDTH;
-import static game.util.Maths.getVector;
+import static game.util.Maths.*;
 
 public final class World {
     static ArrayList<Body> bodies = new ArrayList<>();
     static ArrayList<Body> toRemove = new ArrayList<>();
     static ArrayList<Body> toAdd = new ArrayList<>();
 
-    public static void update() { // make it all multiplied by dt
+    public static void update() { // make it all multiplied by dt?
         //any required magic should be done before movement
         gravitate();
         //region Movement and fading
@@ -63,7 +63,7 @@ public final class World {
             }
         }
         //endregion
-        //region Remove and add bodies
+        //region Remove and add bodies. Separate this? Think about the states I want the lists to be in at the start and end of the world update cycle
         for (Body b : toRemove) {
             bodies.remove(b);
         }
@@ -73,8 +73,9 @@ public final class World {
         //endregion
     }
 
-    public static void startGen() {
-
+    public static void clear() {
+        toRemove.addAll(bodies);
+        toAdd.clear();
     }
 
     public static ArrayList<Body> getBodies() {
@@ -274,7 +275,7 @@ public final class World {
 
     void wrapAround(@NotNull Body b) {
         ArrayList<Pair<Double, BPoint>> projectionX = b.project(Maths.i);
-        ArrayList<Pair<Double, BPoint>> projectionY = b.project(Maths.j);
+        ArrayList<Pair<Double, BPoint>> projectionY = b.project(j);
         if (projectionX.get(0).getKey() > WIDTH) {
             b.shift(new ArrayRealVector(new Double[]{-projectionX.get(1).getKey(), 0.0}));
         } else if (projectionX.get(1).getKey() < 0) {
@@ -292,7 +293,7 @@ public final class World {
 
     void fadeBodies(@NotNull Body b) {
         ArrayList<Pair<Double, BPoint>> projectionX = b.project(Maths.i);
-        ArrayList<Pair<Double, BPoint>> projectionY = b.project(Maths.j);
+        ArrayList<Pair<Double, BPoint>> projectionY = b.project(j);
         //boolean gone = false;
         if (projectionX.get(0).getKey() > WIDTH) {
             b.decreaseRelevance(1 / 60.0);
@@ -367,7 +368,7 @@ public final class World {
 
     public static void spawn(ArrayRealVector pos) {
         //new Box(pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
-        new Shell(pos, null);
+        new Shell(pos,randomUnitVector(), null);
     }
 
     public static void playerSpawn(@NotNull Player player) {

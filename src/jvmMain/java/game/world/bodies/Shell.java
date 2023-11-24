@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import static game.util.Maths.*;
 
+
 public class Shell extends Body {
     public Turtle parent;
     public ArrayList<Edge> straps;
@@ -21,12 +22,12 @@ public class Shell extends Body {
     public boolean leaveParentFlag = true;
     static int[] attachments = new int[]{0, 3, 4, 7};
 
-    public Shell(@NotNull ArrayRealVector pos, @Nullable Turtle parent) {
+    public Shell(@NotNull ArrayRealVector pos, ArrayRealVector heading, @Nullable Turtle parent) {
         super();
         straps = new ArrayList<>();
         bound = new ArrayList<>();
         this.parent = parent;
-        form(pos.add(new ArrayRealVector(new Double[]{0.0, -5.0})), Config.shellMass);
+        form(pos.add(new ArrayRealVector(new Double[]{0.0, -5.0})), heading, Config.shellMass);
         //region if there is a parent, attach
         if (parent != null) {
             for (int i = 0; i < attachments.length; i++) {
@@ -35,17 +36,11 @@ public class Shell extends Body {
             leaveParentFlag = false;
         }
         //endregion
+        World.addBody(this);
     }
-    public Shell(){
-        points = new ArrayList<>();
-        edges = new ArrayList<>();
-        acceleration = new ArrayRealVector(2);
-        movement = new ArrayRealVector(2);
-        center = new ArrayRealVector(2);
-        velocity = new ArrayRealVector(2);
-        relevance = 20;
-        mass = 0;
-        centerMoved = true;
+
+    public Shell() {
+        super();
         straps = new ArrayList<>();
         bound = new ArrayList<>();
     }
@@ -94,7 +89,7 @@ public class Shell extends Body {
                     double mass2 = b2.getMass();
                     double tot = mass1 + mass2;
                     ArrayRealVector velocity = getVelocity().combine(mass1 / tot, mass2 / tot, b2.getVelocity());
-                    form(getCenter().combine(mass1 / tot, mass2 / tot, b2.getCenter()), tot); //merge
+                    form(getCenter().combine(mass1 / tot, mass2 / tot, b2.getCenter()), randomUnitVector(), tot); //merge
                     World.removeBody(b2);
                     accelerate(velocity);
                     return;
@@ -114,7 +109,7 @@ public class Shell extends Body {
         //endregion
     }
 
-    private void form(@NotNull ArrayRealVector pos, double mass) {
+    private void form(@NotNull ArrayRealVector pos, ArrayRealVector j, double mass) {
         if (!isFree()) {
             logger.warning("Reforming a shell while it's still attached to a turtle. This doesn't make sense.");
         }
@@ -122,8 +117,9 @@ public class Shell extends Body {
         edges.clear();
         double size = Config.turtleSize / 6 * Math.pow(mass / Config.shellMass, 0.3333);
         mass /= 8;
-        BPoint p1 = new BPoint(this, mass, pos.getEntry(0) + 140 * size, pos.getEntry(1) + 275 * size);
-        BPoint p2 = new BPoint(this, mass, pos.getEntry(0) + 200 * size, pos.getEntry(1) + 150 * size);
+        ArrayRealVector i = getVector(j.getEntry(1), -j.getEntry(0));
+        BPoint p1 = new BPoint(this, mass, pos.add(i.combine(140 * size, 275 * size, j)));
+        BPoint p2 = new BPoint(this, mass, pos.add(i.combine(200 * size, 150 * size, j)));
         BPoint p3 = new BPoint(this, mass, reflect(p2.getPos(), pos, i));
         BPoint p4 = new BPoint(this, mass, reflect(p1.getPos(), pos, i));
         BPoint p5 = new BPoint(this, mass, reflect(p4.getPos(), pos, j));
@@ -144,8 +140,9 @@ public class Shell extends Body {
     public boolean isFree() {
         return straps.size() == 0;
     }
-    public boolean isUnbound(){
-        return straps.size() == 0&&bound.size()==0;
+
+    public boolean isUnbound() {
+        return parent==null && bound.size() == 0;
     }
 
     private void snap() {
@@ -171,6 +168,7 @@ public class Shell extends Body {
     public void addBinder(Web web) {
         bound.add(web);
     }
+
     public void unbind(Web web) {
         bound.remove(web);
     }
