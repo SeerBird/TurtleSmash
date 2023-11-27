@@ -1,12 +1,8 @@
 package game.connection.packets;
 
-import game.Player;
 import game.connection.packets.containers.LobbyData;
 import game.connection.packets.containers.WorldData;
-import game.world.World;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 public class ServerPacket extends Packet {
     public boolean playing;

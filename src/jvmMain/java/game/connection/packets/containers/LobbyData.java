@@ -1,10 +1,8 @@
 package game.connection.packets.containers;
 
-import game.GameHandler;
 import game.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 
 public class LobbyData {

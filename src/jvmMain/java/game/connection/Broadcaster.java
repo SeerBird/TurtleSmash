@@ -5,7 +5,8 @@ import game.connection.packets.containers.ServerStatus;
 import game.util.Multiplayer;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;

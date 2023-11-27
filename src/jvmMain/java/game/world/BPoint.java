@@ -2,7 +2,6 @@ package game.world;
 
 import game.world.bodies.Body;
 import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.RealVector;
 import org.jetbrains.annotations.NotNull;
 
 

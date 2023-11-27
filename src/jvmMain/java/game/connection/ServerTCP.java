@@ -1,7 +1,6 @@
 package game.connection;
 
 import game.GameHandler;
-import game.connection.handlers.ExceptionHandler;
 import game.connection.handlers.ServerDecoder;
 import game.connection.handlers.ServerPlayerHandler;
 import game.util.Multiplayer;
@@ -14,11 +13,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-import javax.net.ssl.SSLException;
-import java.security.cert.CertificateException;
 import java.util.logging.Logger;
 
 

@@ -1,10 +1,8 @@
 package game.output.ui.rectangles;
 
 import game.GameHandler;
-import game.Player;
 import game.connection.packets.ServerPacket;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Objects;
 

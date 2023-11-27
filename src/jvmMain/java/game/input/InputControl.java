@@ -6,12 +6,17 @@ import game.output.ui.TurtleMenu;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-import static game.GameState.*;
-import static game.input.InputControl.Mousebutton.*;
+import static game.GameState.playClient;
+import static game.GameState.playServer;
+import static game.input.InputControl.Mousebutton.Left;
+import static game.input.InputControl.Mousebutton.Right;
 import static java.awt.event.KeyEvent.*;
 
 public class InputControl extends MouseAdapter implements KeyListener {

@@ -1,6 +1,5 @@
 package game;
 
-import game.util.CONSTANTS;
 import game.util.Logging;
 
 import java.io.IOException;

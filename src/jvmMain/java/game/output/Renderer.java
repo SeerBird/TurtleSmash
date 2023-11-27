@@ -3,11 +3,11 @@ package game.output;
 
 import game.DevConfig;
 import game.GameHandler;
-import game.output.ui.rectangles.*;
-import game.output.ui.IElement;
 import game.GameState;
+import game.output.ui.IElement;
 import game.output.ui.TurtleMenu;
 import game.output.ui.rectangles.Label;
+import game.output.ui.rectangles.*;
 import game.world.BPoint;
 import game.world.World;
 import game.world.bodies.Body;

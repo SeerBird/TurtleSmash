@@ -1,12 +1,15 @@
 package game;
 
-import game.connection.*;
+import game.connection.Broadcaster;
+import game.connection.ClientTCP;
+import game.connection.Discovery;
+import game.connection.ServerTCP;
+import game.connection.packets.ServerPacket;
 import game.connection.packets.containers.LobbyData;
 import game.connection.packets.containers.ServerStatus;
 import game.connection.packets.containers.WorldData;
 import game.input.InputControl;
 import game.input.InputInfo;
-import game.connection.packets.ServerPacket;
 import game.output.GameWindow;
 import game.output.Renderer;
 import game.output.ui.TurtleMenu;

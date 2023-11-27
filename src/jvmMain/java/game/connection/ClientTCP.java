@@ -1,15 +1,13 @@
 package game.connection;
 
-import game.Config;
 import game.GameHandler;
 import game.GameState;
+import game.connection.gson.gsonRegistry;
 import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ClientTcpHandler;
-import game.connection.handlers.ExceptionHandler;
 import game.connection.packets.ClientPacket;
 import game.connection.packets.containers.ServerStatus;
 import game.input.InputInfo;
-import game.connection.gson.gsonRegistry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;

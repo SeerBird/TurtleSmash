@@ -1,6 +1,5 @@
 package game.world.bodies;
 
-import game.connection.packets.containers.images.bodies.BodyImage;
 import game.util.Maths;
 import game.world.BPoint;
 import game.world.CollisionData;

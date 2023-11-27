@@ -4,13 +4,11 @@ import game.GameHandler;
 import game.connection.packets.containers.ServerStatus;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.*;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
