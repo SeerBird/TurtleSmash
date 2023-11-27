@@ -1,9 +1,7 @@
 package game.world.bodies;
 
-import game.Config;
+import game.DevConfig;
 import game.Player;
-import game.connection.packets.containers.images.bodies.BodyImage;
-import game.connection.packets.containers.images.bodies.TurtleImage;
 import game.output.audio.Audio;
 import game.output.audio.Sound;
 import game.world.BPoint;
@@ -19,7 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static game.Config.turtleMass;
+import static game.DevConfig.turtleMass;
 import static game.util.Maths.*;
 
 public class Turtle extends Body {
@@ -50,7 +48,7 @@ public class Turtle extends Body {
         double twidth = 20;
         //endregion
         //region scaling
-        double size = Config.turtleSize / 6;
+        double size = DevConfig.turtleSize / 6;
         length *= size;
         width *= size;
         awidth *= size;
@@ -198,7 +196,7 @@ public class Turtle extends Body {
         }
         //endregion
         if (spinneret != null) {
-            minDist.mapMultiplyToSelf(Config.webFling / minNorm);//make the vector size the configured velocity
+            minDist.mapMultiplyToSelf(DevConfig.webFling / minNorm);//make the vector size the configured velocity
             spinnerets.put(spinneret, new Web(spinneret, minDist.add(spinneret.getVelocity())));//FLING and record it
         }
     }
@@ -260,7 +258,7 @@ public class Turtle extends Body {
         boolean satisfied = true;
         for (Edge c : edges) {
             if (!isDead()) {
-                if (c.getExtension() > Config.turtleDeformThreshold) {
+                if (c.getExtension() > DevConfig.turtleDeformThreshold) {
                     die();
                 }
             }
@@ -288,7 +286,7 @@ public class Turtle extends Body {
 
     public void abandonShell() {
         shell = null;
-        nakedFrames=Config.turtleNakedFrames;
+        nakedFrames= DevConfig.turtleNakedFrames;
     }
 
     @Override

@@ -18,7 +18,6 @@ public class ServerPlayerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        // Echo back the received object to the client.
         if (msg instanceof ClientPacket) {
             player.receive((ClientPacket) msg);
         }else{

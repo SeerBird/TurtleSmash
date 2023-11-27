@@ -1,5 +1,6 @@
 package game.output.ui.rectangles;
 
+import game.GameHandler;
 import game.Player;
 import game.connection.packets.ServerPacket;
 
@@ -8,12 +9,10 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class PlayerList extends RectElement {
-    ServerPacket packet;
     ArrayList<Label> labels;
 
-    public PlayerList(double x, double y, int width, int height, ServerPacket packet) {
+    public PlayerList(double x, double y, int width, int height) {
         super(x, y, width, height);
-        this.packet = packet;
         this.labels = new ArrayList<>();
     }
 
@@ -25,6 +24,7 @@ public class PlayerList extends RectElement {
     static int labelHeight = 30;
 
     public void refresh() {
+        ServerPacket packet = GameHandler.getPacket();
         if (packet.changed) {
             labels.clear();
             int counter = 0;

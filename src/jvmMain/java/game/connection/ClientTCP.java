@@ -1,5 +1,6 @@
 package game.connection;
 
+import game.Config;
 import game.GameHandler;
 import game.GameState;
 import game.connection.handlers.ClientDecoder;
@@ -82,7 +83,7 @@ public class ClientTCP extends Thread {
 
     public void send(InputInfo input) {
         if (channel != null) {
-            channel.writeAndFlush(gsonRegistry.gson.toJson(new ClientPacket(input)));
+            channel.writeAndFlush(gsonRegistry.gson.toJson(new ClientPacket(input, GameHandler.getPlayers().get(0).getName())));
         }
     }
 

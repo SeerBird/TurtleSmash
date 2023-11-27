@@ -1,6 +1,6 @@
 package game.world;
 
-import game.Config;
+import game.DevConfig;
 import game.Player;
 import game.connection.packets.containers.WorldData;
 import game.util.Maths;
@@ -14,8 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-import static game.Config.HEIGHT;
-import static game.Config.WIDTH;
+import static game.DevConfig.HEIGHT;
+import static game.DevConfig.WIDTH;
 import static game.util.Maths.*;
 
 public final class World {
@@ -378,10 +378,10 @@ public final class World {
         }
         x = Math.random()*2-1;
         y = Math.signum(Math.random() - 0.5) * Math.pow(1 - x * x, 0.5);
-        ArrayRealVector pos = (ArrayRealVector) getVector(x,y).mapMultiplyToSelf(Math.pow(WIDTH*WIDTH+HEIGHT*HEIGHT,0.5)/2+Math.random()*Config.playerSpawnSpread);
+        ArrayRealVector pos = (ArrayRealVector) getVector(x,y).mapMultiplyToSelf(Math.pow(WIDTH*WIDTH+HEIGHT*HEIGHT,0.5)/2+Math.random()* DevConfig.playerSpawnSpread);
         Turtle turtle = new Turtle(pos.add(getVector(WIDTH/2.0,HEIGHT/2.0)), player);
-        turtle.accelerate(pos.mapMultiply(-Config.approxPlayerSpawnVelocity / pos.getNorm()) // get velocity to the center of the screen
-                .combine(1, Config.playerSpawnVelocitySpread, getVector(Math.random(), Math.random()))); // add spread
+        turtle.accelerate(pos.mapMultiply(-DevConfig.approxPlayerSpawnVelocity / pos.getNorm()) // get velocity to the center of the screen
+                .combine(1, DevConfig.playerSpawnVelocitySpread, getVector(Math.random(), Math.random()))); // add spread
         player.setBody(turtle);
     }
 

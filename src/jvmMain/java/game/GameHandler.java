@@ -80,7 +80,7 @@ public class GameHandler {
         addJob(Job.handleInput);
         addJob(Job.updateMenu);
         addJob(Job.handlePlayers);
-        Player p = new Player(); // the player on this device
+        Player p = new Player(Config.getName()); // the player on this device
         p.connectInput(InputControl.getInput());
         addPlayer(p);
         //endregion
@@ -197,25 +197,6 @@ public class GameHandler {
                 World.set(lastPacket.world);
                 lastPacket.changed = false;
             }
-        }
-    }
-
-    private static void setPlayers(@NotNull LobbyData lobby) {
-        Player local = players.get(0);
-        boolean dead = deadPlayers.contains(local);
-        deadPlayers.clear();
-        players.clear();
-        players.add(local);
-        for (String name : lobby.players) {
-            if (name != null) {
-                Player dummy = new Player();
-                deadPlayers.add(dummy);
-                players.add(dummy);
-            }
-        }
-
-        if (dead) {
-            deadPlayers.add(local);
         }
     }
 
@@ -356,11 +337,29 @@ public class GameHandler {
     //region Connection
     public static void refreshLAN() {
         for (InetAddress address : servers.keySet()) {
-            if (System.nanoTime() - servers.get(address).nanoTime > Config.discoveryMilliTimeout * 1000000) {
+            if (System.nanoTime() - servers.get(address).nanoTime > DevConfig.discoveryMilliTimeout * 1000000) {
                 servers.remove(address);
             }
         }
         TurtleMenu.refreshServerList(); // cringe. notify or whatever?
+    }
+
+    private static void setPlayers(@NotNull LobbyData lobby) {
+        Player local = players.get(0);
+        boolean dead = deadPlayers.contains(local);
+        deadPlayers.clear();
+        players.clear();
+        players.add(local);
+        for (String name : lobby.players) {
+            if (name != null) {
+                Player dummy = new Player(name);
+                deadPlayers.add(dummy);
+                players.add(dummy);
+            }
+        }
+        if (dead) {
+            deadPlayers.add(local);
+        }
     }
 
     public static Player getLocalPlayerFromServerId(Integer id) {
@@ -394,7 +393,7 @@ public class GameHandler {
         //endregion
         //region if no such player has been found, create one
         if (dupe == null) {
-            dupe = new Player();
+            dupe = new Player("bababoi" + players.size());
         }
         //endregion
         dupe.setChannel(channel); // set or change the channel to the newly connected one
@@ -414,15 +413,27 @@ public class GameHandler {
 
     public static void killPlayer(Player player) {
         deadPlayers.add(player);
-        player.deathTimer = Config.deathFrames;
+        TurtleMenu.refreshScores();
+    }
+
+    //endregion
+
+    //region getters
+
+    public static ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public static Map<InetAddress, ServerStatus> getServers() {
+        return servers;
+    }
+
+    public static ServerPacket getPacket() {
+        return lastPacket;
     }
 
     //endregion
     public void terminate() {
         // you think you can stop me?
-    }
-
-    public static ArrayList<Player> getPlayers() {
-        return players;
     }
 }

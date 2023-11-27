@@ -9,13 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ServerList extends RectElement {
-    private final Map<InetAddress, ServerStatus> servers;
     public final HashMap<GButton, ServerStatus> buttonServers;
     GButton pressed;
 
-    public ServerList(double x, double y, int width, int height, Map<InetAddress, ServerStatus> servers) {
+    public ServerList(double x, double y, int width, int height) {
         super(x, y, width, height);
-        this.servers = servers;
         buttonServers = new HashMap<>();
         pressed = null;
     }
@@ -35,6 +33,7 @@ public class ServerList extends RectElement {
         int buttonTestHeight = 40;
         buttonServers.clear();
         int buttCount = 0;
+        Map<InetAddress, ServerStatus> servers= GameHandler.getServers();
         for (InetAddress address : servers.keySet()) {
             GButton button = new GButton(x, y + buttCount * buttonTestHeight, width, buttonTestHeight,
                     null, servers.get(address).message);

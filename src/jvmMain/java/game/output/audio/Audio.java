@@ -1,6 +1,7 @@
 package game.output.audio;
 
 
+import game.Resources;
 import org.jetbrains.annotations.NotNull;
 
 import javax.sound.sampled.*;
@@ -22,7 +23,7 @@ public class Audio {
         } catch (LineUnavailableException e) {
             throw new RuntimeException(e);
         }
-        soundStreams.put(death, Audio.class.getResource("goodnight.wav"));
+        soundStreams.put(death, Resources.goodnight);
     }
 
     public static void playSound(Sound sound) {// design some kind of notifiable object to stop the clip

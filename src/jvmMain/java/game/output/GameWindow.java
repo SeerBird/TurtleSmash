@@ -1,7 +1,7 @@
 package game.output;
 
 
-import game.Config;
+import game.DevConfig;
 import game.input.InputControl;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ public class GameWindow extends JFrame {
     public GameWindow() {
         setIgnoreRepaint(true);
         setResizable(false);
-        setSize(Config.WIDTH, Config.HEIGHT);
+        setSize(DevConfig.WIDTH, DevConfig.HEIGHT);
         this.setLocation(400, 10);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addComponentListener(new ComponentAdapter() {
@@ -29,7 +29,7 @@ public class GameWindow extends JFrame {
         //region Add canvas(for buffer strategy I think?? might be unnecessary)
         Canvas canvas = new Canvas();
         canvas.setIgnoreRepaint(true);
-        canvas.setSize(Config.WIDTH, Config.HEIGHT);
+        canvas.setSize(DevConfig.WIDTH, DevConfig.HEIGHT);
         add(canvas);
         pack();
         //endregion

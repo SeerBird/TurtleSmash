@@ -1,6 +1,6 @@
 package game.world.bodies;
 
-import game.Config;
+import game.DevConfig;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;
@@ -29,7 +29,7 @@ public class Web extends Body {
         addPoint(new BPoint(this, 1, source.getPos()));
         points.get(0).accelerate(velocity);
         isGrowing = true;
-        rest_d = new MutableDouble(Config.webRestNodeDistance);
+        rest_d = new MutableDouble(DevConfig.webRestNodeDistance);
         relevance = 400; // do something other than relevance. this is stupid. kinda. idk. maybe it's fine
         World.addBody(this);
     }
@@ -38,7 +38,7 @@ public class Web extends Body {
         super();
         relevance = 400;
         isGrowing = true;
-        rest_d = new MutableDouble(Config.webRestNodeDistance);
+        rest_d = new MutableDouble(DevConfig.webRestNodeDistance);
     }
 
     @Override
@@ -50,12 +50,12 @@ public class Web extends Body {
                 //region add web points and edges so that there isn't a gap between the web and the source
                 ArrayRealVector root = points.get(points.size() - 1).getPos();
                 ArrayRealVector dist = points.get(points.size() - 1).getDistance(source);
-                double distance = dist.getNorm() / Config.webRestNodeDistance; // not in pixels but in rest distances
+                double distance = dist.getNorm() / DevConfig.webRestNodeDistance; // not in pixels but in rest distances
                 if (distance > 1) {// if the gap is greater than a web edge rest distance
                     dist.mapMultiplyToSelf(1 / distance); // get the rest distance vector in the right direction
                     //region add points while there is a gap and the length limit has not been reached
                     for (int i = 1; i < distance; i++) {
-                        if (points.size() >= Config.webLengthLimit) {
+                        if (points.size() >= DevConfig.webLengthLimit) {
                             sourceEdge = new ControlEdge(source, points.get(points.size() - 1), rest_d);
                             isGrowing = false;
                             break;
@@ -71,7 +71,7 @@ public class Web extends Body {
         //endregion
         //region behavior when disconnected from source turtle
         else {
-            rest_d.subtract(Config.webDecayRate);
+            rest_d.subtract(DevConfig.webDecayRate);
             if (rest_d.doubleValue() < 0) {
                 delete();
             }
@@ -122,7 +122,7 @@ public class Web extends Body {
     @Override
     public boolean constrain() {
         boolean sat = true;
-        for (int i = 0; i < Config.webTensileStrength; i++) {
+        for (int i = 0; i < DevConfig.webTensileStrength; i++) {
             sat &= super.constrain();
 
             if (sourceEdge != null) {

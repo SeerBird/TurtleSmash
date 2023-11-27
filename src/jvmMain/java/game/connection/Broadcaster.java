@@ -1,6 +1,6 @@
 package game.connection;
 
-import game.Config;
+import game.DevConfig;
 import game.connection.packets.containers.ServerStatus;
 import game.util.Multiplayer;
 
@@ -45,9 +45,9 @@ public class Broadcaster {
             } catch (IOException e) {
                 logger.warning("Failed to broadcast server status: " + e.getMessage());
             }
-        }, 0, Config.multicastMilliPeriod, TimeUnit.MILLISECONDS);// start broadcast
-        String unit = (Config.multicastMilliPeriod == 1000) ? " second" : " seconds";
-        logger.info("Screaming at " + groupAddress.getHostAddress() + ":" + multicastPort + " every " + Config.multicastMilliPeriod / 1000 + unit);
+        }, 0, DevConfig.multicastMilliPeriod, TimeUnit.MILLISECONDS);// start broadcast
+        String unit = (DevConfig.multicastMilliPeriod == 1000) ? " second" : " seconds";
+        logger.info("Screaming at " + groupAddress.getHostAddress() + ":" + multicastPort + " every " + DevConfig.multicastMilliPeriod / 1000 + unit);
     }
 
     public static void stop() {

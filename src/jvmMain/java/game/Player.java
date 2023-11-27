@@ -3,13 +3,13 @@ package game;
 import game.connection.packets.ClientPacket;
 import game.connection.packets.Packet;
 import game.input.InputInfo;
-import game.output.audio.Audio;
-import game.output.audio.Sound;
+import game.output.ui.TurtleMenu;
 import game.world.bodies.Turtle;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.socket.SocketChannel;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import static game.connection.gson.gsonRegistry.gson;
@@ -21,11 +21,13 @@ public class Player {
     public int deathTimer;
     InputInfo input;
     SocketChannel channel;
+    String name;
 
-    public Player() {
+    public Player(String name) {
         score = 0;
         deathTimer = 0;
         input = new InputInfo();
+        claimName(name,0);
     }
 
     public void setBody(Turtle body) {
@@ -47,6 +49,19 @@ public class Player {
 
     public void receive(@NotNull ClientPacket packet) {
         input = packet.getInput();
+        claimName(packet.name, 0);
+    }
+
+    private void claimName(String desiredName, int index) {
+        for (Player player : GameHandler.getPlayers()) {
+            if (Objects.equals(player.getName(), desiredName + (index == 0 ? "" : index))) {
+                if (player != this) {
+                    claimName(desiredName, index + 1);
+                    return;
+                }
+            }
+        }
+        name = desiredName + (index == 0 ? "" : index);
     }
 
     public void send(Packet packet) {
@@ -77,6 +92,15 @@ public class Player {
     public void die() {
         score++;
         setBody(null);
+        deathTimer = DevConfig.deathFrames;
         GameHandler.killPlayer(this);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getScore() {
+        return score;
     }
 }

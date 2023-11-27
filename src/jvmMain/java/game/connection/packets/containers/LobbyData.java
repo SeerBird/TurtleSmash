@@ -1,5 +1,6 @@
 package game.connection.packets.containers;
 
+import game.GameHandler;
 import game.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,12 +15,9 @@ public class LobbyData {
         for (Player p : playerList) {
             if (p == recipient) {
                 players.add(null);
-            } else if (p.getChannel() != null) {
-                players.add(p.getChannel().remoteAddress().toString());
             } else {
-                players.add("god almighty");
+                players.add(p.getName());
             }
-
         }
     }
 }

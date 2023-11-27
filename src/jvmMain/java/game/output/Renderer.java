@@ -1,7 +1,7 @@
 package game.output;
 
 
-import game.Config;
+import game.DevConfig;
 import game.GameHandler;
 import game.output.ui.rectangles.*;
 import game.output.ui.IElement;
@@ -21,8 +21,8 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class Renderer {
-    static int height = Config.HEIGHT;
-    static int width = Config.WIDTH;
+    static int height = DevConfig.HEIGHT;
+    static int width = DevConfig.WIDTH;
     static Graphics g;
 
     public void update() { //get new info and progress animations
@@ -37,7 +37,7 @@ public class Renderer {
 
     private static void drawWorld(@NotNull Graphics g) { // get all the visible objects, effects, and particles on an image
         Renderer.g = g;
-        fill(Config.BACKGROUND);
+        fill(DevConfig.BACKGROUND);
 
         // bodies
         for (Body b : World.getBodies()) {
@@ -53,36 +53,36 @@ public class Renderer {
     private static void drawBody(@NotNull Body b) {
         //region Shells
         if (b instanceof Shell) {
-            ArrayList<BPoint> points=b.getPoints();
+            ArrayList<BPoint> points = b.getPoints();
             int n = points.size();
             int[] x = new int[n];
             int[] y = new int[n];
-            for (int i=0;i< points.size();i++) {
-                x[i]=(int)points.get(i).getX();
-                y[i]=(int)points.get(i).getY();
+            for (int i = 0; i < points.size(); i++) {
+                x[i] = (int) points.get(i).getX();
+                y[i] = (int) points.get(i).getY();
             }
-            g.setColor(Config.shell);
-            g.fillPolygon(x,y,n);
+            g.setColor(DevConfig.shell);
+            g.fillPolygon(x, y, n);
         }
         //endregion
         //region Turtles
         else if (b instanceof Turtle) {
-            ArrayList<BPoint> points=b.getPoints();
+            ArrayList<BPoint> points = b.getPoints();
             int n = points.size();
             int[] x = new int[n];
             int[] y = new int[n];
-            for (int i=0;i< points.size();i++) {
-                x[i]=(int)points.get(i).getX();
-                y[i]=(int)points.get(i).getY();
+            for (int i = 0; i < points.size(); i++) {
+                x[i] = (int) points.get(i).getX();
+                y[i] = (int) points.get(i).getY();
             }
-            g.setColor(Config.turtle);
-            g.fillPolygon(x,y,n);
+            g.setColor(DevConfig.turtle);
+            g.fillPolygon(x, y, n);
         }
         //endregion
         //region Webs
         else if (b instanceof Web) {
             int i = 0;
-            g.setColor(Config.web);
+            g.setColor(DevConfig.web);
             for (BPoint p : b.getPoints()) {
                 g.fillRect((int) p.getX() - 1, (int) p.getY() - 1, 2, 2);
             }
@@ -95,14 +95,14 @@ public class Renderer {
                 e = ((Web) b).targetEdge2;
                 g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
             }
-            if(((Web) b).sourceEdge!=null){
+            if (((Web) b).sourceEdge != null) {
                 Edge e = ((Web) b).sourceEdge;
                 g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
             }
         }
         //endregion
         else {
-            g.setColor(Config.POINTS);
+            g.setColor(DevConfig.POINTS);
             for (BPoint p : b.getPoints()) {
                 g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
             }
@@ -112,7 +112,7 @@ public class Renderer {
     private static void drawMenu(@NotNull Graphics g) {
         Renderer.g = g;
         if (!(GameHandler.getState() == GameState.playClient || GameHandler.getState() == GameState.playServer)) {
-            fill(Config.menuBackground);
+            fill(DevConfig.menuBackground);
         }
         for (IElement e : TurtleMenu.getElements()) {
             if (e instanceof GButton) {
@@ -126,14 +126,24 @@ public class Renderer {
                     drawLabel(l);
                 }
                 drawRect((RectElement) e);
-            } else if(e instanceof Label){
+            } else if (e instanceof Scoreboard) {
+                if (((Scoreboard) e).visible) {
+                    for (Label p : ((Scoreboard) e).getScores().keySet()) {
+                        drawLabel(p);
+                    }
+                    for (Label p : ((Scoreboard) e).getScores().values()) {
+                        drawLabel(p);
+                    }
+                }
+            } else if (e instanceof Label) {
                 drawLabel((Label) e);
             }
         }
     }
-    private static void drawRect(@NotNull RectElement e){
+
+    private static void drawRect(@NotNull RectElement e) {
         g.setColor(Color.GREEN);
-        g.drawRect(e.x,e.y,e.width,e.height);
+        g.drawRect(e.x, e.y, e.width, e.height);
     }
 
     private static void drawButton(@NotNull GButton button) {
@@ -157,7 +167,8 @@ public class Renderer {
         g.setColor(c);
         g.fillRect(0, 0, width, height);
     }
-    private static void drawEdge(@NotNull Edge e){
+
+    private static void drawEdge(@NotNull Edge e) {
         g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
     }
 }

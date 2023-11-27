@@ -1,6 +1,6 @@
 package game.world.bodies;
 
-import game.Config;
+import game.DevConfig;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;
@@ -27,7 +27,7 @@ public class Shell extends Body {
         straps = new ArrayList<>();
         bound = new ArrayList<>();
         this.parent = parent;
-        form(pos.add(new ArrayRealVector(new Double[]{0.0, -5.0})), heading, Config.shellMass);
+        form(pos.add(new ArrayRealVector(new Double[]{0.0, -5.0})), heading, DevConfig.shellMass);
         //region if there is a parent, attach
         if (parent != null) {
             for (int i = 0; i < attachments.length; i++) {
@@ -61,7 +61,7 @@ public class Shell extends Body {
         boolean sat = super.constrain();
         boolean snap = false;
         for (Edge e : straps) {
-            if (e.getExtension() > Config.shellStrapExtensionLimit) {
+            if (e.getExtension() > DevConfig.shellStrapExtensionLimit) {
                 snap = true;
                 break;
             }
@@ -84,7 +84,7 @@ public class Shell extends Body {
         if (b2 != parent) {
             if (b2.getClass() == Shell.class && isUnbound()) {
                 //region merge if collision strong enough
-                if (((Shell) b2).isUnbound() && collision.overlap.getNorm() > Config.shellMergeThreshold) {
+                if (((Shell) b2).isUnbound() && collision.overlap.getNorm() > DevConfig.shellMergeThreshold) {
                     double mass1 = getMass();
                     double mass2 = b2.getMass();
                     double tot = mass1 + mass2;
@@ -115,7 +115,7 @@ public class Shell extends Body {
         }
         points.clear();
         edges.clear();
-        double size = Config.turtleSize / 6 * Math.pow(mass / Config.shellMass, 0.3333);
+        double size = DevConfig.turtleSize / 6 * Math.pow(mass / DevConfig.shellMass, 0.3333);
         mass /= 8;
         ArrayRealVector i = getVector(j.getEntry(1), -j.getEntry(0));
         BPoint p1 = new BPoint(this, mass, pos.add(i.combine(140 * size, 275 * size, j)));

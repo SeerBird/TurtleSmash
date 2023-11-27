@@ -16,9 +16,10 @@ public class TurtleMenu {
     private static final HashMap<GameState, ArrayList<IElement>> menuPresets = new HashMap<>();
     private static IElement pressed;
     private static Focusable focused;
-    static final ServerList serverList = new ServerList(200, 200, 600, 600, GameHandler.servers);
-    static final PlayerList playerList = new PlayerList(100, 100, 600, 600, GameHandler.lastPacket);
-    static Toggleable lobbyWaiting = new Toggleable(0,0,100,100, "Wait for game start");
+    static final ServerList serverList = new ServerList(200, 200, 600, 600);
+    static final PlayerList playerList = new PlayerList(100, 100, 600, 600);
+    static final Toggleable lobbyWaiting = new Toggleable(0, 0, 100, 100, "Wait for game start");
+    static final Scoreboard scoreBoard = new Scoreboard(200, 200, 900, 200);
 
     static {
         //region create the presets for all the game states
@@ -41,10 +42,10 @@ public class TurtleMenu {
                 lobbyWaiting);
         //endregion
         //region playServer
-        savePreset(GameState.playServer);
+        savePreset(GameState.playServer,scoreBoard);
         //endregion
         //region playClient
-        savePreset(GameState.playClient);
+        savePreset(GameState.playClient, scoreBoard);
         //endregion
         //endregion
         refreshGameState();
@@ -108,11 +109,23 @@ public class TurtleMenu {
     }
 
     public static boolean isFocused() {
-        return focused!=null;
+        return focused != null;
     }
 
     public static void refreshServerList() {
         serverList.refresh();
+    }
+
+    public static void refreshScores() {
+        scoreBoard.refresh();
+    }
+
+    public static void showScores() {
+        scoreBoard.visible = true;
+    }
+
+    public static void hideScores() {
+        scoreBoard.visible = false;
     }
 
     public static boolean lobbyWaiting() {
