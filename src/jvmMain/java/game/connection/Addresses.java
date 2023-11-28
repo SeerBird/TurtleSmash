@@ -1,4 +1,4 @@
-package game.util;
+package game.connection;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -9,7 +9,7 @@ import javax.net.ssl.SSLException;
 import java.net.*;
 import java.security.cert.CertificateException;
 
-public class Multiplayer {
+public class Addresses {
     public static InetAddress localAddress;
     public static InetAddress groupAddress;
     public static NetworkInterface networkInterface;

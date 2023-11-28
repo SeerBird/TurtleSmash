@@ -1,7 +1,7 @@
 package game.output;
 
 
-import game.DevConfig;
+import game.util.DevConfig;
 import game.input.InputControl;
 
 import javax.swing.*;

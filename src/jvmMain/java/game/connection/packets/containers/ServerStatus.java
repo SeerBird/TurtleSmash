@@ -1,6 +1,5 @@
 package game.connection.packets.containers;
 
-import game.util.Multiplayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;

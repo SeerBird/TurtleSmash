@@ -1,7 +1,7 @@
 package game.output;
 
 
-import game.DevConfig;
+import game.util.DevConfig;
 import game.GameHandler;
 import game.GameState;
 import game.output.ui.IElement;
@@ -101,12 +101,14 @@ public class Renderer {
             }
         }
         //endregion
+        //region show that something cursed has happened
         else {
             g.setColor(DevConfig.POINTS);
             for (BPoint p : b.getPoints()) {
                 g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
             }
         }
+        //endregion
     }
 
     private static void drawMenu(@NotNull Graphics g) {
@@ -149,13 +151,17 @@ public class Renderer {
     private static void drawButton(@NotNull GButton button) {
         g.setColor(Color.ORANGE);
         g.drawRect(button.x, button.y, button.width, button.height);
-        g.drawString(button.text, button.x + button.width / 2, button.y + button.height / 2);
+        drawLabelText(button);
     }
 
     private static void drawLabel(@NotNull Label label) {
         g.setColor(Color.magenta);
         g.drawRect(label.x, label.y, label.width, label.height);
-        g.drawString(label.text, label.x + label.width / 2, label.y + label.height / 2);
+        drawLabelText(label);
+    }
+
+    private static void drawLabelText(@NotNull Label label) {
+        g.drawString(label.text, label.x + label.width / 2 - label.text.length() * 3, label.y + label.height / 2);
     }
 
     public static void resize(int width, int height) {

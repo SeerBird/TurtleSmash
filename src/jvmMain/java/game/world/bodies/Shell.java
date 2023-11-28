@@ -1,6 +1,6 @@
 package game.world.bodies;
 
-import game.DevConfig;
+import game.util.DevConfig;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;

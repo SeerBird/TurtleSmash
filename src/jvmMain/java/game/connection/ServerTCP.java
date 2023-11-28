@@ -3,7 +3,6 @@ package game.connection;
 import game.GameHandler;
 import game.connection.handlers.ServerDecoder;
 import game.connection.handlers.ServerPlayerHandler;
-import game.util.Multiplayer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
@@ -33,7 +32,7 @@ public class ServerTCP extends Thread {
         /*
         final SslContext sslCtx;
         try {
-            sslCtx = Multiplayer.buildSslContext();
+            sslCtx = Addresses.buildSslContext();
         } catch (CertificateException | SSLException e) {
             throw new RuntimeException(e);
         }
@@ -72,7 +71,7 @@ public class ServerTCP extends Thread {
                     });
             // Bind and start to accept incoming connections.
             try {
-                ch = b.bind(tcpPort).addListener(future -> logger.info("TCP server on at "+Multiplayer.localAddress.getHostAddress()+":"+tcpPort)).channel();
+                ch = b.bind(tcpPort).addListener(future -> logger.info("TCP server on at "+ Addresses.localAddress.getHostAddress()+":"+tcpPort)).channel();
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
                 logger.severe(e.getMessage());

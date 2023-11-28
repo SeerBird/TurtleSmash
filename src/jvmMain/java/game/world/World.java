@@ -1,6 +1,6 @@
 package game.world;
 
-import game.DevConfig;
+import game.util.DevConfig;
 import game.Player;
 import game.connection.packets.containers.WorldData;
 import game.connection.packets.containers.images.bodies.BodyImage;
@@ -17,8 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-import static game.DevConfig.HEIGHT;
-import static game.DevConfig.WIDTH;
+import static game.util.DevConfig.HEIGHT;
+import static game.util.DevConfig.WIDTH;
 import static game.util.Maths.*;
 
 public final class World {

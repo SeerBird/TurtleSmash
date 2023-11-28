@@ -15,36 +15,11 @@ import java.util.logging.*;
 
 public class Logging {
     public static void setup() throws IOException, URISyntaxException {
-
-        Path path;
-        String pattern = "/TurtleSmash/logs/";//remove TurtleSmash for windows?
-        //region get log path
-            String os = System.getProperty("os.name");
-            URI uri;
-            if (os.contains("Windows")) { //check separate versions
-                pattern = (System.getenv("LOCALAPPDATA") + pattern).replaceAll("\\\\", "/");
-                uri = URI.create("file:/" + pattern.substring(0, pattern.length() - 1));
-                path = Paths.get(uri);
-                Files.createDirectories(path);
-            } else if (Objects.equals(os, "MacOS")) { //figure this out
-                pattern = System.getProperty("user.dir");
-                uri = URI.create("file:/" + pattern);
-                path = Paths.get(uri);
-            } else if (os.contains("Linux")) {
-                pattern = System.getProperty("user.dir");
-                uri = URI.create("file:///tmp/" + pattern); //find another path? tmp ain't nice
-                path = Paths.get(uri);
-            } else {
-                pattern = System.getProperty("user.dir");
-                uri = URI.create("file:/" + pattern);
-                path = Paths.get(uri);
-            }
-        //endregion
         //region set up my logger
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-        FileHandler fileTxt = new FileHandler(pattern + "Turtle%u.%g.txt", true);
+        FileHandler fileTxt = new FileHandler(Util.path + "TurtleLog%u.%g.txt", true);
         ConsoleHandler console = new ConsoleHandler();
-        GFormatter formatter = new GFormatter(path);
+        GFormatter formatter = new GFormatter(Util.path);
         fileTxt.setFormatter(formatter);
         console.setFormatter(formatter);
         console.setLevel(Level.INFO);
@@ -65,8 +40,8 @@ public class Logging {
 class GFormatter extends Formatter {
     private final String path;
 
-    public GFormatter(@NotNull Path path) {
-        this.path = path.toString();
+    public GFormatter(String path) {
+        this.path = path;
     }
 
     public String format(@NotNull LogRecord rec) {

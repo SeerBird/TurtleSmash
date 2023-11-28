@@ -10,17 +10,18 @@ public class MainLoop {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     static boolean run;
     private final static Thread onShutdown = new Thread(() -> {
+        Config.savePrefs();
     });
 
     public static void run() {
         Runtime.getRuntime().addShutdownHook(onShutdown);
+        run = true;
         try {
             Logging.setup();
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
             throw new RuntimeException("Failure creating the log files");
         }
-        run = true;
         int minFrameTime = 1000000000 / 60; // nanoseconds
         long last = 0;
         long now;
@@ -41,7 +42,7 @@ public class MainLoop {
         }
     }
 
-    private void terminate() {
+    public static void terminate() {
         run = false;
     }
 }

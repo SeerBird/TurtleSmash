@@ -1,8 +1,7 @@
 package game.connection;
 
-import game.DevConfig;
+import game.util.DevConfig;
 import game.connection.packets.containers.ServerStatus;
-import game.util.Multiplayer;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -12,13 +11,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import static game.util.Multiplayer.groupAddress;
-import static game.util.Multiplayer.multicastPort;
+import static game.connection.Addresses.groupAddress;
+import static game.connection.Addresses.multicastPort;
 
 public class Broadcaster {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static DatagramSocket socket = null;
-    private static final ServerStatus serverStatus = new ServerStatus(Multiplayer.localAddress,0,"placeholder");
+    private static final ServerStatus serverStatus = new ServerStatus(Addresses.localAddress,0,"placeholder");
 
     static ScheduledFuture<?> future;
 

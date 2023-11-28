@@ -1,6 +1,6 @@
 package game.world.bodies;
 
-import game.DevConfig;
+import game.util.DevConfig;
 import game.Player;
 import game.output.audio.Audio;
 import game.output.audio.Sound;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static game.DevConfig.turtleMass;
+import static game.util.DevConfig.turtleMass;
 import static game.util.Maths.*;
 
 public class Turtle extends Body {

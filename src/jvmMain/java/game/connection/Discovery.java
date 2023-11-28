@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static game.util.Multiplayer.*;
+import static game.connection.Addresses.*;
 
 public class Discovery {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);

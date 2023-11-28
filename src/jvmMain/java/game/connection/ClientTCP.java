@@ -34,7 +34,7 @@ public class ClientTCP extends Thread {
         /*
         final SslContext sslCtx;
         try {
-            sslCtx = Multiplayer.buildSslContext();
+            sslCtx = Addresses.buildSslContext();
         } catch (CertificateException | SSLException e) {
             throw new RuntimeException(e);
         }
