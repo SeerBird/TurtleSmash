@@ -1,6 +1,7 @@
 package game.output;
 
 
+import game.output.animations.Animation;
 import game.util.DevConfig;
 import game.GameHandler;
 import game.GameState;
@@ -19,35 +20,37 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Renderer {
     static int height = DevConfig.HEIGHT;
     static int width = DevConfig.WIDTH;
     static Graphics g;
+    static final Map<Integer, Animation> animations = new HashMap<>();
 
-    public void update() { //get new info and progress animations
-
-    }
-
-    public static void drawImage(Graphics g) {
-        drawWorld(g);
-        drawMenu(g);
-        g.dispose();
-    }
-
-    private static void drawWorld(@NotNull Graphics g) { // get all the visible objects, effects, and particles on an image
-        Renderer.g = g;
-        fill(DevConfig.BACKGROUND);
-
-        // bodies
-        for (Body b : World.getBodies()) {
-            drawBody(b);
+    public static void update() { //get new info and progress animations
+        for (Integer animID : new ArrayList<>(animations.keySet())) { //does this solve concurrent modification??? check
+            if (!animations.get(animID).drawNext(g)) {
+                removeAnimation(animID);
+            }
         }
     }
 
-    private void drawWeb(@NotNull Graphics g, @NotNull Web w) {
+    public static void drawImage(Graphics g) {
+        Renderer.g = g;
+        fill(DevConfig.BACKGROUND);
+        update();
+        drawWorld();
+        drawMenu();
+        g.dispose();
+    }
 
-
+    //region World
+    private static void drawWorld() { // get all the visible objects, effects, and particles on an image
+        for (Body b : World.getBodies()) {
+            drawBody(b);
+        }
     }
 
     private static void drawBody(@NotNull Body b) {
@@ -110,59 +113,91 @@ public class Renderer {
         }
         //endregion
     }
+    //endregion
 
-    private static void drawMenu(@NotNull Graphics g) {
-        Renderer.g = g;
+    //region Menu
+    private static void drawMenu() {
         if (!(GameHandler.getState() == GameState.playClient || GameHandler.getState() == GameState.playServer)) {
             fill(DevConfig.menuBackground);
         }
         for (IElement e : TurtleMenu.getElements()) {
             if (e instanceof GButton) {
-                drawButton((GButton) e);
+                drawButton((GButton) e, DevConfig.shell);
             } else if (e instanceof ServerList) {
                 for (GButton b : ((ServerList) e).getButtonServers()) {
-                    drawButton(b);
+                    drawButton(b, DevConfig.shell);
                 }
             } else if (e instanceof PlayerList) {
                 for (Label l : ((PlayerList) e).getLabels()) {
-                    drawLabel(l);
+                    drawLabel(l, DevConfig.turtle);
                 }
-                drawRect((RectElement) e);
+                drawRect((RectElement) e, DevConfig.turtle);
             } else if (e instanceof Scoreboard) {
                 if (((Scoreboard) e).visible) {
                     for (Label p : ((Scoreboard) e).getScores().keySet()) {
-                        drawLabel(p);
+                        drawLabel(p, DevConfig.turtle);
                     }
                     for (Label p : ((Scoreboard) e).getScores().values()) {
-                        drawLabel(p);
+                        drawLabel(p, DevConfig.turtle);
                     }
                 }
+            } else if (e instanceof Textbox) {
+                drawTextbox((Textbox) e, DevConfig.turtle);
             } else if (e instanceof Label) {
-                drawLabel((Label) e);
+                drawLabel((Label) e, DevConfig.EDGES);
             }
         }
     }
 
-    private static void drawRect(@NotNull RectElement e) {
-        g.setColor(Color.GREEN);
+    //region draw elements
+    private static void drawRect(@NotNull RectElement e, Color color) {
+        g.setColor(color);
         g.drawRect(e.x, e.y, e.width, e.height);
     }
 
-    private static void drawButton(@NotNull GButton button) {
-        g.setColor(Color.ORANGE);
+    private static void drawButton(@NotNull GButton button, Color color) {
+        g.setColor(color);
         g.drawRect(button.x, button.y, button.width, button.height);
-        drawLabelText(button);
+        g.drawRect(button.x + 4, button.y + 4, button.width - 8, button.height - 8);
+        drawLabelText(button, color);
     }
 
-    private static void drawLabel(@NotNull Label label) {
-        g.setColor(Color.magenta);
-        g.drawRect(label.x, label.y, label.width, label.height);
-        drawLabelText(label);
+    private static void drawLabel(@NotNull Label label, Color color) {
+        drawLabelText(label, color);
     }
 
-    private static void drawLabelText(@NotNull Label label) {
-        g.drawString(label.text, label.x + label.width / 2 - label.text.length() * 3, label.y + label.height / 2);
+    private static void drawTextbox(@NotNull Textbox textbox, Color color) {
+        drawLabelText(textbox, color);
+        drawRect(textbox, color);
     }
+
+    private static void drawLabelText(@NotNull Label label, Color color) {
+        g.setColor(color);
+        g.drawString(label.text, label.x + label.width / 2 - g.getFontMetrics().stringWidth(label.text)/2, label.y + label.height / 2);
+    }
+
+    private static void drawEdge(@NotNull Edge e) {
+        g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
+    }
+
+    //endregion
+    //endregion
+
+    //region Animations
+    public static int addAnimation(Animation animation) {
+        for (int i = 0; i < DevConfig.maxAnimations; i++) {
+            if (animations.get(i) == null) {
+                animations.put(i, animation);
+                return i;
+            }
+        }
+        return -1; //honestly im not even gonna handle the -1 case.
+    }
+
+    public static void removeAnimation(int id) {
+        animations.remove(id);
+    }
+    //endregion
 
     public static void resize(int width, int height) {
         Renderer.width = width;
@@ -172,10 +207,6 @@ public class Renderer {
     private static void fill(Color c) {
         g.setColor(c);
         g.fillRect(0, 0, width, height);
-    }
-
-    private static void drawEdge(@NotNull Edge e) {
-        g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
     }
 }
 

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Label extends RectElement {
     public String text;
+    public boolean textChanged = false;
 
     public Label(double x, double y, int maxwidth, int maxheight, @NotNull String text) {
         super(x, y, maxwidth, maxheight);

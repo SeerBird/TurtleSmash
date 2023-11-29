@@ -33,4 +33,6 @@ public class DevConfig {
     public static int turtleNakedFrames = 3;
     public static double constraintTolerance = 0.0;
     public static int maxNameLength = 20;
+    public static double charWidth = 4;
+    public static int maxAnimations = 200;
 }

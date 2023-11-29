@@ -28,7 +28,7 @@ public class TurtleMenu {
         savePreset(GameState.main,
                 new GButton(200, 200, 100, 100, GameHandler::mainToDiscover, "Discover"),
                 new GButton(400, 200, 100, 100, GameHandler::mainToHost, "Host"),
-                new Textbox(400, 400, 200, 40, "creature", (text) -> Config.setName(text)));
+                new Textbox(400, 400, 200, 40, Config.getName(), (text) -> Config.setName(text)));
         //endregion
         //region host
         savePreset(GameState.host,
@@ -136,5 +136,9 @@ public class TurtleMenu {
 
     public static void toggleLobbyWaiting() {
         lobbyWaiting.toggle();
+    }
+
+    public static IElement getPressed() {
+        return pressed;
     }
 }

@@ -79,6 +79,7 @@ public class InputControl extends MouseAdapter implements KeyListener {
         Left,
         Right
     }
+
     public static final ArrayRealVector mousepos = new ArrayRealVector(new Double[]{0.0, 0.0});
     static InputInfo input = new InputInfo();
 
@@ -95,24 +96,41 @@ public class InputControl extends MouseAdapter implements KeyListener {
         GameState state = GameHandler.getState();
         //region Always
         if (TurtleMenu.getFocused() != null) {
-            if (pressed(VK_ESCAPE)) {
-                TurtleMenu.unfocus();
-            } else if (TurtleMenu.getFocused() instanceof Textbox textbox) {
-                if (pressed(VK_ENTER)) {
+            if (TurtleMenu.getFocused() instanceof Textbox textbox) {
+                //region unfocus if pressed escape or clicked LMB outside of the textbox
+                if (pressed(VK_ESCAPE)) {
+                    TurtleMenu.unfocus();
+                    dispatchText();
+                    dispatch(Left);
+                    dispatch(VK_ESCAPE);
+                } else if (released(Left) && TurtleMenu.getPressed() != textbox) {
+                    TurtleMenu.unfocus();
+                    dispatchText();
+                    dispatch(Left);
+                }
+                //endregion
+                //region use value and unfocus if pressed enter
+                else if (pressed(VK_ENTER)) {
                     textbox.useValue();
                     TurtleMenu.unfocus();
                     dispatchText();
-                } else if (pressed(VK_BACK_SPACE)) {
+                }
+                //endregion
+                //region otherwise append and remove text according to the pressed keys
+                else if (pressed(VK_BACK_SPACE)) {
                     if (textbox.text.length() > 0) {
-                        textbox.text = textbox.text.substring(0, textbox.text.length() - 1);
+                        textbox.setText(textbox.text.substring(0, textbox.text.length() - 1));
                     }
                     unpress(VK_BACK_SPACE);
                 } else if (textbox.text.length() < DevConfig.maxNameLength) {
-                    textbox.text = textbox.text + getText();
+                    textbox.setText(textbox.text + getText());
                     if (textbox.text.length() > DevConfig.maxNameLength) {
-                        textbox.text = textbox.text.substring(0, DevConfig.maxNameLength - 1);
+                        textbox.setText(textbox.text.substring(0, DevConfig.maxNameLength - 1));
                     }
                 }
+                //endregion
+            } else {
+                //no other cases but yk how it is
             }
         }
         if (released(VK_ESCAPE)) {
@@ -176,13 +194,14 @@ public class InputControl extends MouseAdapter implements KeyListener {
     }
 
 
-    private static void dispatchText(){
+    private static void dispatchText() {
         for (int key = 0x2C; key < 0x69 + 1; key++) {
             dispatch(key);
         }
         dispatch(VK_ENTER);
         dispatch(VK_SHIFT);
     }
+
     @NotNull
     private static StringBuilder getText() { //actually do this at some point
         StringBuilder text = new StringBuilder();

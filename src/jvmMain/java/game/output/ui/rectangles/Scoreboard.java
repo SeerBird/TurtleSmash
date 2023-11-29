@@ -26,7 +26,7 @@ public class Scoreboard extends RectElement {
         int count = 0;
         for (Player player : players) {
             playerScores.put(
-                    new Label(x, y + count * rowHeight, playerWidth, rowHeight, player.getName()),
+                    new Label(x, y + count * rowHeight, playerWidth, rowHeight, player.getName()), //add a ":"? look at how this is displayed
                     new Label(x + playerWidth, y + count * rowHeight, scoreWidth, rowHeight, String.valueOf(player.getScore())));
             count++;
         }

@@ -27,7 +27,7 @@ public class Player {
         score = 0;
         deathTimer = 0;
         input = new InputInfo();
-        claimName(name,0);
+        claimName(name, 0);
     }
 
     public void setBody(Turtle body) {
@@ -45,7 +45,6 @@ public class Player {
     public InputInfo getInput() {
         return input;
     }
-
 
     public void receive(@NotNull ClientPacket packet) {
         input = packet.getInput();
