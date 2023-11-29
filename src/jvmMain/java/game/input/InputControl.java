@@ -3,6 +3,8 @@ package game.input;
 import game.GameHandler;
 import game.GameState;
 import game.output.ui.TurtleMenu;
+import game.output.ui.rectangles.Textbox;
+import game.util.DevConfig;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,14 +79,12 @@ public class InputControl extends MouseAdapter implements KeyListener {
         Left,
         Right
     }
-
-    private static StringBuffer text;
     public static final ArrayRealVector mousepos = new ArrayRealVector(new Double[]{0.0, 0.0});
     static InputInfo input = new InputInfo();
 
     static {
         input.mousepos = mousepos;
-        for (int i = 0x10; i <= 0xE3; i++) {
+        for (int i = 0; i <= 0xE3; i++) {
             keyPressEvents.put(i, false);
             keyReleaseEvents.put(i, false);
         }
@@ -94,13 +94,26 @@ public class InputControl extends MouseAdapter implements KeyListener {
         input.reset();
         GameState state = GameHandler.getState();
         //region Always
-        if (TurtleMenu.isFocused()) {
+        if (TurtleMenu.getFocused() != null) {
             if (pressed(VK_ESCAPE)) {
                 TurtleMenu.unfocus();
+            } else if (TurtleMenu.getFocused() instanceof Textbox textbox) {
+                if (pressed(VK_ENTER)) {
+                    textbox.useValue();
+                    TurtleMenu.unfocus();
+                    dispatchText();
+                } else if (pressed(VK_BACK_SPACE)) {
+                    if (textbox.text.length() > 0) {
+                        textbox.text = textbox.text.substring(0, textbox.text.length() - 1);
+                    }
+                    unpress(VK_BACK_SPACE);
+                } else if (textbox.text.length() < DevConfig.maxNameLength) {
+                    textbox.text = textbox.text + getText();
+                    if (textbox.text.length() > DevConfig.maxNameLength) {
+                        textbox.text = textbox.text.substring(0, DevConfig.maxNameLength - 1);
+                    }
+                }
             }
-        }
-        if (text != null) {
-            text.append(getText());
         }
         if (released(VK_ESCAPE)) {
             GameHandler.escape();
@@ -147,40 +160,45 @@ public class InputControl extends MouseAdapter implements KeyListener {
                 input.detachWeb();
                 dispatch(VK_D);
             }
-            if(pressed(VK_S)){
+            if (pressed(VK_S)) {
                 TurtleMenu.showScores();
                 TurtleMenu.refreshScores();
-            } else{
+            } else {
                 TurtleMenu.hideScores();
             }
-            if(released(VK_S)){
+            if (released(VK_S)) {
                 dispatch(VK_S);
             }
-        }else{
+        } else {
             dispatch(Left);
         }
         //endregion
     }
 
-    public static void connectTextInput(StringBuffer text) {
-        InputControl.text = text;
-    }
 
+    private static void dispatchText(){
+        for (int key = 0x2C; key < 0x69 + 1; key++) {
+            dispatch(key);
+        }
+        dispatch(VK_ENTER);
+        dispatch(VK_SHIFT);
+    }
     @NotNull
     private static StringBuilder getText() { //actually do this at some point
         StringBuilder text = new StringBuilder();
-        for (Integer key : keyReleaseEvents.keySet()) {
-            if (keyReleaseEvents.get(key)) {
+        for (int key = 0x2C; key < 0x69 + 1; key++) {
+            if (pressed(key)) {
                 text.append(KeyEvent.getKeyText(key));
-                keyReleaseEvents.put(key, false);
-                keyPressEvents.put(key, false);
+                unpress(key);
             }
         }
+        if (released(VK_SHIFT)) {
+            dispatch(VK_SHIFT);
+        }
+        if (!pressed(VK_SHIFT)) {
+            text = new StringBuilder(text.toString().toLowerCase());
+        }
         return text;
-    }
-
-    public static void disconnectTextInput() {
-        text = null;
     }
 
     private static Mousebutton getButton(int button) {

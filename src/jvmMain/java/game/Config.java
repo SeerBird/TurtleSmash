@@ -38,4 +38,8 @@ public class Config {
             logger.severe("Failed to save the config file");
         }
     }
+
+    public static void setName(String text) {
+        prefs.put(nameKey, text);
+    }
 }

@@ -1,5 +1,6 @@
 package game.output.ui;
 
+import game.Config;
 import game.GameHandler;
 import game.GameState;
 import game.output.ui.rectangles.*;
@@ -26,7 +27,8 @@ public class TurtleMenu {
         //region main
         savePreset(GameState.main,
                 new GButton(200, 200, 100, 100, GameHandler::mainToDiscover, "Discover"),
-                new GButton(400, 200, 100, 100, GameHandler::mainToHost, "Host"));
+                new GButton(400, 200, 100, 100, GameHandler::mainToHost, "Host"),
+                new Textbox(400, 400, 200, 40, "creature", (text) -> Config.setName(text)));
         //endregion
         //region host
         savePreset(GameState.host,
@@ -42,7 +44,7 @@ public class TurtleMenu {
                 lobbyWaiting);
         //endregion
         //region playServer
-        savePreset(GameState.playServer,scoreBoard);
+        savePreset(GameState.playServer, scoreBoard);
         //endregion
         //region playClient
         savePreset(GameState.playClient, scoreBoard);
@@ -108,8 +110,8 @@ public class TurtleMenu {
 
     }
 
-    public static boolean isFocused() {
-        return focused != null;
+    public static Focusable getFocused() {
+        return focused;
     }
 
     public static void refreshServerList() {

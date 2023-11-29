@@ -30,6 +30,7 @@ public class DevConfig {
     public static int deathFrames = 120;
     public static int webTensileStrength = 10;
     public static double webDecayRate = 0.1;
-    public static int turtleNakedFrames=3;
-    public static double constraintTolerance=0.0;
+    public static int turtleNakedFrames = 3;
+    public static double constraintTolerance = 0.0;
+    public static int maxNameLength = 20;
 }
