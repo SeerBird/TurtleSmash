@@ -15,17 +15,11 @@ public class GameWindow extends JFrame {
 
     public GameWindow() {
         setIgnoreRepaint(true);
+        System.out.println(Toolkit.getDefaultToolkit().getScreenSize());
         setResizable(false);
         setSize(DevConfig.WIDTH, DevConfig.HEIGHT);
-        this.setLocation(400, 10);
+        this.setLocation(-10,0);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                Renderer.resize(e.getComponent().getWidth(), e.getComponent().getHeight());
-            }
-        });
-
         //region Add canvas(for buffer strategy I think?? might be unnecessary)
         Canvas canvas = new Canvas();
         canvas.setIgnoreRepaint(true);

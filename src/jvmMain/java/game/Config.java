@@ -10,7 +10,8 @@ import java.util.prefs.Preferences;
 
 public class Config {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private static final String nameKey = "playerName";
+    private static final String playerNameKey = "playerName";
+    private static final String serverNameKey = "serverName";
     private static final String fileName = "Config.xml";
     private static final Preferences prefs = Preferences.userRoot().node(Config.class.getName());
 
@@ -19,13 +20,17 @@ public class Config {
             Preferences.importPreferences(new FileInputStream(Util.path + fileName));
         } catch (IOException | InvalidPreferencesFormatException e) {
             logger.warning("Failed to import config, creating default");
-            prefs.put(nameKey, "creature");
+            prefs.put(playerNameKey, "creature");
+            prefs.put(serverNameKey, "Shenanigans");
         }
     }
 
-    public static String getName() {
-        System.out.println();
-        return prefs.get(nameKey, "creature");
+    public static String getPlayerName() {
+        return prefs.get(playerNameKey, "creature");
+    }
+
+    public static String getServerName() {
+        return prefs.get(serverNameKey, "Shenanigans");
     }
 
     public static void savePrefs() {
@@ -39,7 +44,11 @@ public class Config {
         }
     }
 
-    public static void setName(String text) {
-        prefs.put(nameKey, text);
+    public static void setName(String text) { //make this a proper method if there are more than 2 settings
+        prefs.put(playerNameKey, text);
+    }
+
+    public static void setServerName(String text) {
+        prefs.put(serverNameKey, text);
     }
 }

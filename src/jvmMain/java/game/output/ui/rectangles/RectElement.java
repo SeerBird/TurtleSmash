@@ -6,7 +6,7 @@ public abstract class RectElement extends IElement {
     public int width;
     public int height;
 
-    public RectElement(double x, double y, int width, int height) {
+    public RectElement(int x, int y, int width, int height) {
         super(x, y);
         this.width = width;
         this.height = height;

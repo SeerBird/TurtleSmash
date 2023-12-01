@@ -3,8 +3,8 @@ package game.util;
 import java.awt.*;
 
 public class DevConfig {
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 800;
+    public static final int WIDTH = 1540;
+    public static final int HEIGHT = 787;
     public static Color BACKGROUND = new Color(31, 0, 136, 255);
     public static Color POINTS = new Color(0, 30, 234, 255);
     public static Color EDGES = new Color(196, 36, 0, 255);

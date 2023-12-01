@@ -2,6 +2,8 @@ package game.output.ui.rectangles;
 
 import game.GameHandler;
 import game.connection.packets.containers.ServerStatus;
+import game.output.Renderer;
+import game.util.DevConfig;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -11,11 +13,15 @@ import java.util.Map;
 public class ServerList extends RectElement {
     public final HashMap<GButton, ServerStatus> buttonServers;
     GButton pressed;
+    public Label title;
 
-    public ServerList(double x, double y, int width, int height) {
+    public ServerList(int x, int y, int width, int height) {
         super(x, y, width, height);
         buttonServers = new HashMap<>();
         pressed = null;
+        title = new Label(x + width / 2 - Renderer.getStringWidth("Discovered Servers") / 2, y,
+                Renderer.getStringWidth("Discovered Servers"), 40,
+                "Discovered Servers", DevConfig.turtle);
     }
 
     @Override
@@ -32,11 +38,11 @@ public class ServerList extends RectElement {
     public void refresh() {
         int buttonTestHeight = 40;
         buttonServers.clear();
-        int buttCount = 0;
-        Map<InetAddress, ServerStatus> servers= GameHandler.getServers();
+        int buttCount = 1;
+        Map<InetAddress, ServerStatus> servers = GameHandler.getServers();
         for (InetAddress address : servers.keySet()) {
             GButton button = new GButton(x, y + buttCount * buttonTestHeight, width, buttonTestHeight,
-                    null, servers.get(address).message);
+                    null, servers.get(address).message, DevConfig.shell);
             buttonServers.put(button, servers.get(address));
             button.setAction(() -> GameHandler.discoverToLobby(buttonServers.get(button)));
             buttCount++;

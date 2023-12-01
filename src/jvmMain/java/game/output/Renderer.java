@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Renderer {
-    static int height = DevConfig.HEIGHT;
-    static int width = DevConfig.WIDTH;
     static Graphics g;
     static final Map<Integer, Animation> animations = new HashMap<>();
 
@@ -122,29 +120,30 @@ public class Renderer {
         }
         for (IElement e : TurtleMenu.getElements()) {
             if (e instanceof GButton) {
-                drawButton((GButton) e, DevConfig.shell);
+                drawButton((GButton) e);
             } else if (e instanceof ServerList) {
                 for (GButton b : ((ServerList) e).getButtonServers()) {
-                    drawButton(b, DevConfig.shell);
+                    drawButton(b);
                 }
+                drawLabel(((ServerList) e).title);
             } else if (e instanceof PlayerList) {
                 for (Label l : ((PlayerList) e).getLabels()) {
-                    drawLabel(l, DevConfig.turtle);
+                    drawLabel(l);
                 }
                 drawRect((RectElement) e, DevConfig.turtle);
             } else if (e instanceof Scoreboard) {
                 if (((Scoreboard) e).visible) {
                     for (Label p : ((Scoreboard) e).getScores().keySet()) {
-                        drawLabel(p, DevConfig.turtle);
+                        drawLabel(p);
                     }
                     for (Label p : ((Scoreboard) e).getScores().values()) {
-                        drawLabel(p, DevConfig.turtle);
+                        drawLabel(p);
                     }
                 }
             } else if (e instanceof Textbox) {
-                drawTextbox((Textbox) e, DevConfig.turtle);
+                drawTextbox((Textbox) e);
             } else if (e instanceof Label) {
-                drawLabel((Label) e, DevConfig.EDGES);
+                drawLabel((Label) e);
             }
         }
     }
@@ -155,29 +154,25 @@ public class Renderer {
         g.drawRect(e.x, e.y, e.width, e.height);
     }
 
-    private static void drawButton(@NotNull GButton button, Color color) {
-        g.setColor(color);
+    private static void drawButton(@NotNull GButton button) {
+        g.setColor(button.textColor);
         g.drawRect(button.x, button.y, button.width, button.height);
         g.drawRect(button.x + 4, button.y + 4, button.width - 8, button.height - 8);
-        drawLabelText(button, color);
+        drawLabelText(button, button.textColor);
     }
 
-    private static void drawLabel(@NotNull Label label, Color color) {
-        drawLabelText(label, color);
+    private static void drawLabel(@NotNull Label label) {
+        drawLabelText(label, label.textColor);
     }
 
-    private static void drawTextbox(@NotNull Textbox textbox, Color color) {
-        drawLabelText(textbox, color);
-        drawRect(textbox, color);
+    private static void drawTextbox(@NotNull Textbox textbox) {
+        drawLabelText(textbox, textbox.textColor);
+        drawRect(textbox, textbox.textColor);
     }
 
     private static void drawLabelText(@NotNull Label label, Color color) {
         g.setColor(color);
-        g.drawString(label.text, label.x + label.width / 2 - g.getFontMetrics().stringWidth(label.text)/2, label.y + label.height / 2);
-    }
-
-    private static void drawEdge(@NotNull Edge e) {
-        g.drawLine((int) e.getEdge1().getX(), (int) e.getEdge1().getY(), (int) e.getEdge2().getX(), (int) e.getEdge2().getY());
+        g.drawString(label.text, label.x + label.width / 2 - g.getFontMetrics().stringWidth(label.text) / 2, label.y + label.height / 2);
     }
 
     //endregion
@@ -199,14 +194,18 @@ public class Renderer {
     }
     //endregion
 
-    public static void resize(int width, int height) {
-        Renderer.width = width;
-        Renderer.height = height;
-    }
 
     private static void fill(Color c) {
         g.setColor(c);
-        g.fillRect(0, 0, width, height);
+        g.fillRect(0, 0, DevConfig.WIDTH, DevConfig.HEIGHT);
+    }
+
+    public static int getStringWidth(String string) {
+        if (g != null) {
+            return g.getFontMetrics().stringWidth(string);
+        } else {
+            return -1;
+        }
     }
 }
 

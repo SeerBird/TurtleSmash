@@ -1,11 +1,13 @@
 package game.output.ui.rectangles;
 
+import java.awt.*;
+
 public class Toggleable extends Label {
     protected boolean pressed;
     boolean state = false;
 
-    public Toggleable(double x, double y, int width, int height, String text) {
-        super(x, y, width, height, text);
+    public Toggleable(int x, int y, int width, int height, String text, Color color) {
+        super(x, y, width, height, text, color);
     }
 
     @Override

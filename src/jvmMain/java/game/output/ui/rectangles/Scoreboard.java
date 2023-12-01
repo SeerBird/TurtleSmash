@@ -2,6 +2,7 @@ package game.output.ui.rectangles;
 
 import game.GameHandler;
 import game.Player;
+import game.util.DevConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +12,7 @@ public class Scoreboard extends RectElement {
     Map<Label, Label> playerScores;
     public boolean visible;
 
-    public Scoreboard(double x, double y, int width, int height) {
+    public Scoreboard(int x, int y, int width, int height) {
         super(x, y, width, height);
         playerScores = new HashMap<>();
         refresh();
@@ -26,8 +27,8 @@ public class Scoreboard extends RectElement {
         int count = 0;
         for (Player player : players) {
             playerScores.put(
-                    new Label(x, y + count * rowHeight, playerWidth, rowHeight, player.getName()), //add a ":"? look at how this is displayed
-                    new Label(x + playerWidth, y + count * rowHeight, scoreWidth, rowHeight, String.valueOf(player.getScore())));
+                    new Label(x, y + count * rowHeight, playerWidth, rowHeight, player.getName(), DevConfig.turtle), //add a ":"? look at how this is displayed
+                    new Label(x + playerWidth, y + count * rowHeight, scoreWidth, rowHeight, String.valueOf(player.getScore()), DevConfig.turtle));
             count++;
         }
     }
@@ -42,7 +43,7 @@ public class Scoreboard extends RectElement {
 
     }
 
-    public Map<Label,Label> getScores() {
+    public Map<Label, Label> getScores() {
         return playerScores;
     }
 }

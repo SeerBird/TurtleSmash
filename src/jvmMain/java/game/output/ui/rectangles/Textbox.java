@@ -15,13 +15,12 @@ import java.util.function.Function;
 
 public class Textbox extends Label implements Focusable {
     final String defaultText;
-    public Color color = DevConfig.turtle;
     Consumer<String> action;
     String currentDefaultText;
     int cursorAnimationID = -1;
 
-    public Textbox(double x, double y, int width, int height, String defaultText, Consumer<String> action) {
-        super(x, y, width, height, defaultText);
+    public Textbox(int x, int y, int width, int height, String defaultText, Consumer<String> action, Color textColor) {
+        super(x, y, width, height, defaultText, textColor);
         this.defaultText = defaultText;
         currentDefaultText = defaultText;
         this.action = action;

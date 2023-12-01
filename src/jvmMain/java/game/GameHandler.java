@@ -84,7 +84,7 @@ public class GameHandler {
         addJob(Job.handleInput);
         addJob(Job.updateMenu);
         addJob(Job.handlePlayers);
-        Player p = new Player(Config.getName()); // the player on this device
+        Player p = new Player(Config.getPlayerName()); // the player on this device
         p.connectInput(InputControl.getInput());
         addPlayer(p);
         //endregion
@@ -246,7 +246,8 @@ public class GameHandler {
         setState(GameState.host);
         tcpServer = new ServerTCP(port);
         tcpServer.start();
-        Broadcaster.setStatus("bababoi", port);
+        Broadcaster.setPort(port);
+        Broadcaster.setMessage(Config.getServerName());
         Broadcaster.start();
         addJob(Job.sendServer);
     }

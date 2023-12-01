@@ -3,9 +3,13 @@ package game.output.ui;
 import game.Config;
 import game.GameHandler;
 import game.GameState;
+import game.connection.Broadcaster;
 import game.output.ui.rectangles.*;
+import game.output.ui.rectangles.Label;
+import game.util.DevConfig;
 import org.apache.commons.math3.linear.ArrayRealVector;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,22 +21,27 @@ public class TurtleMenu {
     private static final HashMap<GameState, ArrayList<IElement>> menuPresets = new HashMap<>();
     private static IElement pressed;
     private static Focusable focused;
-    static final ServerList serverList = new ServerList(200, 200, 600, 600);
+    static final ServerList serverList = new ServerList(DevConfig.WIDTH / 4, 0, DevConfig.WIDTH / 2, DevConfig.HEIGHT);
     static final PlayerList playerList = new PlayerList(100, 100, 600, 600);
-    static final Toggleable lobbyWaiting = new Toggleable(0, 0, 100, 100, "Wait for game start");
+    static final Toggleable lobbyWaiting = new Toggleable(0, 0, 100, 100, "Wait for game start", Color.MAGENTA);
     static final Scoreboard scoreBoard = new Scoreboard(200, 200, 900, 200);
 
     static {
         //region create the presets for all the game states
         //region main
         savePreset(GameState.main,
-                new GButton(200, 200, 100, 100, GameHandler::mainToDiscover, "Discover"),
-                new GButton(400, 200, 100, 100, GameHandler::mainToHost, "Host"),
-                new Textbox(400, 400, 200, 40, Config.getName(), (text) -> Config.setName(text)));
+                new GButton(DevConfig.WIDTH / 2 - 160, 200, 150, 150, GameHandler::mainToDiscover, "Discover", DevConfig.shell),
+                new GButton(DevConfig.WIDTH / 2 + 10, 200, 150, 150, GameHandler::mainToHost, "Host", DevConfig.shell),
+                new Label(DevConfig.WIDTH / 2 - 160, 360, 320, 40, "Choose Your Name!", DevConfig.turtle),
+                new Textbox(DevConfig.WIDTH / 2 - 160, 400, 320, 40, Config.getPlayerName(), (text) -> Config.setName(text), DevConfig.turtle));
         //endregion
         //region host
         savePreset(GameState.host,
-                new GButton(400, 200, 100, 100, GameHandler::hostToPlayServer, "Play"));
+                new GButton(DevConfig.WIDTH/2-75, 200, 150, 150, GameHandler::hostToPlayServer, "Play", DevConfig.shell),
+                new Textbox(DevConfig.WIDTH/2-75, 370, 150, 40, Config.getServerName(), (serverName) -> {
+                    Config.setServerName(serverName);
+                    Broadcaster.setMessage(Config.getServerName());
+                }, DevConfig.turtle));
         //endregion
         //region connect
         savePreset(GameState.discover,

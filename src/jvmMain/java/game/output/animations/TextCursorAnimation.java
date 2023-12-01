@@ -37,7 +37,7 @@ public class TextCursorAnimation implements Animation {
             resetFrameCounter();
         }
         if (lineOn) {
-            g.setColor(textbox.color);
+            g.setColor(textbox.textColor);
             int x = textbox.x + textbox.width / 2 + g.getFontMetrics().stringWidth(textbox.text) / 2 + 2;
             int y = textbox.y + textbox.height / 2 - g.getFontMetrics().getHeight() + 3;
             g.drawLine(x, y, x, y + g.getFontMetrics().getHeight());

@@ -17,25 +17,31 @@ import static game.connection.Addresses.multicastPort;
 public class Broadcaster {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static DatagramSocket socket = null;
-    private static final ServerStatus serverStatus = new ServerStatus(Addresses.localAddress,0,"placeholder");
+    private static final ServerStatus serverStatus = new ServerStatus(Addresses.localAddress, 0, "placeholder");
 
     static ScheduledFuture<?> future;
 
-    public static void setStatus(String message, int tcpPort) {
+    public static void setPort(int tcpPort) {
         synchronized (serverStatus) {
             serverStatus.port = tcpPort;
+            logger.info("Set server status to " + serverStatus.getStatus());
+        }
+    }
+
+    public static void setMessage(String message) {
+        synchronized (serverStatus) {
             serverStatus.message = message;
-            logger.info("Set server status as " + serverStatus.getStatus());
+            logger.info("Set server status to " + serverStatus.getStatus());
         }
     }
 
     public static void start() {
         //region initialize socket
-            try {
-                socket = new DatagramSocket();
-            } catch (IOException e) {
-                logger.warning("Failed to create a broadcaster socket");
-            }
+        try {
+            socket = new DatagramSocket();
+        } catch (IOException e) {
+            logger.warning("Failed to create a broadcaster socket");
+        }
         //endregion
         future = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
             byte[] buffer = serverStatus.getStatus().getBytes(); // do I need this synchronised?
