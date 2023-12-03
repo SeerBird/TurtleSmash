@@ -58,7 +58,10 @@ public class Shell extends Body {
             }
         }
         //endregion
-        boolean sat = super.constrain();
+        boolean sat = true;
+        for (int i = 0; i < 6; i++) {
+            sat &= super.constrain();
+        }
         boolean snap = false;
         for (Edge e : straps) {
             if (e.getExtension() > DevConfig.shellStrapExtensionLimit) {
@@ -130,6 +133,8 @@ public class Shell extends Body {
         addEdgeChain(p1, p2, p3, p4, p5, p6, p7, p8, p1);
         //structure
         addEdge(p2, p7);
+        addEdge(p2, p4);
+        addEdge(p6, p8);
         addEdge(p3, p6);
         addEdge(p1, p4);
         addEdge(p8, p5);
@@ -142,7 +147,7 @@ public class Shell extends Body {
     }
 
     public boolean isUnbound() {
-        return parent==null && bound.size() == 0;
+        return parent == null && bound.size() == 0;
     }
 
     private void snap() {

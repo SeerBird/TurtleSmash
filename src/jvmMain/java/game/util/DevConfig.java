@@ -12,7 +12,7 @@ public class DevConfig {
     public static Color shell = new Color(255, 166, 0, 255);
     public static Color web = new Color(255, 236, 177, 255);
     public static Color turtle = new Color(96, 183, 0, 255);
-    public static int webLengthLimit = 20;
+    public static int webLengthLimit = 35;
     public static double webRestNodeDistance = 14;
     public static double webFling = 24;
     public static double noReturnTime = 10; //seconds
@@ -33,6 +33,6 @@ public class DevConfig {
     public static int turtleNakedFrames = 3;
     public static double constraintTolerance = 0.0;
     public static int maxNameLength = 20;
-    public static double charWidth = 4;
     public static int maxAnimations = 200;
+    public static double recoil = 12.0;
 }

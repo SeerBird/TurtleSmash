@@ -88,7 +88,11 @@ public class Web extends Body {
                 ((Shell) victim).unbind(this);
             }
         }
-        //source should already be null
+        if (source != null) {
+            if (source.getParentBody().getClass() == Turtle.class) {
+                ((Turtle) source.getParentBody()).detachWeb(source.getPos()); //make it reference the web?
+            }
+        }
     }
 
     @Override

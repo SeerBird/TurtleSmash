@@ -159,9 +159,9 @@ public class Turtle extends Body {
     @Override
     public void move() {
         super.move();
-        if(shell==null){
+        if (shell == null) {
             nakedFrames--;
-            if(nakedFrames<0){
+            if (nakedFrames < 0) {
                 growShell();
             }
         }
@@ -198,6 +198,9 @@ public class Turtle extends Body {
         if (spinneret != null) {
             minDist.mapMultiplyToSelf(DevConfig.webFling / minNorm);//make the vector size the configured velocity
             spinnerets.put(spinneret, new Web(spinneret, minDist.add(spinneret.getVelocity())));//FLING and record it
+            ArrayRealVector recoil = (ArrayRealVector) minDist.add(spinneret.getVelocity()).mapMultiply(-DevConfig.recoil/mass);
+            spinneret.accelerate(recoil);
+            accelerate(recoil);
         }
     }
 
@@ -256,13 +259,15 @@ public class Turtle extends Body {
     @Override
     public boolean constrain() {
         boolean satisfied = true;
-        for (Edge c : edges) {
-            if (!isDead()) {
-                if (c.getExtension() > DevConfig.turtleDeformThreshold) {
-                    die();
+        for (int i = 0; i < 6; i++) {
+            for (Edge c : edges) {
+                if (isAlive()) {
+                    if (c.getExtension() > DevConfig.turtleDeformThreshold) {
+                        die();
+                    }
                 }
+                satisfied &= c.satisfy();
             }
-            satisfied &= c.satisfy();
         }
         return satisfied;
     }
@@ -273,25 +278,29 @@ public class Turtle extends Body {
         owner = null; //become a lifeless remnant of what once used to be
     }
 
-    public boolean isDead() {
-        return owner == null;
+    public boolean isAlive() {
+        return owner != null;
     }
 
     public void growShell() {
-        this.shell = new Shell(getCenter(),getHeading(), this);
+        this.shell = new Shell(getCenter(), getHeading(), this);
     }
-    public ArrayRealVector getHeading(){
-        return normalize(points.get(13).getDistance(points.get(1).getPos().combine(0.5,0.5,points.get(2).getPos())));
+
+    public ArrayRealVector getHeading() {
+        return normalize(points.get(13).getDistance(points.get(1).getPos().combine(0.5, 0.5, points.get(2).getPos())));
     }
 
     public void abandonShell() {
         shell = null;
-        nakedFrames= DevConfig.turtleNakedFrames;
+        nakedFrames = DevConfig.turtleNakedFrames;
     }
 
     @Override
     public void delete() {
         super.delete();
         World.removeBody(shell);
+        if (isAlive()) {
+            die();
+        }
     }
 }

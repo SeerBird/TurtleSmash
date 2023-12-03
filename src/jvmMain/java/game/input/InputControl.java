@@ -161,22 +161,16 @@ public class InputControl extends MouseAdapter implements KeyListener {
         //region Play
         if (state == playClient || state == playServer) {
             if (pressed(Left)) {
-                input.drag();
-            }
-            if (released(Left)) {
+                input.webFling();
                 dispatch(Left);
+            }
+            if (pressed(Right)) {
+                input.detachWeb();
+                dispatch(Right);
             }
             if (pressed(VK_C)) {
                 input.create();
                 dispatch(KeyEvent.VK_C);
-            }
-            if (released(Right)) {
-                input.webFling();
-                dispatch(Right);
-            }
-            if (released(VK_D)) {
-                input.detachWeb();
-                dispatch(VK_D);
             }
             if (pressed(VK_S)) {
                 TurtleMenu.showScores();

@@ -33,6 +33,7 @@ public final class World {
         for (Body b : bodies) {
             //fadeBodies(b); // remove irrelevant bodies
             b.move(); // keep moving based on last update
+            b.fade();
             //wrapAround(b); // teleport through border
         }
         //endregion
@@ -294,33 +295,18 @@ public final class World {
         }
     }
 
-    void fadeBodies(@NotNull Body b) {
+    public static boolean isInBounds(@NotNull Body b) {
         ArrayList<Pair<Double, BPoint>> projectionX = b.project(Maths.i);
         ArrayList<Pair<Double, BPoint>> projectionY = b.project(j);
         //boolean gone = false;
         if (projectionX.get(0).getKey() > WIDTH) {
-            b.decreaseRelevance(1 / 60.0);
-            //gone = true;
+            return false;
         } else if (projectionX.get(1).getKey() < 0) {
-            b.decreaseRelevance(1 / 60.0);
-            //gone = true;
+            return false;
         }
         if (projectionY.get(0).getKey() > HEIGHT) {
-            b.decreaseRelevance(1 / 60.0);
-            //gone = true;
-        } else if (projectionY.get(1).getKey() < 0) {
-            b.decreaseRelevance(1 / 60.0);
-            //gone = true;
-        }
-        /*
-        if (!gone) {
-            b.resetRelevance();
-        }
-
-         */
-        if (b.getRelevance() <= 0) {
-            removeBody(b);
-        }
+            return false;
+        } else return projectionY.get(1).getKey() >= 0;
     }
 
     public ArrayRealVector getBorderDistance(@NotNull ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
@@ -371,18 +357,18 @@ public final class World {
 
     public static void spawn(ArrayRealVector pos) {
         //new Box(pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
-        new Shell(pos,randomUnitVector(), null);
+        new Shell(pos, randomUnitVector(), null);
     }
 
     public static void playerSpawn(@NotNull Player player) {
         double x, y;
-        if(player.getBody()!=null){
+        if (player.getBody() != null) {
             player.getBody().delete();
         }
-        x = Math.random()*2-1;
+        x = Math.random() * 2 - 1;
         y = Math.signum(Math.random() - 0.5) * Math.pow(1 - x * x, 0.5);
-        ArrayRealVector pos = (ArrayRealVector) getVector(x,y).mapMultiplyToSelf(Math.pow(WIDTH*WIDTH+HEIGHT*HEIGHT,0.5)/2+Math.random()* DevConfig.playerSpawnSpread);
-        Turtle turtle = new Turtle(pos.add(getVector(WIDTH/2.0,HEIGHT/2.0)), player);
+        ArrayRealVector pos = (ArrayRealVector) getVector(x, y).mapMultiplyToSelf(Math.pow(WIDTH * WIDTH + HEIGHT * HEIGHT, 0.5) / 2 + Math.random() * DevConfig.playerSpawnSpread);
+        Turtle turtle = new Turtle(pos.add(getVector(WIDTH / 2.0, HEIGHT / 2.0)), player);
         turtle.accelerate(pos.mapMultiply(-DevConfig.approxPlayerSpawnVelocity / pos.getNorm()) // get velocity to the center of the screen
                 .combine(1, DevConfig.playerSpawnVelocitySpread, getVector(Math.random(), Math.random()))); // add spread
         player.setBody(turtle);

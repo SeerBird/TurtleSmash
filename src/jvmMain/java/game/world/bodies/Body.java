@@ -37,7 +37,7 @@ public abstract class Body {
         movement = new ArrayRealVector(2);
         center = new ArrayRealVector(2);
         velocity = new ArrayRealVector(2);
-        relevance = 20;
+        relevance = 240;
         mass = 0;
         centerMoved = true;
     }
@@ -54,7 +54,7 @@ public abstract class Body {
             p.move();
         }
         centerMoved = true;
-        if(relevance<0){
+        if (relevance < 0) {
             delete();
         }
     }
@@ -91,7 +91,7 @@ public abstract class Body {
     public ArrayRealVector getCenter() {
         if (centerMoved) {
             mass = 0;
-            velocity=center.copy();
+            velocity = center.copy();
             center.set(0);
             for (BPoint p : points) {
                 mass += p.getMass();
@@ -99,7 +99,7 @@ public abstract class Body {
             }
             center.mapMultiplyToSelf(1 / mass);
             centerMoved = false;
-            velocity.combineToSelf(-1,1, center);
+            velocity.combineToSelf(-1, 1, center);
         }
         return center.copy();
     }
@@ -144,6 +144,7 @@ public abstract class Body {
     public void addEdge(BPoint p1, BPoint p2) {
         addEdge(new FixedEdge(p1, p2, p1.getDistance(p2).getNorm()));
     }
+
     public void addEdge(BPoint p1, BPoint p2, MutableDouble control) {
         addEdge(new ControlEdge(p1, p2, control));
     }
@@ -220,6 +221,15 @@ public abstract class Body {
         relevance -= decrease;
     }
 
+    public void fade() {
+        if (!World.isInBounds(this)) {
+            relevance--;
+        }
+        if (relevance < 0) {
+            delete();
+        }
+    }
+
     public void resetRelevance() {
         relevance = defaultRelevance;
     }
@@ -274,7 +284,8 @@ public abstract class Body {
         accelerate(force.mapMultiply(b.getMass()));
         b.accelerate(force.mapMultiply(-getMass()));
     }
-    public void delete(){
+
+    public void delete() {
         World.removeBody(this);
     }
 }

@@ -142,6 +142,8 @@ public class Renderer {
                 }
             } else if (e instanceof Textbox) {
                 drawTextbox((Textbox) e);
+            } else if (e instanceof Toggleable) {
+                drawToggleable((Toggleable) e);
             } else if (e instanceof Label) {
                 drawLabel((Label) e);
             }
@@ -154,11 +156,23 @@ public class Renderer {
         g.drawRect(e.x, e.y, e.width, e.height);
     }
 
+
     private static void drawButton(@NotNull GButton button) {
         g.setColor(button.textColor);
         g.drawRect(button.x, button.y, button.width, button.height);
         g.drawRect(button.x + 4, button.y + 4, button.width - 8, button.height - 8);
         drawLabelText(button, button.textColor);
+    }
+
+    private static void drawToggleable(@NotNull Toggleable toggle) {
+        if (toggle.getState()) {
+            g.setColor(toggle.textColor.darker());
+        } else {
+            g.setColor(toggle.textColor);
+        }
+        g.drawRect(toggle.x, toggle.y, toggle.width, toggle.height);
+        g.drawRect(toggle.x + 4, toggle.y + 4, toggle.width - 8, toggle.height - 8);
+        drawLabelText(toggle, toggle.textColor);
     }
 
     private static void drawLabel(@NotNull Label label) {

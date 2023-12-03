@@ -22,8 +22,8 @@ public class TurtleMenu {
     private static IElement pressed;
     private static Focusable focused;
     static final ServerList serverList = new ServerList(DevConfig.WIDTH / 4, 0, DevConfig.WIDTH / 2, DevConfig.HEIGHT);
-    static final PlayerList playerList = new PlayerList(100, 100, 600, 600);
-    static final Toggleable lobbyWaiting = new Toggleable(0, 0, 100, 100, "Wait for game start", Color.MAGENTA);
+    static final PlayerList playerList = new PlayerList(DevConfig.WIDTH / 4, 100, DevConfig.WIDTH / 2, DevConfig.HEIGHT);
+    static final Toggleable lobbyWaiting = new Toggleable(DevConfig.WIDTH / 4, 0, DevConfig.WIDTH / 2, 100, "Wait for game start", Color.MAGENTA);
     static final Scoreboard scoreBoard = new Scoreboard(200, 200, 900, 200);
 
     static {
