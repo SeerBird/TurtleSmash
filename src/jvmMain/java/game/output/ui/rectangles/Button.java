@@ -3,11 +3,11 @@ package game.output.ui.rectangles;
 
 import java.awt.*;
 
-public class GButton extends Label {
+public class Button extends Label {
     private Runnable action;
     private boolean pressed;
 
-    public GButton(int x, int y, int width, int height, Runnable action, String text, Color textColor) {
+    public Button(int x, int y, int width, int height, Runnable action, String text, Color textColor) {
         super(x, y, width, height, text, textColor);
         this.action = action;
         pressed = false;

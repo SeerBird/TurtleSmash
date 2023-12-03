@@ -24,7 +24,7 @@ public class TurtleImage extends BodyImage {
             spinnerets.put(turtle.getPoints().indexOf(p),
                     World.getBodies().contains(turtle.spinnerets.get(p)) ? World.getBodies().indexOf(turtle.spinnerets.get(p)) : null);
         }
-        shell = World.getBodies().contains(turtle.shell) ? World.getBodies().indexOf(turtle.shell) : null; // change the rest to this format
+        shell = World.getBodies().contains(turtle.shell) ? World.getBodies().indexOf(turtle.shell) : null;
         owner = GameHandler.getPlayers().indexOf(turtle.owner);
     }
 

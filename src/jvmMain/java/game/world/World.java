@@ -161,7 +161,7 @@ public final class World {
                     } // no collision
                     //endregion
                 }
-                //region if no separating axis has been found, add the collision data with minimal overlap to the collision list
+                //region if no separating axis has been found, return the collision data with minimal overlap
                 if (collided) {
                     assert collisionEdge != null;
                     return (new CollisionData(sticky, collisionEdge, (ArrayRealVector) collisionAxis.mapMultiplyToSelf(minDistance)));
@@ -296,7 +296,7 @@ public final class World {
     }
 
     public static boolean isInBounds(@NotNull Body b) {
-        ArrayList<Pair<Double, BPoint>> projectionX = b.project(Maths.i);
+        ArrayList<Pair<Double, BPoint>> projectionX = b.project(i);
         ArrayList<Pair<Double, BPoint>> projectionY = b.project(j);
         //boolean gone = false;
         if (projectionX.get(0).getKey() > WIDTH) {

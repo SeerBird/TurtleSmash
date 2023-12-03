@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ServerList extends RectElement {
-    public final HashMap<GButton, ServerStatus> buttonServers;
-    GButton pressed;
+    public final HashMap<Button, ServerStatus> buttonServers;
+    Button pressed;
     public Label title;
 
     public ServerList(int x, int y, int width, int height) {
@@ -26,7 +26,7 @@ public class ServerList extends RectElement {
 
     @Override
     public boolean press(double x, double y) {
-        for (GButton button : buttonServers.keySet()) {
+        for (Button button : buttonServers.keySet()) {
             if (button.press(x, y)) {
                 pressed = button;
                 return true;
@@ -41,7 +41,7 @@ public class ServerList extends RectElement {
         int buttCount = 1;
         Map<InetAddress, ServerStatus> servers = GameHandler.getServers();
         for (InetAddress address : servers.keySet()) {
-            GButton button = new GButton(x, y + buttCount * buttonTestHeight, width, buttonTestHeight,
+            Button button = new Button(x, y + buttCount * buttonTestHeight, width, buttonTestHeight,
                     null, servers.get(address).message, DevConfig.shell);
             buttonServers.put(button, servers.get(address));
             button.setAction(() -> GameHandler.discoverToLobby(buttonServers.get(button)));
@@ -54,7 +54,7 @@ public class ServerList extends RectElement {
         pressed.release();
     }
 
-    public ArrayList<GButton> getButtonServers() {
+    public ArrayList<Button> getButtonServers() {
         return new ArrayList<>(buttonServers.keySet());
     }
 }

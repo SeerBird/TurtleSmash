@@ -2,6 +2,7 @@ package game.output;
 
 
 import game.output.animations.Animation;
+import game.output.ui.rectangles.Button;
 import game.util.DevConfig;
 import game.GameHandler;
 import game.GameState;
@@ -119,10 +120,10 @@ public class Renderer {
             fill(DevConfig.menuBackground);
         }
         for (IElement e : TurtleMenu.getElements()) {
-            if (e instanceof GButton) {
-                drawButton((GButton) e);
+            if (e instanceof Button) {
+                drawButton((Button) e);
             } else if (e instanceof ServerList) {
-                for (GButton b : ((ServerList) e).getButtonServers()) {
+                for (Button b : ((ServerList) e).getButtonServers()) {
                     drawButton(b);
                 }
                 drawLabel(((ServerList) e).title);
@@ -157,7 +158,7 @@ public class Renderer {
     }
 
 
-    private static void drawButton(@NotNull GButton button) {
+    private static void drawButton(@NotNull Button button) {
         g.setColor(button.textColor);
         g.drawRect(button.x, button.y, button.width, button.height);
         g.drawRect(button.x + 4, button.y + 4, button.width - 8, button.height - 8);

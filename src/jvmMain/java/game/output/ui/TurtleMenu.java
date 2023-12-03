@@ -5,6 +5,7 @@ import game.GameHandler;
 import game.GameState;
 import game.connection.Broadcaster;
 import game.output.ui.rectangles.*;
+import game.output.ui.rectangles.Button;
 import game.output.ui.rectangles.Label;
 import game.util.DevConfig;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -30,14 +31,14 @@ public class TurtleMenu {
         //region create the presets for all the game states
         //region main
         savePreset(GameState.main,
-                new GButton(DevConfig.WIDTH / 2 - 160, 200, 150, 150, GameHandler::mainToDiscover, "Discover", DevConfig.shell),
-                new GButton(DevConfig.WIDTH / 2 + 10, 200, 150, 150, GameHandler::mainToHost, "Host", DevConfig.shell),
+                new Button(DevConfig.WIDTH / 2 - 160, 200, 150, 150, GameHandler::mainToDiscover, "Discover", DevConfig.shell),
+                new Button(DevConfig.WIDTH / 2 + 10, 200, 150, 150, GameHandler::mainToHost, "Host", DevConfig.shell),
                 new Label(DevConfig.WIDTH / 2 - 160, 360, 320, 40, "Choose Your Name!", DevConfig.turtle),
-                new Textbox(DevConfig.WIDTH / 2 - 160, 400, 320, 40, Config.getPlayerName(), (text) -> Config.setName(text), DevConfig.turtle));
+                new Textbox(DevConfig.WIDTH / 2 - 160, 400, 320, 40, Config.getPlayerName(), text -> Config.setName(text), DevConfig.turtle));
         //endregion
         //region host
         savePreset(GameState.host,
-                new GButton(DevConfig.WIDTH/2-75, 200, 150, 150, GameHandler::hostToPlayServer, "Play", DevConfig.shell),
+                new Button(DevConfig.WIDTH/2-75, 200, 150, 150, GameHandler::hostToPlayServer, "Play", DevConfig.shell),
                 new Textbox(DevConfig.WIDTH/2-75, 370, 150, 40, Config.getServerName(), (serverName) -> {
                     Config.setServerName(serverName);
                     Broadcaster.setMessage(Config.getServerName());
@@ -102,7 +103,7 @@ public class TurtleMenu {
 
     public static void update() {
         for (IElement element : new ArrayList<>(elements)) {
-            if (element instanceof GButton) {
+            if (element instanceof Button) {
 
             }
         }
