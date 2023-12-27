@@ -23,8 +23,8 @@ import static java.awt.event.KeyEvent.*;
 
 public class InputControl extends MouseAdapter implements KeyListener {
     //region Events
-    private static final Map<Integer, Boolean> keyPressEvents = new HashMap<>();
-    private static final Map<Integer, Boolean> keyReleaseEvents = new HashMap<>();
+    private static final Map<Integer, KeyEvent> keyPressEvents = new HashMap<>();
+    private static final Map<Integer, KeyEvent> keyReleaseEvents = new HashMap<>();
     private static final Map<Mousebutton, MouseEvent> mousePressEvents = new HashMap<>();
     private static final Map<Mousebutton, MouseEvent> mouseReleaseEvents = new HashMap<>();
     private static MouseEvent mouseMoveEvent;
@@ -59,12 +59,12 @@ public class InputControl extends MouseAdapter implements KeyListener {
     //region KeyListener methods
     @Override
     public void keyPressed(@NotNull KeyEvent e) {
-        keyPressEvents.put(e.getKeyCode(), true);
+        keyPressEvents.put(e.getKeyCode(), e);
     }
 
     @Override
     public void keyReleased(@NotNull KeyEvent e) {
-        keyReleaseEvents.put(e.getKeyCode(), true);
+        keyReleaseEvents.put(e.getKeyCode(), e);
     }
 
     //region (not used)
@@ -86,10 +86,12 @@ public class InputControl extends MouseAdapter implements KeyListener {
     static {
         input.mousepos = mousepos;
         for (int i = 0; i <= 0xE3; i++) {
-            keyPressEvents.put(i, false);
-            keyReleaseEvents.put(i, false);
+            keyPressEvents.put(i, null);
+            keyReleaseEvents.put(i, null);
         }
     }
+
+    static String text = "";
 
     public static void handleInput() {
         input.reset();
@@ -201,23 +203,26 @@ public class InputControl extends MouseAdapter implements KeyListener {
         }
         dispatch(VK_ENTER);
         dispatch(VK_SHIFT);
+        text = "";
     }
 
     @NotNull
-    private static StringBuilder getText() { //actually do this at some point
-        StringBuilder text = new StringBuilder();
+    private static String getText() {
+        StringBuilder textBuilder = new StringBuilder();
         for (int key = 0x2C; key < 0x69 + 1; key++) {
             if (pressed(key)) {
-                text.append(KeyEvent.getKeyText(key));
+                textBuilder.append(keyPressEvents.get(key).getKeyChar());
                 unpress(key);
             }
         }
         if (released(VK_SHIFT)) {
             dispatch(VK_SHIFT);
         }
+        String text = textBuilder.toString();
         if (!pressed(VK_SHIFT)) {
-            text = new StringBuilder(text.toString().toLowerCase());
+            text = text.toLowerCase();
         }
+        text = text.replaceAll("\\p{C}", "");
         return text;
     }
 
@@ -235,24 +240,24 @@ public class InputControl extends MouseAdapter implements KeyListener {
 
     //region Private key/mousebutton getters and setters
     private static boolean pressed(int key) {
-        return keyPressEvents.get(key);
+        return keyPressEvents.get(key) != null;
     }
 
     private static boolean released(int key) {
-        return keyReleaseEvents.get(key);
+        return keyReleaseEvents.get(key) != null;
     }
 
     private static void unrelease(int key) {
-        keyReleaseEvents.put(key, false);
+        keyReleaseEvents.put(key, null);
     }
 
     private static void unpress(int key) {
-        keyPressEvents.put(key, false);
+        keyPressEvents.put(key, null);
     }
 
     private static void dispatch(int key) {
-        keyReleaseEvents.put(key, false);
-        keyPressEvents.put(key, false);
+        keyReleaseEvents.put(key, null);
+        keyPressEvents.put(key, null);
     }
 
     private static boolean pressed(Mousebutton button) {
