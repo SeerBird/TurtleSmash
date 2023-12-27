@@ -43,7 +43,8 @@ public class GameHandler {
         handleServerPacket,
         updateMenu,
         updateWorld,
-        revivePlayers
+        revivePlayers,
+        clearWorld
     }
 
     private static final ArrayList<Job> toRemove = new ArrayList<>();
@@ -79,6 +80,11 @@ public class GameHandler {
         job.put(Job.handleServerPacket, () -> handleServerPacket());
         job.put(Job.updateMenu, () -> TurtleMenu.update());
         job.put(Job.revivePlayers, () -> revivePlayers());
+        job.put(Job.clearWorld, () -> {
+            World.clear();
+            World.update();
+            removeJob(Job.clearWorld);
+        });
         //endregion
         //region Set starting state
         addJob(Job.handleInput);
@@ -265,8 +271,7 @@ public class GameHandler {
                 player.die();
             }
         }
-        World.clear();
-        World.update();
+        addJob(Job.clearWorld);
         removeJob(Job.revivePlayers);
         removeJob(Job.updateWorld);
     }
@@ -287,7 +292,7 @@ public class GameHandler {
         }
     }
 
-    public static void discoverToLobby(ServerStatus server) {
+    public static void discoverToLobby(@NotNull ServerStatus server) {
         setState(GameState.lobby);
         tcpClient = new ClientTCP(server);
         tcpClient.start();
@@ -298,8 +303,7 @@ public class GameHandler {
     public static void lobbyToDiscover() {
         setState(GameState.discover);
         removeJob(Job.sendClient);
-        World.clear();
-        World.update();
+        addJob(Job.clearWorld);
         tcpClient.disconnect();
     }
 
@@ -310,8 +314,7 @@ public class GameHandler {
     public static void playClientToDiscover() {
         setState(GameState.discover);
         removeJob(Job.sendClient);
-        World.clear();
-        World.update();
+        addJob(Job.clearWorld);
         tcpClient.disconnect();
     }
 

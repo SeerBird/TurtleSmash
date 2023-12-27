@@ -44,7 +44,8 @@ public class ServerList extends RectElement {
             Button button = new Button(x, y + buttCount * buttonTestHeight, width, buttonTestHeight,
                     null, servers.get(address).message, DevConfig.shell);
             buttonServers.put(button, servers.get(address));
-            button.setAction(() -> GameHandler.discoverToLobby(buttonServers.get(button)));
+            ServerStatus status = servers.get(address);
+            button.setAction(() -> GameHandler.discoverToLobby(status));
             buttCount++;
         }
     }
@@ -52,6 +53,7 @@ public class ServerList extends RectElement {
     @Override
     public void release() {//really shouldn't happen twice in a row... or before it got pressed the first time...
         pressed.release();
+        pressed = null;
     }
 
     public ArrayList<Button> getButtonServers() {

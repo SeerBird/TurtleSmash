@@ -15,6 +15,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
 
@@ -23,7 +24,7 @@ public class ClientTCP extends Thread {
     Channel channel;
     final ServerStatus target;
 
-    public ClientTCP(ServerStatus target) {
+    public ClientTCP(@NotNull ServerStatus target) {
         this.target = target;
     }
 
