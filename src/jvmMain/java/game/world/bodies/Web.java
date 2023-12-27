@@ -80,7 +80,7 @@ public class Web extends Body {
 
     @Override
     public void fade() {
-        if (!World.isInBounds(this)) {
+        if (World.isOutOfBounds(this)) {
             rest_d.subtract(DevConfig.webDecayRate);
             if (rest_d.doubleValue() < 0) {
                 delete();

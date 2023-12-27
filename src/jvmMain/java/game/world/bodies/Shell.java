@@ -19,7 +19,7 @@ public class Shell extends Body {
     public Turtle parent;
     public ArrayList<Edge> straps;
     public boolean leaveParentFlag = true;
-    static int[] attachments = new int[]{0, 3, 4, 7};
+    static int[] attachments = new int[]{0, 3, 4, 7, 5, 6, 1, 2};
 
     public Shell(@NotNull ArrayRealVector pos, ArrayRealVector heading, @Nullable Turtle parent) {
         super();
@@ -29,7 +29,7 @@ public class Shell extends Body {
         //region if there is a parent, attach
         if (parent != null) {
             for (int i = 0; i < attachments.length; i++) {
-                straps.add(new FixedEdge(points.get(attachments[i]), parent.getShellAttachment().get(i)));
+                straps.add(new FixedEdge(points.get(attachments[i]), parent.getShellAttachment().get(i % 4)));
             }
             leaveParentFlag = false;
         }
@@ -97,7 +97,7 @@ public class Shell extends Body {
                 }
                 //endregion
             }
-            super.collide(collision); // a random body
+            super.collide(collision); // not merging and not a parent
         } else if (isFree()) {
             leaveParentFlag = false; // we haven't left the parent
         }
@@ -138,6 +138,8 @@ public class Shell extends Body {
         addEdge(p8, p5);
         addEdge(p2, p6);
         addEdge(p7, p4);
+        getCenter();
+        velocity.set(0);
     }
 
     public boolean isFree() {
@@ -179,7 +181,7 @@ public class Shell extends Body {
     @Override
     public void delete() {
         super.delete();
-        if(parent!=null){
+        if (parent != null) {
             parent.abandonShell();
         }
     }

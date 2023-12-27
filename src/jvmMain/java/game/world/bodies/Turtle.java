@@ -25,7 +25,7 @@ public class Turtle extends Body {
     public Shell shell;
     public int nakedFrames;
     public Player owner;
-    static ArrayList<Integer> shellAttachment = new ArrayList<>(Arrays.asList(7, 8, 14, 15));
+    static ArrayList<Integer> shellAttachment = new ArrayList<>(Arrays.asList(7, 8, 18, 19));
 
     /**
      * @param pos   the position of the center of the main rectangle of the turtle body
@@ -146,6 +146,10 @@ public class Turtle extends Body {
         addEdge(rightLeg1, tail3);
         addEdge(head1, tail1);
         addEdge(head4, tail3);
+        addEdge(leftLeg3,rightArm3);
+        addEdge(leftLeg2,rightArm2);
+        addEdge(leftArm3,rightLeg3);
+        addEdge(leftArm2,rightLeg2);
         //endregion
         World.addBody(this);
         growShell();
@@ -199,7 +203,7 @@ public class Turtle extends Body {
             minDist.mapMultiplyToSelf(DevConfig.webFling / minNorm);//make the vector size the configured velocity
             spinnerets.put(spinneret, new Web(spinneret, minDist.add(spinneret.getVelocity())));//FLING and record it
             ArrayRealVector recoil = (ArrayRealVector) minDist.add(spinneret.getVelocity()).mapMultiply(-DevConfig.recoil / mass);
-            spinneret.accelerate(recoil);
+            spinneret.accelerate(recoil.mapMultiply(5));
             accelerate(recoil);
         }
     }
@@ -284,6 +288,7 @@ public class Turtle extends Body {
 
     public void growShell() {
         this.shell = new Shell(getCenter(), getHeading(), this);
+        shell.accelerate(getVelocity());
     }
 
     public ArrayRealVector getHeading() {

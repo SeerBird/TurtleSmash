@@ -1,5 +1,6 @@
 package game.world.bodies;
 
+import game.util.DevConfig;
 import game.util.Maths;
 import game.world.BPoint;
 import game.world.CollisionData;
@@ -72,6 +73,7 @@ public abstract class Body {
 
     public void accelerate(RealVector v) {
         acceleration.combineToSelf(1, 1, v);
+        velocity.combineToSelf(1, 1, v);
     }
 
     public boolean constrain() {
@@ -111,24 +113,6 @@ public abstract class Body {
         return velocity.copy();
     }
 
-    public double apprVelocity() {
-        if (points.size() != 0) {
-            return points.get(0).getVelocity().getNorm();
-        }
-        return 0.0;
-    }
-
-    public void refreshMass() {
-        mass = 0;
-        center.set(0);
-        for (BPoint p : points) {
-            mass += p.getMass();
-            center.combineToSelf(1, p.getMass(), p.getPos());
-        }
-        center.mapMultiplyToSelf(1 / mass);
-        centerMoved = false;
-    }
-
     void addPoint(BPoint p) {
         points.add(p);
         centerMoved = true;
@@ -165,9 +149,6 @@ public abstract class Body {
         return World.getDistance(getCenter(), p);
     }
 
-    public boolean gravitates() {
-        return true;
-    }
 
     public ArrayList<BPoint> getPoints() {
         return points;
@@ -224,7 +205,7 @@ public abstract class Body {
     }
 
     public void fade() {
-        if (!World.isInBounds(this)) {
+        if (World.isOutOfBounds(this)) {
             relevance--;
         }
         if (relevance < 0) {
@@ -280,16 +261,21 @@ public abstract class Body {
         return Maths.intersect(edge1.getEdge1().getPos(), edge1.getEdge2().getPos(), edge2.getEdge1().getPos(), edge2.getEdge2().getPos());
     }
 
+    public boolean gravitates() {
+        return true;
+    }
+
     public void gravitate(Body b) {
-        ArrayRealVector force = getDistance(b);
-        force.mapMultiplyToSelf(Math.pow(force.getNorm(), -3) * 10); // ~~r^-2
+        ArrayRealVector force = getDistance(b); //equal to the distance vector for now, reusing vector objects
+        double distance = Math.max(force.getNorm(), DevConfig.minGravityRadius);
+        force.mapMultiplyToSelf(Math.pow(distance, -3) * DevConfig.gravity); // ~~r^-2
         accelerate(force.mapMultiply(b.getMass()));
         b.accelerate(force.mapMultiply(-getMass()));
     }
 
     public void delete() {
         World.removeBody(this);
-        for(Web web:bound){
+        for (Web web : bound) {
             web.loseTarget();
         }
     }
