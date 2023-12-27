@@ -31,14 +31,6 @@ public class ClientTCP extends Thread {
         logger.info("Trying to connect to " + target.address.getHostAddress() + ":" + target.port);
         EventLoopGroup group = new NioEventLoopGroup();
         Runtime.getRuntime().addShutdownHook(new Thread(group::shutdownGracefully));
-        /*
-        final SslContext sslCtx;
-        try {
-            sslCtx = Addresses.buildSslContext();
-        } catch (CertificateException | SSLException e) {
-            throw new RuntimeException(e);
-        }
-         */
         try {
             Bootstrap b = new Bootstrap();
             b.group(group)
@@ -47,10 +39,6 @@ public class ClientTCP extends Thread {
                         @Override
                         public void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
-                            /*
-                            if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(ch.alloc(), "localhost", 5445));
-                            }*/
                             p.addLast(
                                     new ObjectEncoder(),
                                     new ClientDecoder(1048576, ClassResolvers.cacheDisabled(null)),
@@ -63,18 +51,18 @@ public class ClientTCP extends Thread {
                     logger.info("TCP client connected");
                 } else {
                     logger.warning("Failed to connect to server: " + future.cause().getMessage());
-                    if (GameHandler.getState() == GameState.lobby) {
-                        GameHandler.lobbyToDiscover();
-                    } else if (GameHandler.getState() == GameState.playClient) {
-                        GameHandler.playClientToDiscover();
-                    }
                 }
             });
             channel = connectFuture.channel();
             channel.closeFuture().sync();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException e) { //should not happen, ever
             logger.severe(e.getMessage());
         } finally {
+            if (GameHandler.getState() == GameState.lobby) {
+                GameHandler.lobbyToDiscover();
+            } else if (GameHandler.getState() == GameState.playClient) {
+                GameHandler.playClientToDiscover();
+            }
             group.shutdownGracefully().addListener(future -> logger.info("TCP client off"));
         }
     }

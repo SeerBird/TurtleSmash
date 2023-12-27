@@ -137,6 +137,7 @@ public class InputControl extends MouseAdapter implements KeyListener {
             GameHandler.escape();
             dispatch(VK_ESCAPE);
         }
+        /*
         if (pressed(VK_SPACE)) {
             GameHandler.debug = true;
             unpress(KeyEvent.VK_SPACE);
@@ -144,7 +145,7 @@ public class InputControl extends MouseAdapter implements KeyListener {
         if (released(VK_SPACE)) {
             GameHandler.debug = false;
             unrelease(KeyEvent.VK_SPACE);
-        }
+        }*/
         //endregion
         //region Menu
         if (pressed(Left)) {
@@ -160,6 +161,12 @@ public class InputControl extends MouseAdapter implements KeyListener {
         //endregion
         //region Play
         if (state == playClient || state == playServer) {
+            if (pressed(VK_SPACE)) {
+                input.drag();
+            }
+            if (released(VK_SPACE)) {
+                dispatch(VK_SPACE);
+            }
             if (pressed(Left)) {
                 input.webFling();
                 dispatch(Left);

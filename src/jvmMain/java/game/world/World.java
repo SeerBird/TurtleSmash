@@ -277,68 +277,18 @@ public final class World {
     }
     //endregion
 
-    void wrapAround(@NotNull Body b) {
-        ArrayList<Pair<Double, BPoint>> projectionX = b.project(Maths.i);
-        ArrayList<Pair<Double, BPoint>> projectionY = b.project(j);
-        if (projectionX.get(0).getKey() > WIDTH) {
-            b.shift(new ArrayRealVector(new Double[]{-projectionX.get(1).getKey(), 0.0}));
-        } else if (projectionX.get(1).getKey() < 0) {
-            b.shift(new ArrayRealVector(new Double[]{WIDTH - projectionX.get(0).getKey(), 0.0}));
-        }
-        if (projectionY.get(0).getKey() > HEIGHT) {
-            b.shift(new ArrayRealVector(new Double[]{0.0, -projectionY.get(1).getKey()}));
-        } else if (projectionY.get(1).getKey() < 0) {
-            b.shift(new ArrayRealVector(new Double[]{0.0, HEIGHT - projectionY.get(0).getKey() - 1}));
-        }
-        if (b.apprVelocity() > WIDTH) {
-            b.stop();
-        }
-    }
-
-    public static boolean isInBounds(@NotNull Body b) {
+    public static boolean isOutOfBounds(@NotNull Body b) {
         ArrayList<Pair<Double, BPoint>> projectionX = b.project(i);
         ArrayList<Pair<Double, BPoint>> projectionY = b.project(j);
         //boolean gone = false;
         if (projectionX.get(0).getKey() > WIDTH) {
-            return false;
+            return true;
         } else if (projectionX.get(1).getKey() < 0) {
-            return false;
+            return true;
         }
         if (projectionY.get(0).getKey() > HEIGHT) {
-            return false;
-        } else return projectionY.get(1).getKey() >= 0;
-    }
-
-    public ArrayRealVector getBorderDistance(@NotNull ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
-        double x1 = pos1.getEntry(0);
-        double y1 = pos1.getEntry(1);
-        return getBorderDistance(x1, y1, pos2);
-    }
-
-    public ArrayRealVector getBorderDistance(double x1, double y1, @NotNull ArrayRealVector pos2) {
-        double x2 = pos2.getEntry(0);
-        double y2 = pos2.getEntry(1);
-        double dx;
-        double dy;
-        if (Math.abs(x2 - x1) < WIDTH / 2.0) {
-            dx = x2 - x1;
-        } else {
-            if (x2 - x1 > 0) {
-                dx = x2 - x1 - WIDTH;
-            } else {
-                dx = x2 - x1 + WIDTH;
-            }
-        }
-        if (Math.abs(y2 - y1) < HEIGHT / 2.0) {
-            dy = y2 - y1;
-        } else {
-            if (y2 - y1 > 0) {
-                dy = y2 - y1 - HEIGHT;
-            } else {
-                dy = y2 - y1 + HEIGHT;
-            }
-        }
-        return new ArrayRealVector(new Double[]{dx, dy});
+            return true;
+        } else return projectionY.get(1).getKey() < 0;
     }
 
     public static ArrayRealVector getDistance(ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {

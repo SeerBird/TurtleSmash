@@ -1,6 +1,7 @@
 package game.connection;
 
 import game.GameHandler;
+import game.GameState;
 import game.connection.handlers.ServerDecoder;
 import game.connection.handlers.ServerPlayerHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -24,19 +25,11 @@ public class ServerTCP extends Thread {
     int tcpPort;
 
     public ServerTCP(int tcpPort) {
-        this.tcpPort=tcpPort;
+        this.tcpPort = tcpPort;
         tcpChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     }
 
     public synchronized void run() {
-        /*
-        final SslContext sslCtx;
-        try {
-            sslCtx = Addresses.buildSslContext();
-        } catch (CertificateException | SSLException e) {
-            throw new RuntimeException(e);
-        }
-        */
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -52,17 +45,14 @@ public class ServerTCP extends Thread {
                         @Override
                         public void initChannel(SocketChannel ch) {
                             ChannelPipeline pipe = ch.pipeline();
-                            /*
-                            if (sslCtx != null) {
-                                pipe.addLast(sslCtx.newHandler(ch.alloc()));
-                            }*/
                             pipe.addLast(
                                     new ObjectEncoder(),
                                     new ServerDecoder(1048576, ClassResolvers.cacheDisabled(null)),
                                     new ServerPlayerHandler(GameHandler.connectPlayer(ch))
                             );
-                            logger.info("New connection with "+ch.remoteAddress().getAddress()+":"+ch.remoteAddress().getPort());
+                            logger.info("New connection with " + ch.remoteAddress().getAddress() + ":" + ch.remoteAddress().getPort());
                         }
+
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
                             tcpChannels.add(ctx.channel());
@@ -71,12 +61,18 @@ public class ServerTCP extends Thread {
                     });
             // Bind and start to accept incoming connections.
             try {
-                ch = b.bind(tcpPort).addListener(future -> logger.info("TCP server on at "+ Addresses.localAddress.getHostAddress()+":"+tcpPort)).channel();
+                ch = b.bind(tcpPort).addListener(future -> logger.info("TCP server on at " + Addresses.localAddress.getHostAddress() + ":" + tcpPort)).channel();
                 ch.closeFuture().sync();
             } catch (InterruptedException e) {
                 logger.severe(e.getMessage());
             }
         } finally {
+            if (GameHandler.getState() == GameState.host) {
+                GameHandler.hostToMain();
+            } else if (GameHandler.getState() == GameState.playServer) {
+                GameHandler.playServerToHost();
+                GameHandler.hostToMain();
+            }
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully().addListener(future -> logger.info("TCP server off"));
         }

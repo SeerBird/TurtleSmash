@@ -310,8 +310,8 @@ public class GameHandler {
     public static void playClientToDiscover() {
         setState(GameState.discover);
         removeJob(Job.sendClient);
-        World.update();
         World.clear();
+        World.update();
         tcpClient.disconnect();
     }
 
