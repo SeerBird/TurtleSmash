@@ -4,7 +4,7 @@ import game.connection.packets.containers.LobbyData;
 import game.connection.packets.containers.WorldData;
 import org.jetbrains.annotations.NotNull;
 
-public class ServerPacket extends Packet {
+public class ServerPacket{
     public boolean playing;
     public WorldData world;
     public LobbyData lobby;

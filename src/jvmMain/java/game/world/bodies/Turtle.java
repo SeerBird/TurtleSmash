@@ -198,7 +198,7 @@ public class Turtle extends Body {
         if (spinneret != null) {
             minDist.mapMultiplyToSelf(DevConfig.webFling / minNorm);//make the vector size the configured velocity
             spinnerets.put(spinneret, new Web(spinneret, minDist.add(spinneret.getVelocity())));//FLING and record it
-            ArrayRealVector recoil = (ArrayRealVector) minDist.add(spinneret.getVelocity()).mapMultiply(-DevConfig.recoil/mass);
+            ArrayRealVector recoil = (ArrayRealVector) minDist.add(spinneret.getVelocity()).mapMultiply(-DevConfig.recoil / mass);
             spinneret.accelerate(recoil);
             accelerate(recoil);
         }
@@ -297,10 +297,11 @@ public class Turtle extends Body {
 
     @Override
     public void delete() {
-        super.delete();
-        World.removeBody(shell);
-        if (isAlive()) {
-            die();
+        if (shell == null) {
+            super.delete();
+            if (isAlive()) {
+                die();
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 package game;
 
 import game.connection.packets.ClientPacket;
-import game.connection.packets.Packet;
+import game.connection.packets.ServerPacket;
 import game.input.InputInfo;
 import game.util.DevConfig;
 import game.world.bodies.Turtle;
@@ -27,7 +27,7 @@ public class Player {
         score = 0;
         deathTimer = 0;
         input = new InputInfo();
-        claimName(name, 0);
+        claimName(name);
     }
 
     public void setBody(Turtle body) {
@@ -48,22 +48,35 @@ public class Player {
 
     public void receive(@NotNull ClientPacket packet) {
         input = packet.getInput();
-        claimName(packet.name, 0);
+        claimName(packet.name);
     }
 
-    private void claimName(String desiredName, int index) {
-        for (Player player : GameHandler.getPlayers()) {
-            if (Objects.equals(player.getName(), desiredName + (index == 0 ? "" : index))) {
-                if (player != this) {
-                    claimName(desiredName, index + 1);
+    public void claimName(String desiredName) {
+        if (checkUniqueName(desiredName)) {
+            name = desiredName;
+        } else {
+            for (int i = 1; i < 1000; i++) {
+                if (checkUniqueName(desiredName + i)) {
+                    name = desiredName + i;
                     return;
                 }
             }
+            throw new RuntimeException("Too many players.");
         }
-        name = desiredName + (index == 0 ? "" : index);
     }
 
-    public void send(Packet packet) {
+    private boolean checkUniqueName(String name) {
+        for (Player player : GameHandler.getPlayers()) {
+            if (Objects.equals(player.getName(), name)) {
+                if (player != this) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void send(ServerPacket packet) {
         if (channel != null) {
             if (channel.isActive()) {
                 String json = packet.getClass().toString() + gson.toJson(packet);

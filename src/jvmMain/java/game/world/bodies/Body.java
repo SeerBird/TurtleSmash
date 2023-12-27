@@ -29,10 +29,12 @@ public abstract class Body {
     ArrayRealVector center;
     boolean centerMoved;
     ArrayRealVector velocity; // relies on getCenter being called every tick
+    public ArrayList<Web> bound;
 
     public Body() {
         points = new ArrayList<>();
         edges = new ArrayList<>();
+        bound = new ArrayList<>();
         acceleration = new ArrayRealVector(2);
         movement = new ArrayRealVector(2);
         center = new ArrayRealVector(2);
@@ -287,5 +289,8 @@ public abstract class Body {
 
     public void delete() {
         World.removeBody(this);
+        for(Web web:bound){
+            web.loseTarget();
+        }
     }
 }

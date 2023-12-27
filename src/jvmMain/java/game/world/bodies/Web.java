@@ -30,7 +30,6 @@ public class Web extends Body {
         points.get(0).accelerate(velocity);
         isGrowing = true;
         rest_d = new MutableDouble(DevConfig.webRestNodeDistance);
-        relevance = 400; // do something other than relevance. this is stupid. kinda. idk. maybe it's fine
         World.addBody(this);
     }
 
@@ -80,8 +79,17 @@ public class Web extends Body {
     }
 
     @Override
+    public void fade() {
+        if (!World.isInBounds(this)) {
+            rest_d.subtract(DevConfig.webDecayRate);
+            if (rest_d.doubleValue() < 0) {
+                delete();
+            }
+        }
+    }
+
+    @Override
     public void delete() {
-        super.delete();
         if (target != null) {
             Body victim = target.getEdge1().getParentBody();
             if (victim.getClass() == Shell.class) {
@@ -93,6 +101,7 @@ public class Web extends Body {
                 ((Turtle) source.getParentBody()).detachWeb(source.getPos()); //make it reference the web?
             }
         }
+        super.delete();
     }
 
     @Override
@@ -181,5 +190,11 @@ public class Web extends Body {
 
     public MutableDouble getControl() {
         return rest_d;
+    }
+
+    public void loseTarget() {
+        target=null;
+        targetEdge1=null;
+        targetEdge2=null;
     }
 }

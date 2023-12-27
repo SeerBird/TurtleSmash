@@ -18,14 +18,12 @@ import static game.util.Maths.*;
 public class Shell extends Body {
     public Turtle parent;
     public ArrayList<Edge> straps;
-    public ArrayList<Web> bound;
     public boolean leaveParentFlag = true;
     static int[] attachments = new int[]{0, 3, 4, 7};
 
     public Shell(@NotNull ArrayRealVector pos, ArrayRealVector heading, @Nullable Turtle parent) {
         super();
         straps = new ArrayList<>();
-        bound = new ArrayList<>();
         this.parent = parent;
         form(pos.add(new ArrayRealVector(new Double[]{0.0, -5.0})), heading, DevConfig.shellMass);
         //region if there is a parent, attach
@@ -176,5 +174,13 @@ public class Shell extends Body {
 
     public void unbind(Web web) {
         bound.remove(web);
+    }
+
+    @Override
+    public void delete() {
+        super.delete();
+        if(parent!=null){
+            parent.abandonShell();
+        }
     }
 }

@@ -9,9 +9,7 @@ import java.util.logging.Logger;
 public class MainLoop {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     static boolean run;
-    private final static Thread onShutdown = new Thread(() -> {
-        Config.savePrefs();
-    });
+    private final static Thread onShutdown = new Thread(Config::savePrefs);
 
     public static void run() {
         Runtime.getRuntime().addShutdownHook(onShutdown);

@@ -34,12 +34,15 @@ public class TurtleMenu {
                 new Button(DevConfig.WIDTH / 2 - 160, 200, 150, 150, GameHandler::mainToDiscover, "Discover", DevConfig.shell),
                 new Button(DevConfig.WIDTH / 2 + 10, 200, 150, 150, GameHandler::mainToHost, "Host", DevConfig.shell),
                 new Label(DevConfig.WIDTH / 2 - 160, 360, 320, 40, "Choose Your Name!", DevConfig.turtle),
-                new Textbox(DevConfig.WIDTH / 2 - 160, 400, 320, 40, Config.getPlayerName(), text -> Config.setName(text), DevConfig.turtle));
+                new Textbox(DevConfig.WIDTH / 2 - 160, 400, 320, 40, Config.getPlayerName(), text -> {
+                    Config.setName(text);
+                    GameHandler.getPlayers().get(0).claimName(text);
+                }, DevConfig.turtle));
         //endregion
         //region host
         savePreset(GameState.host,
-                new Button(DevConfig.WIDTH/2-75, 200, 150, 150, GameHandler::hostToPlayServer, "Play", DevConfig.shell),
-                new Textbox(DevConfig.WIDTH/2-75, 370, 150, 40, Config.getServerName(), (serverName) -> {
+                new Button(DevConfig.WIDTH / 2 - 75, 200, 150, 150, GameHandler::hostToPlayServer, "Play", DevConfig.shell),
+                new Textbox(DevConfig.WIDTH / 2 - 75, 370, 150, 40, Config.getServerName(), (serverName) -> {
                     Config.setServerName(serverName);
                     Broadcaster.setMessage(Config.getServerName());
                 }, DevConfig.turtle));

@@ -24,6 +24,9 @@ public class WorldEdgeImage implements EdgeImage{
     }
 
     public Edge getEdge() {
+        if(bodyindex1==-1||bodyindex2==-1||index1==-1||index2==-1){
+            return null;
+        }
         return new FixedEdge(World.getBodies().get(bodyindex1).getPoints().get(index1),
                 World.getBodies().get(bodyindex2).getPoints().get(index2), distance);
     }

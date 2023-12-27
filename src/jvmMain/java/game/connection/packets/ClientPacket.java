@@ -2,7 +2,7 @@ package game.connection.packets;
 
 import game.input.InputInfo;
 
-public class ClientPacket extends Packet {
+public class ClientPacket{
     InputInfo input;
     public String name;
     public ClientPacket(InputInfo input, String name){
