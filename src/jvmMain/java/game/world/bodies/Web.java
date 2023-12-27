@@ -122,9 +122,7 @@ public class Web extends Body {
         //region create the two connections between the sticky point and the ends of the target edge
         targetEdge1 = new FixedEdge(sticky, target.getEdge1(), distance.getNorm() * placement);
         targetEdge2 = new FixedEdge(sticky, target.getEdge2(), distance.getNorm() * (1 - placement));
-        if (target.getEdge1().getParentBody().getClass() == Shell.class) {
-            ((Shell) target.getEdge1().getParentBody()).addBinder(this);
-        }
+        target.getEdge1().getParentBody().addBinder(this);
         //endregion
     }
 

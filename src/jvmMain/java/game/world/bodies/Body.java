@@ -279,4 +279,12 @@ public abstract class Body {
             web.loseTarget();
         }
     }
+
+    public void addBinder(Web web) {
+        bound.add(web);
+    }
+
+    public void unbind(Web web) {
+        bound.remove(web);
+    }
 }

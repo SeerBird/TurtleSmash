@@ -170,14 +170,6 @@ public class Shell extends Body {
         return sides;
     }
 
-    public void addBinder(Web web) {
-        bound.add(web);
-    }
-
-    public void unbind(Web web) {
-        bound.remove(web);
-    }
-
     @Override
     public void delete() {
         super.delete();
