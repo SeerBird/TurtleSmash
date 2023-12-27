@@ -91,7 +91,7 @@ public class Shell extends Body {
                     double tot = mass1 + mass2;
                     ArrayRealVector velocity = getVelocity().combine(mass1 / tot, mass2 / tot, b2.getVelocity());
                     form(getCenter().combine(mass1 / tot, mass2 / tot, b2.getCenter()), randomUnitVector(), tot); //merge
-                    World.removeBody(b2);
+                    b2.delete();
                     accelerate(velocity);
                     return;
                 }
