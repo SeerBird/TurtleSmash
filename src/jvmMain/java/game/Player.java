@@ -79,7 +79,16 @@ public class Player {
     public void send(ServerPacket packet) {
         if (channel != null) {
             if (channel.isActive()) {
-                String json = packet.getClass().toString() + gson.toJson(packet);
+                String json;
+                try {
+                    json = packet.getClass() + gson.toJson(packet);
+                } catch (IllegalArgumentException e) {
+                    logger.severe(e.getMessage());
+                    return;
+                } catch (Exception other) {
+                    logger.severe(other.getMessage());
+                    throw new RuntimeException(other.getMessage());
+                }
                 channel.writeAndFlush(json).addListener((ChannelFutureListener) future -> {
                     if (!future.isSuccess()) {
                         if (future.cause().getMessage() == null) {

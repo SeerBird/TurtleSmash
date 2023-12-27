@@ -9,5 +9,6 @@ public class gsonRegistry {
     public static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(EdgeImage.class, new InterfaceAdapter<EdgeImage>())
             .registerTypeAdapter(BodyImage.class, new InterfaceAdapter<BodyImage>())
+            .serializeSpecialFloatingPointValues()
             .create();
 }
