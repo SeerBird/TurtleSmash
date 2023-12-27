@@ -2,6 +2,7 @@ package game.output.ui.rectangles;
 
 import game.Config;
 import game.GameHandler;
+import game.Player;
 import game.connection.packets.ServerPacket;
 import game.util.DevConfig;
 
@@ -24,17 +25,14 @@ public class PlayerList extends RectElement {
     static int labelHeight = 30;
 
     public void refresh() {
-        ServerPacket packet = GameHandler.getPacket();
-        if (packet.changed) {
-            labels.clear();
-            labels.add(new Label(x, y * labelHeight, width, labelHeight,
-                    "Player List", DevConfig.shell));
-            int counter = 1;
-            for (String name : packet.lobby.players) {
-                labels.add(new Label(x, y + counter * labelHeight, width, labelHeight,
-                        Objects.requireNonNullElse(name, Config.getPlayerName()), DevConfig.turtle));
-                counter++;
-            }
+        labels.clear();
+        labels.add(new Label(x, y * labelHeight, width, labelHeight,
+                "Player List", DevConfig.shell));
+        int counter = 1;
+        for (Player player : GameHandler.getPlayers()) {
+            labels.add(new Label(x, y + counter * labelHeight, width, labelHeight,
+                    player.getName(), DevConfig.turtle));
+            counter++;
         }
     }
 
