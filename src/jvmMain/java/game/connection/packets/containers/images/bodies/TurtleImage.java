@@ -12,7 +12,7 @@ import game.world.bodies.Web;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TurtleImage extends BodyImage {
+public class TurtleImage extends BodyImage<Turtle> {
     Map<Integer, Integer> spinnerets;
     Integer shell;
     Integer owner;
@@ -33,17 +33,16 @@ public class TurtleImage extends BodyImage {
         body = new Turtle();
         addPoints(body);
         addEdges(body);
-        return (Turtle) body; //check?
+        return body; //check?
     }
 
     @Override
     public void connectBody() {
-        Turtle turtle = (Turtle) body;
         for (Integer i : spinnerets.keySet()) {
-            turtle.spinnerets.put(turtle.getPoints().get(i),
+            body.spinnerets.put(body.getPoints().get(i),
                     spinnerets.get(i) == null ? null : (Web) World.getBodies().get(spinnerets.get(i)));
         }
-        turtle.owner = GameHandler.getLocalPlayerFromServerId(owner);
-        turtle.shell = shell == null ? null : (Shell) World.getBodies().get(shell);
+        body.owner = GameHandler.getLocalPlayerFromServerId(owner);
+        body.shell = shell == null ? null : (Shell) World.getBodies().get(shell);
     }
 }

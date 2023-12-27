@@ -297,8 +297,8 @@ public final class World {
 
     public static void set(@NotNull WorldData data) {
         bodies.clear();
-        for (BodyImage body : data.bodyImages) {
-            bodies.add(body.getIsolatedBody());
+        for (BodyImage<?> bodyImage : data.bodyImages) {
+            bodies.add(bodyImage.getIsolatedBody());
         }
         for (int i = 0; i < data.bodyImages.size(); i++) {
             data.bodyImages.get(i).connectBody();

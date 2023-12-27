@@ -16,14 +16,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public abstract class BodyImage {
+public abstract class BodyImage<T extends Body> {
     public ArrayList<EdgeImage> edges;
     public ArrayList<Pair<Double, ArrayRealVector>> points;
-    transient Body body;
+    public ArrayList<Integer> bound;
+    public transient T body;
 
     public BodyImage(Body body) {
         edges = getEdgesImage(body);
         points = getPointsImage(body);
+        bound = new ArrayList<>();
+        for (Web web : body.bound) {
+            bound.add(World.getBodies().indexOf(web));
+        }
     }
 
     protected BodyImage() {
@@ -60,7 +65,7 @@ public abstract class BodyImage {
         }
     }
 
-    public abstract Body getIsolatedBody();
+    public abstract T getIsolatedBody();
     public void addPoints(Body body){
         for (Pair<Double, ArrayRealVector> point : points) {
             body.addPoint(point.getKey(), point.getValue());
@@ -78,6 +83,8 @@ public abstract class BodyImage {
     }
 
     public void connectBody() {
-
+        for (Integer i : bound) {
+            body.bound.add((Web) World.getBodies().get(i));
+        }
     }
 }

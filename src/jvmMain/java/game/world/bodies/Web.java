@@ -92,9 +92,7 @@ public class Web extends Body {
     public void delete() {
         if (target != null) {
             Body victim = target.getEdge1().getParentBody();
-            if (victim.getClass() == Shell.class) {
-                ((Shell) victim).unbind(this);
-            }
+            victim.unbind(this);
         }
         if (source != null) {
             if (source.getParentBody().getClass() == Turtle.class) {
@@ -191,8 +189,8 @@ public class Web extends Body {
     }
 
     public void loseTarget() {
-        target=null;
-        targetEdge1=null;
-        targetEdge2=null;
+        target = null;
+        targetEdge1 = null;
+        targetEdge2 = null;
     }
 }

@@ -11,16 +11,18 @@ import java.util.logging.Logger;
 
 public class WorldData {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    public ArrayList<BodyImage> bodyImages;
+    public ArrayList<BodyImage<?>> bodyImages;
 
-    public WorldData() {//unnecessary containers(or so I thought at some point, why?)
+    public WorldData() {
         bodyImages = new ArrayList<>();
         for (Body body : World.getBodies()) {
             try {
-                Constructor<? extends BodyImage> baba = BodyImage.getImageClass(body).getDeclaredConstructor(body.getClass());
-                bodyImages.add(baba.newInstance(body));
-            } catch (InstantiationException | InvocationTargetException | IllegalAccessException | NoSuchMethodException ignored) {
+                Constructor<? extends BodyImage> constructor = BodyImage.getImageClass(body).getDeclaredConstructor(body.getClass());
+                bodyImages.add(constructor.newInstance(body));
+            } catch (InstantiationException | InvocationTargetException | IllegalAccessException |
+                     NoSuchMethodException e) {
                 logger.severe("What the fuck!?!?!?");
+                throw new RuntimeException(e.getMessage());
             }
         }
     }
