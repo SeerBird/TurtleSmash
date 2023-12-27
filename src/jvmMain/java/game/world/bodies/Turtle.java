@@ -146,10 +146,10 @@ public class Turtle extends Body {
         addEdge(rightLeg1, tail3);
         addEdge(head1, tail1);
         addEdge(head4, tail3);
-        addEdge(leftLeg3,rightArm3);
-        addEdge(leftLeg2,rightArm2);
-        addEdge(leftArm3,rightLeg3);
-        addEdge(leftArm2,rightLeg2);
+        addEdge(leftLeg3, rightArm3);
+        addEdge(leftLeg2, rightArm2);
+        addEdge(leftArm3, rightLeg3);
+        addEdge(leftArm2, rightLeg2);
         //endregion
         World.addBody(this);
         growShell();
@@ -306,6 +306,11 @@ public class Turtle extends Body {
             super.delete();
             if (isAlive()) {
                 die();
+            }
+        }
+        for (Web web : spinnerets.values()) {
+            if (web != null) {
+                web.disconnect();
             }
         }
     }
