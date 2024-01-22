@@ -1,5 +1,8 @@
 package game.world.bodies;
 
+import game.output.Renderer;
+import game.output.animations.CollisionBurstAnimation;
+import game.output.animations.ScreenShakeAnimation;
 import game.util.DevConfig;
 import game.util.Maths;
 import game.world.BPoint;
@@ -57,6 +60,7 @@ public abstract class Body {
             p.move();
         }
         centerMoved = true;
+        getCenter();
         if (relevance < 0) {
             delete();
         }
@@ -237,6 +241,8 @@ public abstract class Body {
             collision.getEdge1().move(overlap.mapMultiply(-0.25 * scaleFactor * (1 - placement) * elasticity));
             collision.getEdge2().move(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
         }
+        Renderer.addAnimation(new ScreenShakeAnimation(overlap.getNorm()));
+        Renderer.addAnimation(new CollisionBurstAnimation(collision));
     }
 
     public ArrayList<Pair<Pair<Integer, Integer>, Double>> getEdgesImage() {

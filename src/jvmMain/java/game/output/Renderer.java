@@ -17,6 +17,7 @@ import game.world.bodies.Shell;
 import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 import game.world.constraints.Edge;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -24,9 +25,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static game.util.Maths.getVector;
+
 public class Renderer {
     static Graphics g;
     static final Map<Integer, Animation> animations = new HashMap<>();
+    static int x = 0;
+    static int y = 0;
 
     public static void update() { //get new info and progress animations
         for (Integer animID : new ArrayList<>(animations.keySet())) { //does this solve concurrent modification??? check
@@ -38,6 +43,7 @@ public class Renderer {
 
     public static void drawImage(Graphics g) {
         Renderer.g = g;
+        g.translate(x, y);
         fill(DevConfig.BACKGROUND);
         update();
         drawWorld();
@@ -79,6 +85,10 @@ public class Renderer {
             }
             g.setColor(DevConfig.turtle);
             g.fillPolygon(x, y, n);
+            if (((Turtle) b).owner == GameHandler.getPlayers().get(0)) {
+                g.setColor(DevConfig.HIGHLIGHT);
+                g.drawPolygon(x, y, n);
+            }
         }
         //endregion
         //region Webs
@@ -105,7 +115,7 @@ public class Renderer {
         //endregion
         //region show that something cursed has happened
         else {
-            g.setColor(DevConfig.POINTS);
+            g.setColor(DevConfig.CURSED);
             for (BPoint p : b.getPoints()) {
                 g.fillRect((int) p.getX() - 3, (int) p.getY() - 3, 6, 6);
             }
@@ -212,7 +222,7 @@ public class Renderer {
 
     private static void fill(Color c) {
         g.setColor(c);
-        g.fillRect(0, 0, DevConfig.WIDTH, DevConfig.HEIGHT);
+        g.fillRect(-200, -200, DevConfig.WIDTH + 400, DevConfig.HEIGHT + 400);
     }
 
     public static int getStringWidth(String string) {
@@ -221,6 +231,10 @@ public class Renderer {
         } else {
             return -1;
         }
+    }
+    public static void setPos(@NotNull ArrayRealVector p){
+        x=(int)p.getEntry(0);
+        y=(int)p.getEntry(1);
     }
 }
 

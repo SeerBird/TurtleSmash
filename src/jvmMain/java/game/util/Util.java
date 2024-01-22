@@ -1,7 +1,12 @@
 package game.util;
 
 import game.MainLoop;
+import game.world.bodies.Body;
+import game.world.bodies.Shell;
+import game.world.bodies.Turtle;
+import game.world.bodies.Web;
 
+import java.awt.*;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,19 +25,28 @@ public class Util {
                 path = (System.getenv("LOCALAPPDATA") + prefix).replaceAll("\\\\", "/");
                 uri = URI.create("file:/" + path.substring(0, path.length() - 1));
                 Files.createDirectories(Paths.get(uri));
-            } else if (Objects.equals(os, "MacOS")) { //figure this out
-                path = System.getProperty("user.dir");
+            } else if (os.contains("mac")) { //figure this out
+                path = "~/Library/Application /Support";
                 uri = URI.create("file:/" + path);
-            } else if (os.contains("Linux")) {
-                path = System.getProperty("user.dir");
-                uri = URI.create("file:///tmp/" + path); //find another path? tmp ain't nice
+                Files.createDirectories(Paths.get(uri));
             } else {
-                path = System.getProperty("user.dir");
-                uri = URI.create("file:/" + path);
+                throw new RuntimeException("Can't run on your machine, sorry");
             }
             //endregion
         } catch (Exception death) {
             MainLoop.terminate();
+        }
+    }
+
+    public static Color getColor(Body body) {
+        if (body instanceof Turtle) {
+            return DevConfig.turtle;
+        } else if (body instanceof Shell) {
+            return DevConfig.shell;
+        } else if (body instanceof Web) {
+            return DevConfig.web;
+        } else {
+            return DevConfig.CURSED;
         }
     }
 }

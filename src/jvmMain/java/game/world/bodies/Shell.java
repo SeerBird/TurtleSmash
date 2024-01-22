@@ -1,5 +1,8 @@
 package game.world.bodies;
 
+import game.GameHandler;
+import game.output.Renderer;
+import game.output.animations.ShellSnapFlashAnimation;
 import game.util.DevConfig;
 import game.world.BPoint;
 import game.world.CollisionData;
@@ -32,6 +35,7 @@ public class Shell extends Body {
                 straps.add(new FixedEdge(points.get(attachments[i]), parent.getShellAttachment().get(i % 4)));
             }
             leaveParentFlag = false;
+            accelerate(parent.getVelocity());
         }
         //endregion
         World.addBody(this);
@@ -70,6 +74,9 @@ public class Shell extends Body {
         }
         if (snap) {
             straps.clear();
+            if (parent.owner == GameHandler.getPlayers().get(0)) {
+                Renderer.addAnimation(new ShellSnapFlashAnimation());
+            }
         }
         return sat;
     }

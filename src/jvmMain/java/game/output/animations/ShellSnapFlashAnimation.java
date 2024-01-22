@@ -1,0 +1,26 @@
+package game.output.animations;
+
+import game.util.DevConfig;
+import game.world.bodies.Shell;
+
+import java.awt.*;
+
+import static game.util.DevConfig.HIGHLIGHT;
+
+public class ShellSnapFlashAnimation implements Animation {
+    int frames;
+
+    public ShellSnapFlashAnimation() {
+        frames = DevConfig.shellSnapFlashFrames;
+    }
+
+    @Override
+    public boolean drawNext(Graphics g) {
+        frames--;
+        for (int i = 0; i < frames/2; i++) {
+            g.setColor(new Color(HIGHLIGHT.getRed(), HIGHLIGHT.getGreen(), HIGHLIGHT.getBlue(), (int) (255 * (frames-i) / (double) DevConfig.shellSnapFlashFrames)));
+            g.drawRect(i, i, DevConfig.WIDTH - i * 2, DevConfig.HEIGHT - i * 2);
+        }
+        return frames > 0;
+    }
+}

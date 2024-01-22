@@ -30,12 +30,10 @@ public final class Maths {
 
     @NotNull
     public static ArrayRealVector randomUnitVector() {
-        double x = Math.random()*2-1;
-        double y = Math.sqrt(1-x*x);
-        if(x*10%1>0.5){
-            y*=-1;
-        }
-        return getVector(x,y);
+        double theta = Math.random() * Math.PI * 2;
+        double x = Math.cos(theta);
+        double y = Math.sin(theta);
+        return getVector(x, y);
     }
 
     public static ArrayRealVector i = new ArrayRealVector(new Double[]{1.0, 0.0});

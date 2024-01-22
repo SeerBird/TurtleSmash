@@ -152,7 +152,7 @@ public class Turtle extends Body {
         addEdge(leftArm2, rightLeg2);
         //endregion
         World.addBody(this);
-        growShell();
+        nakedFrames=1; //let the velocity get recorded
     }
 
     public Turtle() {
@@ -288,7 +288,6 @@ public class Turtle extends Body {
 
     public void growShell() {
         this.shell = new Shell(getCenter(), getHeading(), this);
-        shell.accelerate(getVelocity());
     }
 
     public ArrayRealVector getHeading() {
