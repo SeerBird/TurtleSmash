@@ -1,5 +1,8 @@
 package game.output.audio;
 
 public enum Sound {
-    death
+    death,
+    button,
+    webThrow,
+    collision
 }

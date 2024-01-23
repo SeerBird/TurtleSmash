@@ -22,8 +22,8 @@ public class DevConfig {
     public static double turtleDeformThreshold = 5.0;
     public static double turtleMass = 4.0;
     public static double shellMergeThreshold = 10.0;
-    public static double shellStrapExtensionLimit = 1.4;
-    public static double shellMass = 8.0;
+    public static double shellStrapExtensionLimit = 1.5;
+    public static double shellMass = 4.0;
     public static double playerSpawnSpread = 80;
     public static double approxPlayerSpawnVelocity = 6;
     public static double playerSpawnVelocitySpread = 1.5;

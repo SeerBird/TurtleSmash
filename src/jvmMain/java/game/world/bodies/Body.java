@@ -3,6 +3,8 @@ package game.world.bodies;
 import game.output.Renderer;
 import game.output.animations.CollisionBurstAnimation;
 import game.output.animations.ScreenShakeAnimation;
+import game.output.audio.Audio;
+import game.output.audio.Sound;
 import game.util.DevConfig;
 import game.util.Maths;
 import game.world.BPoint;
@@ -243,6 +245,7 @@ public abstract class Body {
         }
         Renderer.addAnimation(new ScreenShakeAnimation(overlap.getNorm()));
         Renderer.addAnimation(new CollisionBurstAnimation(collision));
+        Audio.playCooldownSound(Sound.collision);
     }
 
     public ArrayList<Pair<Pair<Integer, Integer>, Double>> getEdgesImage() {

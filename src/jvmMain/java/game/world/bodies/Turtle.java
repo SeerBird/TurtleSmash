@@ -205,6 +205,7 @@ public class Turtle extends Body {
             ArrayRealVector recoil = (ArrayRealVector) minDist.add(spinneret.getVelocity()).mapMultiply(-DevConfig.recoil / mass);
             spinneret.accelerate(recoil.mapMultiply(5));
             accelerate(recoil);
+            Audio.playSound(Sound.webThrow);
         }
     }
 

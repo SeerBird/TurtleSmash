@@ -1,6 +1,9 @@
 package game.output.ui.rectangles;
 
 
+import game.output.audio.Audio;
+import game.output.audio.Sound;
+
 import java.awt.*;
 
 public class Button extends Label {
@@ -23,6 +26,7 @@ public class Button extends Label {
     public void release() {
         if (pressed) {//unnecessary?
             action.run();
+            Audio.playSound(Sound.button);
         }
         pressed = false;
     }
