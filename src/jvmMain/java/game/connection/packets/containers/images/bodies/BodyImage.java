@@ -15,10 +15,12 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class BodyImage<T extends Body> {
     public ArrayList<EdgeImage> edges;
-    public ArrayList<Pair<Double, ArrayRealVector>> points;
+    public Map<ArrayRealVector, Double> points;
     public ArrayList<Integer> bound;
     public transient T body;
 
@@ -44,10 +46,10 @@ public abstract class BodyImage<T extends Body> {
     }
 
     @NotNull
-    ArrayList<Pair<Double, ArrayRealVector>> getPointsImage(@NotNull Body body) {
-        ArrayList<Pair<Double, ArrayRealVector>> points = new ArrayList<>();
+    Map<ArrayRealVector, Double> getPointsImage(@NotNull Body body) {
+        Map<ArrayRealVector, Double> points = new HashMap<>();
         for (BPoint point : body.getPoints()) {
-            points.add(new Pair<>(point.getMass(), point.getPos()));
+            points.put(point.getPos(), point.getMass());
         }
         return points;
     }
@@ -66,18 +68,18 @@ public abstract class BodyImage<T extends Body> {
     }
 
     public abstract T getIsolatedBody();
-    public void addPoints(Body body){
-        for (Pair<Double, ArrayRealVector> point : points) {
-            body.addPoint(point.getKey(), point.getValue());
+
+    public void addPoints(Body body) {
+        for (ArrayRealVector point : points.keySet()) {
+            body.addPoint(points.get(point), point);
         }
     }
-    public void addEdges(Body body){
+
+    public void addEdges(Body body) {
         ArrayList<BPoint> bodyPoints = body.getPoints();
         for (EdgeImage e : edges) {
             if (e instanceof FixedEdgeImage) {
-                body.addEdge(new FixedEdge(bodyPoints.get(((FixedEdgeImage) e).index1),
-                        bodyPoints.get(((FixedEdgeImage) e).index2),
-                        ((FixedEdgeImage) e).distance));
+                body.addEdge(new FixedEdge(bodyPoints.get(((FixedEdgeImage) e).index1), bodyPoints.get(((FixedEdgeImage) e).index2), ((FixedEdgeImage) e).distance));
             }
         }
     }

@@ -248,24 +248,6 @@ public abstract class Body {
         Audio.playCooldownSound(Sound.collision);
     }
 
-    public ArrayList<Pair<Pair<Integer, Integer>, Double>> getEdgesImage() {
-        ArrayList<Pair<Pair<Integer, Integer>, Double>> edgesImage = new ArrayList<>();
-        for (Edge e : edges) {
-            edgesImage.add(new Pair<>(new Pair<>(points.indexOf(e.getEdge1()), points.indexOf(e.getEdge2())), e.getRestDistance()));
-        }
-        return edgesImage;
-    }
-
-    public void checkPointParent() {
-        for (BPoint p : points) {
-            p.setParentBody(this);
-        }
-        for (Edge e : edges) {
-            e.getEdge2().setParentBody(this);
-            e.getEdge1().setParentBody(this);
-        }
-    }
-
     static boolean intersect(@NotNull Edge edge1, @NotNull Edge edge2) {
         return Maths.intersect(edge1.getEdge1().getPos(), edge1.getEdge2().getPos(), edge2.getEdge1().getPos(), edge2.getEdge2().getPos());
     }

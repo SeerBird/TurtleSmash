@@ -181,14 +181,14 @@ public class InputControl extends MouseAdapter implements KeyListener {
                 input.create();
                 dispatch(KeyEvent.VK_C);
             }
-            if (pressed(VK_S)) {
+            if (pressed(VK_Z)) {
                 TurtleMenu.showScores();
                 TurtleMenu.refreshScores();
             } else {
                 TurtleMenu.hideScores();
             }
-            if (released(VK_S)) {
-                dispatch(VK_S);
+            if (released(VK_Z)) {
+                dispatch(VK_Z);
             }
         } else {
             dispatch(Left);
