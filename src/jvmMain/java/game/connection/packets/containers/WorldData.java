@@ -13,9 +13,9 @@ public class WorldData {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     public ArrayList<BodyImage<?>> bodyImages;
 
-    public WorldData() {
+    public WorldData(ArrayList<Body> bodies) {
         bodyImages = new ArrayList<>();
-        for (Body body : World.getBodies()) {
+        for (Body body : bodies) {
             try {
                 Constructor<? extends BodyImage> constructor = BodyImage.getImageClass(body).getDeclaredConstructor(body.getClass());
                 bodyImages.add(constructor.newInstance(body));
@@ -25,5 +25,8 @@ public class WorldData {
                 throw new RuntimeException(e.getMessage());
             }
         }
+    }
+    public WorldData(){
+
     }
 }

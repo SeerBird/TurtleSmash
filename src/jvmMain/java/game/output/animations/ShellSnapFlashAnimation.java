@@ -17,8 +17,8 @@ public class ShellSnapFlashAnimation implements Animation {
     @Override
     public boolean drawNext(Graphics g) {
         frames--;
-        for (int i = 0; i < frames/2; i++) {
-            g.setColor(new Color(HIGHLIGHT.getRed(), HIGHLIGHT.getGreen(), HIGHLIGHT.getBlue(), (int) (255 * (frames-i) / (double) DevConfig.shellSnapFlashFrames)));
+        g.setColor(HIGHLIGHT);
+        for (int i = 0; i < frames; i++) {
             g.drawRect(i, i, DevConfig.WIDTH - i * 2, DevConfig.HEIGHT - i * 2);
         }
         return frames > 0;

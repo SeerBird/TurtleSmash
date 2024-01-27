@@ -98,7 +98,6 @@ public class GameHandler {
 
     public static void out() {
         Renderer.drawImage(window.getCanvas());
-        Renderer.drawImage(window.getCanvas());
         window.showCanvas();
     }
 
@@ -176,7 +175,7 @@ public class GameHandler {
 
     private static void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo
         ServerPacket packet = new ServerPacket();
-        packet.world = new WorldData();
+        packet.world = new WorldData(World.getBodies());
         packet.playing = state == GameState.playServer;
         for (Player recipient : players) {
             packet.lobby = new LobbyData(players, recipient); // repeated actions inside.

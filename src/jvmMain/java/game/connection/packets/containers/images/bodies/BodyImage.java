@@ -18,9 +18,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static game.util.Maths.getVector;
+
 public abstract class BodyImage<T extends Body> {
     public ArrayList<EdgeImage> edges;
-    public Map<ArrayRealVector, Double> points;
+    public ArrayList<ArrayList<Double>> points;
     public ArrayList<Integer> bound;
     public transient T body;
 
@@ -46,10 +48,15 @@ public abstract class BodyImage<T extends Body> {
     }
 
     @NotNull
-    Map<ArrayRealVector, Double> getPointsImage(@NotNull Body body) {
-        Map<ArrayRealVector, Double> points = new HashMap<>();
+    ArrayList<ArrayList<Double>> getPointsImage(@NotNull Body body) {
+        ArrayList<ArrayList<Double>> points = new ArrayList<>();
+        ArrayList<Double> pointData=new ArrayList<>();
         for (BPoint point : body.getPoints()) {
-            points.put(point.getPos(), point.getMass());
+            pointData.add(point.getX());
+            pointData.add(point.getY());
+            pointData.add(point.getMass());
+            points.add(new ArrayList<>(pointData));
+            pointData.clear();
         }
         return points;
     }
@@ -70,8 +77,8 @@ public abstract class BodyImage<T extends Body> {
     public abstract T getIsolatedBody();
 
     public void addPoints(Body body) {
-        for (ArrayRealVector point : points.keySet()) {
-            body.addPoint(points.get(point), point);
+        for (ArrayList<Double> point: points) {
+            body.addPoint(point.get(2),getVector( point.get(0),point.get(1)));
         }
     }
 

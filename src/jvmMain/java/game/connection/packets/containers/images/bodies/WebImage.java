@@ -47,9 +47,7 @@ public class WebImage extends BodyImage<Web> {
     public Web getIsolatedBody() {
         body = new Web();
         body.rest_d.setValue(control);
-        for (ArrayRealVector point : points.keySet()) {
-            body.addPoint(points.get(point), point);
-        }
+        addPoints(body);
         MutableDouble control = body.getControl();
         ArrayList<BPoint> bodyPoints = body.getPoints();
         for (EdgeImage e : edges) {

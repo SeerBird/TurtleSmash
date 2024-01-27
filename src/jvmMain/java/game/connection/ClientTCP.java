@@ -5,6 +5,7 @@ import game.GameState;
 import game.connection.gson.gsonRegistry;
 import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ClientTcpHandler;
+import game.connection.handlers.ExceptionHandler;
 import game.connection.packets.ClientPacket;
 import game.connection.packets.containers.ServerStatus;
 import game.input.InputInfo;
@@ -43,7 +44,8 @@ public class ClientTCP extends Thread {
                             p.addLast(
                                     new ObjectEncoder(),
                                     new ClientDecoder(1048576, ClassResolvers.cacheDisabled(null)),
-                                    new ClientTcpHandler()
+                                    new ClientTcpHandler(),
+                                    new ExceptionHandler()
                             );
                         }
                     });
