@@ -8,6 +8,7 @@ import game.connection.packets.ServerPacket;
 import game.connection.packets.containers.LobbyData;
 import game.connection.packets.containers.ServerStatus;
 import game.connection.packets.containers.WorldData;
+import game.connection.packets.containers.images.animations.AnimationImage;
 import game.input.InputControl;
 import game.input.InputInfo;
 import game.output.GameWindow;
@@ -31,7 +32,6 @@ import java.util.logging.Logger;
 
 public class GameHandler {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private static GameState state;
     //region Jobs
     private static final HashMap<Job, Runnable> job = new HashMap<>();
 
@@ -60,13 +60,15 @@ public class GameHandler {
     private static final ArrayList<Player> revivedPlayers = new ArrayList<>();
     //endregion
     //region Connection
-    public static final ServerPacket lastPacket = new ServerPacket();
+    public static final ServerPacket lastPacket = new ServerPacket(); // last received
+    public static final ServerPacket nextPacket = new ServerPacket(); // next to be sent
     public static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
     static ServerTCP tcpServer;
     static ClientTCP tcpClient;
     //endregion
     static final GameWindow window = new GameWindow();
     public static boolean debug;
+    private static GameState state;
 
     static {
         state = GameState.main;
@@ -173,14 +175,14 @@ public class GameHandler {
     }
 
 
-    private static void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo
-        ServerPacket packet = new ServerPacket();
-        packet.world = new WorldData(World.getBodies());
-        packet.playing = state == GameState.playServer;
+    private static void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo...
+        nextPacket.world = new WorldData(World.getBodies());
+        nextPacket.playing = state == GameState.playServer;
         for (Player recipient : players) {
-            packet.lobby = new LobbyData(players, recipient); // repeated actions inside.
-            recipient.send(packet);
+            nextPacket.lobby = new LobbyData(players, recipient); // repeated actions inside.
+            recipient.send(nextPacket);
         }
+        nextPacket.clear();
     }
 
     private static void sendClientPacket() {
@@ -204,6 +206,9 @@ public class GameHandler {
                 }
                 setPlayers(lastPacket.lobby);
                 World.set(lastPacket.world);
+                for (AnimationImage<?> animation : lastPacket.animationImages) {
+                    Renderer.addAnimation(animation.restoreAnimation());
+                }
                 lastPacket.changed = false;
             }
         }

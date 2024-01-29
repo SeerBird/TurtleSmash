@@ -8,7 +8,7 @@ import java.awt.*;
 import static game.util.DevConfig.HIGHLIGHT;
 
 public class ShellSnapFlashAnimation implements Animation {
-    int frames;
+    public int frames;
 
     public ShellSnapFlashAnimation() {
         frames = DevConfig.shellSnapFlashFrames;

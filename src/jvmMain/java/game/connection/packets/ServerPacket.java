@@ -2,21 +2,33 @@ package game.connection.packets;
 
 import game.connection.packets.containers.LobbyData;
 import game.connection.packets.containers.WorldData;
+import game.connection.packets.containers.images.animations.AnimationImage;
 import org.jetbrains.annotations.NotNull;
 
-public class ServerPacket{
+import java.util.ArrayList;
+
+public class ServerPacket {
     public boolean playing;
     public WorldData world;
     public LobbyData lobby;
     public transient boolean changed;
+    public ArrayList<AnimationImage<?>> animationImages; //accumulated over time
 
     public ServerPacket() {
+        animationImages=new ArrayList<>();
     }
 
     public void set(@NotNull ServerPacket packet) {
         this.world = packet.world;
         this.lobby = packet.lobby;
-        this.playing=packet.playing;
+        this.playing = packet.playing;
+        this.animationImages = packet.animationImages;
         changed = true;
+    }
+
+    public void clear() {
+        if (animationImages != null) {
+            animationImages.clear();
+        }
     }
 }

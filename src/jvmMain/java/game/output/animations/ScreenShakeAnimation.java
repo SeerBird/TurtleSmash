@@ -9,8 +9,8 @@ import java.awt.*;
 import static game.util.Maths.randomUnitVector;
 
 public class ScreenShakeAnimation implements Animation {
-    double intensity;
-    ArrayRealVector translation;
+    public double intensity;
+    public ArrayRealVector translation;
 
     public ScreenShakeAnimation(double intensity) {
         this.intensity = intensity*DevConfig.shakeIntensity;

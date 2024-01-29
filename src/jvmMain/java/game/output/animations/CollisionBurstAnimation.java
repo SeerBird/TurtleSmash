@@ -16,15 +16,17 @@ import java.util.Map;
 import static game.util.Maths.randomUnitVector;
 
 public class CollisionBurstAnimation implements Animation {
-    Map<Point, Double> particles;
-    ArrayList<Point> removed;
-    Color color;
+    public Map<Point, Double> particles;
+    public ArrayList<Point> removed;
+    public Color color;
+    public ArrayRealVector pos;
+    public double intensity;
 
     public CollisionBurstAnimation(@NotNull CollisionData collision) {
         particles = new HashMap<>();
         removed = new ArrayList<>();
-        double intensity = Math.pow(collision.overlap.getNorm(), 3) * DevConfig.burstIntensity;
-        ArrayRealVector pos = collision.getVertex().getPos();
+        intensity = Math.pow(collision.overlap.getNorm(), 3) * DevConfig.burstIntensity;
+        pos = collision.getVertex().getPos();
         for (int i = 0; i < intensity; i++) {
             particles.put(new Point(1, pos), DevConfig.particleLingerFrames);
         }
@@ -32,6 +34,11 @@ public class CollisionBurstAnimation implements Animation {
             p.accelerate(randomUnitVector().mapMultiply(Math.random() * intensity * 5));
         }
         color = Util.getColor(collision.vertex.getParentBody());
+    }
+
+    public CollisionBurstAnimation() {
+        particles = new HashMap<>();
+        removed = new ArrayList<>();
     }
 
     @Override
@@ -52,9 +59,8 @@ public class CollisionBurstAnimation implements Animation {
             }
             //endregion
             //region decelerate
-            else if (p.getVelocity().getNorm() > 0.01) {
+            else if ((v = p.getVelocity()).getNorm() > 0.01) {
                 p.move();
-                v = p.getVelocity();
                 p.stop();
                 p.accelerate(v.mapMultiply(0.9));
             } else {

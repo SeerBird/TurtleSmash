@@ -1,6 +1,8 @@
 package game.output;
 
 
+import game.connection.packets.containers.images.animations.AnimationImage;
+import game.connection.packets.containers.images.bodies.BodyImage;
 import game.output.animations.Animation;
 import game.output.ui.rectangles.Button;
 import game.util.DevConfig;
@@ -21,6 +23,8 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -208,6 +212,14 @@ public class Renderer {
         for (int i = 0; i < DevConfig.maxAnimations; i++) {
             if (animations.get(i) == null) {
                 animations.put(i, animation);
+                try {
+                    Constructor<? extends AnimationImage<?>> constructor = AnimationImage.getImageClass(animation).getDeclaredConstructor(animation.getClass());
+                    GameHandler.nextPacket.animationImages.add(constructor.newInstance(animation));
+
+                } catch (InvocationTargetException | NoSuchMethodException | InstantiationException |
+                         IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
                 return i;
             }
         }
@@ -232,9 +244,10 @@ public class Renderer {
             return -1;
         }
     }
-    public static void setPos(@NotNull ArrayRealVector p){
-        x=(int)p.getEntry(0);
-        y=(int)p.getEntry(1);
+
+    public static void setPos(@NotNull ArrayRealVector p) {
+        x = (int) p.getEntry(0);
+        y = (int) p.getEntry(1);
     }
 }
 

@@ -8,9 +8,9 @@ import javafx.util.Pair;
 import java.awt.*;
 
 public class TextCursorAnimation implements Animation {
-    Textbox textbox;
-    int frameCounter;
-    boolean lineOn;
+    public Textbox textbox;
+    public int frameCounter;
+    public boolean lineOn;
 
     public TextCursorAnimation(Textbox textbox) {
         this.textbox = textbox;

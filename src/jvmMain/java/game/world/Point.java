@@ -81,7 +81,7 @@ public class Point {
     }
 
     public ArrayRealVector getVelocity() {
-        return World.getDistance(pos, lpos);
+        return World.getDistance(lpos,pos);
     }
 
     public double project(@NotNull ArrayRealVector normalizedAxis) {
