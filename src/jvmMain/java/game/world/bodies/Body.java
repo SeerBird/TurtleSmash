@@ -1,5 +1,8 @@
 package game.world.bodies;
 
+import game.GameHandler;
+import game.connection.packets.containers.images.animations.CollisionBurstAnimationImage;
+import game.connection.packets.containers.images.animations.ScreenShakeAnimationImage;
 import game.output.Renderer;
 import game.output.animations.CollisionBurstAnimation;
 import game.output.animations.ScreenShakeAnimation;
@@ -243,9 +246,12 @@ public abstract class Body {
             collision.getEdge1().move(overlap.mapMultiply(-0.25 * scaleFactor * (1 - placement) * elasticity));
             collision.getEdge2().move(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));
         }
-        Renderer.addAnimation(new ScreenShakeAnimation(overlap.getNorm()));
-        Renderer.addAnimation(new CollisionBurstAnimation(collision));
+        GameHandler.broadcastAnimation(new ScreenShakeAnimationImage(
+                (ScreenShakeAnimation) Renderer.addAnimation(new ScreenShakeAnimation(overlap.getNorm()))));
+        GameHandler.broadcastAnimation(new CollisionBurstAnimationImage(
+                (CollisionBurstAnimation) Renderer.addAnimation(new CollisionBurstAnimation(collision))));
         Audio.playCooldownSound(Sound.collision);
+        GameHandler.broadcastSound(Sound.collision);
     }
 
     static boolean intersect(@NotNull Edge edge1, @NotNull Edge edge2) {

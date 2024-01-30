@@ -13,6 +13,8 @@ import game.input.InputControl;
 import game.input.InputInfo;
 import game.output.GameWindow;
 import game.output.Renderer;
+import game.output.audio.Audio;
+import game.output.audio.Sound;
 import game.output.ui.TurtleMenu;
 import game.util.DevConfig;
 import game.world.World;
@@ -53,7 +55,9 @@ public class GameHandler {
     private static final ArrayList<Runnable> jobs = new ArrayList<>();
     //endregion
     //region Players
-    private static final ArrayList<Player> players = new ArrayList<>();//player 0 is local
+    private static final Map<Player, ServerPacket> players = new HashMap<>();//player 0 is local
+    private static final Player host = new Player(Config.getPlayerName());
+    ;//player 0 is local
     private static final ArrayList<Player> addedPlayers = new ArrayList<>();
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
     private static final ArrayList<Player> deadPlayers = new ArrayList<>();
@@ -61,7 +65,6 @@ public class GameHandler {
     //endregion
     //region Connection
     public static final ServerPacket lastPacket = new ServerPacket(); // last received
-    public static final ServerPacket nextPacket = new ServerPacket(); // next to be sent
     public static final Map<InetAddress, ServerStatus> servers = new HashMap<>();
     static ServerTCP tcpServer;
     static ClientTCP tcpClient;
@@ -91,10 +94,9 @@ public class GameHandler {
         //region Set starting state
         addJob(Job.handleInput);
         addJob(Job.updateMenu);
-        addJob(Job.handlePlayers);
-        Player p = new Player(Config.getPlayerName()); // the player on this device
-        p.connectInput(InputControl.getInput());
-        addPlayer(p);
+        addJob(Job.handlePlayers);// the player on this device
+        host.connectInput(InputControl.getInput());
+        addPlayer(host);
         //endregion
     }
 
@@ -131,7 +133,9 @@ public class GameHandler {
     }
 
     private static void handlePlayers() {
-        players.addAll(addedPlayers);
+        for (Player added : addedPlayers) {
+            players.put(added, new ServerPacket());
+        }
         deadPlayers.addAll(addedPlayers);
         addedPlayers.clear();
         for (Player removed : removedPlayers) {
@@ -140,7 +144,7 @@ public class GameHandler {
         }
         InputInfo input;
         Body body;
-        for (Player player : players) {
+        for (Player player : players.keySet()) {
             input = player.getInput();
             if ((body = player.getBody()) != null) {
                 if (input.teleport) {
@@ -175,18 +179,30 @@ public class GameHandler {
     }
 
 
-    private static void broadcastServerPacket() {//ServerPacket should be assembled piece by piece, redo...
-        nextPacket.world = new WorldData(World.getBodies());
-        nextPacket.playing = state == GameState.playServer;
-        for (Player recipient : players) {
-            nextPacket.lobby = new LobbyData(players, recipient); // repeated actions inside.
-            recipient.send(nextPacket);
+    /**
+     {@link #sendAnimation(Player, AnimationImage)}, {@link #sendSound(Player, Sound)} add data to each player's corresponding {@link ServerPacket}
+     * **/
+    private static void broadcastServerPacket() {
+        WorldData world = new WorldData(World.getBodies());
+        boolean playing = state == GameState.playServer;
+        //region reset
+        for (Player player : players.keySet()) {
+            if (players.get(player) == null) {
+                players.put(player, new ServerPacket());
+            }
         }
-        nextPacket.clear();
+        //endregion
+        for (Player recipient : players.keySet()) {
+            players.get(recipient).lobby = new LobbyData(new ArrayList<>(players.keySet()), recipient); // repeated actions inside.
+            players.get(recipient).world = world;
+            players.get(recipient).playing = playing;
+            recipient.send(players.get(recipient));
+            players.get(recipient).clear();
+        }
     }
 
     private static void sendClientPacket() {
-        tcpClient.send(players.get(0).input);
+        tcpClient.send(getHost().input);
     }
 
     private static void handleServerPacket() {
@@ -208,6 +224,9 @@ public class GameHandler {
                 World.set(lastPacket.world);
                 for (AnimationImage<?> animation : lastPacket.animationImages) {
                     Renderer.addAnimation(animation.restoreAnimation());
+                }
+                for (Sound sound : lastPacket.sounds) {
+                    Audio.playSound(sound);
                 }
                 lastPacket.changed = false;
             }
@@ -270,7 +289,7 @@ public class GameHandler {
 
     public static void playServerToHost() {
         setState(GameState.host);
-        for (Player player : players) {
+        for (Player player : players.keySet()) {
             if (!deadPlayers.contains(player)) {
                 player.die();
             }
@@ -357,16 +376,16 @@ public class GameHandler {
     }
 
     private static void setPlayers(@NotNull LobbyData lobby) {
-        Player local = players.get(0);
+        Player local = getHost();
         boolean dead = deadPlayers.contains(local);
         deadPlayers.clear();
         players.clear();
-        players.add(local);
+        players.put(local, new ServerPacket());
         for (String name : lobby.players) {
             if (name != null) {
                 Player dummy = new Player(name);
                 deadPlayers.add(dummy);
-                players.add(dummy);
+                players.put(dummy, new ServerPacket());
             }
         }
         if (dead) {
@@ -384,6 +403,30 @@ public class GameHandler {
         }
         return GameHandler.getPlayers().get(id);
     }
+
+    public static void broadcastSound(Sound sound) {
+        for (ServerPacket packet : players.values()) {
+            packet.sounds.add(sound);
+        }
+    }
+
+    public static void broadcastAnimation(AnimationImage<?> animationImage) {
+        for (ServerPacket packet : players.values()) {
+            packet.animationImages.add(animationImage);
+        }
+    }
+
+    public static void sendSound(Player recipient, Sound sound) {
+        if (players.get(recipient) != null) {
+            players.get(recipient).sounds.add(sound);
+        }
+    }
+
+    public static void sendAnimation(Player recipient, AnimationImage<?> animation) {
+        if (players.get(recipient) != null) {
+            players.get(recipient).animationImages.add(animation);
+        }
+    }
     //endregion
 
     //region Player handling
@@ -391,7 +434,7 @@ public class GameHandler {
     public static Player connectPlayer(SocketChannel channel) {
         //region try to find the first player with the same address, remove any following players with the same address
         Player dupe = null;
-        for (Player player : players) {
+        for (Player player : players.keySet()) {
             if (player.getChannel() != null) {
                 if (player.getChannel().remoteAddress().getAddress() == channel.remoteAddress().getAddress()) {
                     if (dupe == null) {
@@ -428,12 +471,19 @@ public class GameHandler {
         TurtleMenu.refreshScores();
     }
 
+    public static boolean isHost(Player player) {
+        return player == host;
+    }
+
+    public static Player getHost() {
+        return host;
+    }
     //endregion
 
     //region getters
 
     public static ArrayList<Player> getPlayers() {
-        return players;
+        return new ArrayList<>(players.keySet());
     }
 
     public static Map<InetAddress, ServerStatus> getServers() {

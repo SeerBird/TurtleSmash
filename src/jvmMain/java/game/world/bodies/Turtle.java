@@ -1,5 +1,6 @@
 package game.world.bodies;
 
+import game.GameHandler;
 import game.util.DevConfig;
 import game.Player;
 import game.output.audio.Audio;
@@ -152,7 +153,7 @@ public class Turtle extends Body {
         addEdge(leftArm2, rightLeg2);
         //endregion
         World.addBody(this);
-        nakedFrames=1; //let the velocity get recorded
+        nakedFrames = 1; //let the velocity get recorded
     }
 
     public Turtle() {
@@ -206,6 +207,7 @@ public class Turtle extends Body {
             spinneret.accelerate(recoil.mapMultiply(5));
             accelerate(recoil);
             Audio.playSound(Sound.webThrow);
+            GameHandler.broadcastSound(Sound.webThrow);
         }
     }
 
@@ -279,7 +281,11 @@ public class Turtle extends Body {
 
     private void die() {
         owner.die(); //let the player know they died
-        Audio.playSound(Sound.death);
+        if (GameHandler.isHost(owner)) {
+            Audio.playSound(Sound.death);
+        } else {
+            GameHandler.sendSound(owner, Sound.death);
+        }
         owner = null; //become a lifeless remnant of what once used to be
     }
 

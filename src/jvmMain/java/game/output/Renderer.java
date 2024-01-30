@@ -33,14 +33,14 @@ import static game.util.Maths.getVector;
 
 public class Renderer {
     static Graphics g;
-    static final Map<Integer, Animation> animations = new HashMap<>();
+    static final ArrayList<Animation> animations = new ArrayList<>();
     static int x = 0;
     static int y = 0;
 
     public static void update() { //get new info and progress animations
-        for (Integer animID : new ArrayList<>(animations.keySet())) { //does this solve concurrent modification??? check
-            if (!animations.get(animID).drawNext(g)) {
-                removeAnimation(animID);
+        for (Animation animation : new ArrayList<>(animations)) {
+            if (!animation.drawNext(g)) {
+                removeAnimation(animation);
             }
         }
     }
@@ -89,7 +89,7 @@ public class Renderer {
             }
             g.setColor(DevConfig.turtle);
             g.fillPolygon(x, y, n);
-            if (((Turtle) b).owner == GameHandler.getPlayers().get(0)) {
+            if (GameHandler.isHost(((Turtle) b).owner)) {
                 g.setColor(DevConfig.HIGHLIGHT);
                 g.drawPolygon(x, y, n);
             }
@@ -208,26 +208,13 @@ public class Renderer {
     //endregion
 
     //region Animations
-    public static int addAnimation(Animation animation) {
-        for (int i = 0; i < DevConfig.maxAnimations; i++) {
-            if (animations.get(i) == null) {
-                animations.put(i, animation);
-                try {
-                    Constructor<? extends AnimationImage<?>> constructor = AnimationImage.getImageClass(animation).getDeclaredConstructor(animation.getClass());
-                    GameHandler.nextPacket.animationImages.add(constructor.newInstance(animation));
-
-                } catch (InvocationTargetException | NoSuchMethodException | InstantiationException |
-                         IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-                return i;
-            }
-        }
-        return -1; //honestly im not even gonna handle the -1 case.
+    public static Animation addAnimation(Animation animation) {
+        animations.add(animation);
+        return animation;
     }
 
-    public static void removeAnimation(int id) {
-        animations.remove(id);
+    public static void removeAnimation(Animation animation) {
+        animations.remove(animation);
     }
     //endregion
 

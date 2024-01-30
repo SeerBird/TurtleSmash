@@ -36,7 +36,7 @@ public class TurtleMenu {
                 new Label(DevConfig.WIDTH / 2 - 160, 360, 320, 40, "Choose Your Name!", DevConfig.turtle),
                 new Textbox(DevConfig.WIDTH / 2 - 160, 400, 320, 40, Config.getPlayerName(), text -> {
                     Config.setName(text);
-                    GameHandler.getPlayers().get(0).claimName(text);
+                    GameHandler.getHost().claimName(text);
                 }, DevConfig.turtle));
         //endregion
         //region host

@@ -5,8 +5,8 @@ import game.output.animations.ShellSnapFlashAnimation;
 
 public class ShellSnapFlashAnimationImage extends AnimationImage<ShellSnapFlashAnimation> {
 
-    public ShellSnapFlashAnimationImage(ShellSnapFlashAnimation animation) {
-        super(animation);
+    public ShellSnapFlashAnimationImage() {
+        super(null);
     }
 
     @Override

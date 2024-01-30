@@ -1,6 +1,7 @@
 package game.world.bodies;
 
 import game.GameHandler;
+import game.connection.packets.containers.images.animations.ShellSnapFlashAnimationImage;
 import game.output.Renderer;
 import game.output.animations.ShellSnapFlashAnimation;
 import game.util.DevConfig;
@@ -74,8 +75,12 @@ public class Shell extends Body {
         }
         if (snap) {
             straps.clear();
-            if (parent.owner == GameHandler.getPlayers().get(0)) {
+            if (GameHandler.isHost(parent.owner)) {
                 Renderer.addAnimation(new ShellSnapFlashAnimation());
+            } else {
+                if (parent.owner != null) {
+                    GameHandler.sendAnimation(parent.owner, new ShellSnapFlashAnimationImage());
+                }
             }
         }
         return sat;
