@@ -5,6 +5,7 @@ import game.util.Maths;
 import game.util.Util;
 import game.world.CollisionData;
 import game.world.Point;
+import game.world.World;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,11 +28,13 @@ public class CollisionBurstAnimation implements Animation {
         removed = new ArrayList<>();
         intensity = Math.pow(collision.overlap.getNorm(), 3) * DevConfig.burstIntensity;
         pos = collision.getVertex().getPos();
-        for (int i = 0; i < intensity; i++) {
+        double random = Math.random();
+        for (int i = 0; i < intensity && i < DevConfig.maxParticles; i++) {
             particles.put(new Point(1, pos), DevConfig.particleLingerFrames);
         }
         for (Point p : particles.keySet()) {
-            p.accelerate(randomUnitVector().mapMultiply(Math.random() * intensity * 5));
+            p.accelerate(randomUnitVector(random).mapMultiply(((random * 10) % 1) * intensity * 5));
+            random = (random * 10) % 1;
         }
         color = Util.getColor(collision.vertex.getParentBody());
     }
@@ -53,7 +56,7 @@ public class CollisionBurstAnimation implements Animation {
             //region linger
             if (particles.get(p) < DevConfig.particleLingerFrames) {
                 particles.put(p, particles.get(p) - 1);
-                if (particles.get(p) == 0) {
+                if (particles.get(p) == 0 || World.isOutOfBounds(p.getPos())) {
                     removeParticle(p);
                 }
             }

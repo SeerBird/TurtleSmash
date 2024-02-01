@@ -3,6 +3,7 @@ package game;
 import game.connection.packets.ClientPacket;
 import game.connection.packets.ServerPacket;
 import game.input.InputInfo;
+import game.output.ui.TurtleMenu;
 import game.util.DevConfig;
 import game.world.bodies.Turtle;
 import io.netty.channel.ChannelFutureListener;
@@ -25,7 +26,7 @@ public class Player {
 
     public Player(String name) {
         score = 0;
-        deathTimer = 0;
+        deathTimer = DevConfig.deathFrames;
         input = new InputInfo();
         claimName(name);
     }
@@ -114,7 +115,7 @@ public class Player {
         score++;
         setBody(null);
         deathTimer = DevConfig.deathFrames;
-        GameHandler.killPlayer(this);
+        TurtleMenu.refreshScores();
     }
 
     public String getName() {
@@ -124,4 +125,5 @@ public class Player {
     public int getScore() {
         return score;
     }
+
 }

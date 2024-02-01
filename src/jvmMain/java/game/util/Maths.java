@@ -35,6 +35,13 @@ public final class Maths {
         double y = Math.sin(theta);
         return getVector(x, y);
     }
+    @NotNull
+    public static ArrayRealVector randomUnitVector(double circleFraction) {
+        double theta = circleFraction * Math.PI * 2;
+        double x = Math.cos(theta);
+        double y = Math.sin(theta);
+        return getVector(x, y);
+    }
 
     public static ArrayRealVector i = new ArrayRealVector(new Double[]{1.0, 0.0});
     public static ArrayRealVector j = new ArrayRealVector(new Double[]{0.0, 1.0});

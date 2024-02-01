@@ -60,8 +60,6 @@ public class GameHandler {
     ;//player 0 is local
     private static final ArrayList<Player> addedPlayers = new ArrayList<>();
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
-    private static final ArrayList<Player> deadPlayers = new ArrayList<>();
-    private static final ArrayList<Player> revivedPlayers = new ArrayList<>();
     //endregion
     //region Connection
     public static final ServerPacket lastPacket = new ServerPacket(); // last received
@@ -136,11 +134,9 @@ public class GameHandler {
         for (Player added : addedPlayers) {
             players.put(added, new ServerPacket());
         }
-        deadPlayers.addAll(addedPlayers);
         addedPlayers.clear();
         for (Player removed : removedPlayers) {
             players.remove(removed);
-            deadPlayers.remove(removed);
         }
         InputInfo input;
         Body body;
@@ -165,23 +161,20 @@ public class GameHandler {
     }
 
     private static void revivePlayers() {
-        for (Player player : deadPlayers) {
-            player.deathTimer -= 1;
-            if (player.deathTimer < 0) {
-                World.playerSpawn(player);
-                revivedPlayers.add(player);
+        for (Player player : players.keySet()) {
+            if (player.deathTimer > 0) {
+                player.deathTimer -= 1;
+                if (player.deathTimer <= 0) {
+                    World.playerSpawn(player);
+                }
             }
         }
-        for (Player player : revivedPlayers) {
-            deadPlayers.remove(player);
-        }
-        revivedPlayers.clear();
     }
 
 
     /**
-     {@link #sendAnimation(Player, AnimationImage)}, {@link #sendSound(Player, Sound)} add data to each player's corresponding {@link ServerPacket}
-     * **/
+     * {@link #sendAnimation(Player, AnimationImage)}, {@link #sendSound(Player, Sound)} add data to each player's corresponding {@link ServerPacket}
+     **/
     private static void broadcastServerPacket() {
         WorldData world = new WorldData(World.getBodies());
         boolean playing = state == GameState.playServer;
@@ -289,12 +282,10 @@ public class GameHandler {
 
     public static void playServerToHost() {
         setState(GameState.host);
-        for (Player player : players.keySet()) {
-            if (!deadPlayers.contains(player)) {
-                player.die();
-            }
-        }
         addJob(Job.clearWorld);
+        for (Player player : players.keySet()) {
+            player.die();
+        }
         removeJob(Job.revivePlayers);
         removeJob(Job.updateWorld);
     }
@@ -377,19 +368,13 @@ public class GameHandler {
 
     private static void setPlayers(@NotNull LobbyData lobby) {
         Player local = getHost();
-        boolean dead = deadPlayers.contains(local);
-        deadPlayers.clear();
         players.clear();
         players.put(local, new ServerPacket());
         for (String name : lobby.players) {
             if (name != null) {
                 Player dummy = new Player(name);
-                deadPlayers.add(dummy);
                 players.put(dummy, new ServerPacket());
             }
-        }
-        if (dead) {
-            deadPlayers.add(local);
         }
     }
 
@@ -467,7 +452,6 @@ public class GameHandler {
     }
 
     public static void killPlayer(Player player) {
-        deadPlayers.add(player);
         TurtleMenu.refreshScores();
     }
 

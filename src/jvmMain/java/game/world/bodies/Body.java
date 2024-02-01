@@ -248,8 +248,7 @@ public abstract class Body {
         }
         GameHandler.broadcastAnimation(new ScreenShakeAnimationImage(
                 (ScreenShakeAnimation) Renderer.addAnimation(new ScreenShakeAnimation(overlap.getNorm()))));
-        GameHandler.broadcastAnimation(new CollisionBurstAnimationImage(
-                (CollisionBurstAnimation) Renderer.addAnimation(new CollisionBurstAnimation(collision))));
+        GameHandler.broadcastAnimation(new CollisionBurstAnimationImage((CollisionBurstAnimation) Renderer.addAnimation(new CollisionBurstAnimation(collision))));
         Audio.playCooldownSound(Sound.collision);
         GameHandler.broadcastSound(Sound.collision);
     }

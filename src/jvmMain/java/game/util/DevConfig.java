@@ -27,14 +27,14 @@ public class DevConfig {
     //endregion
     //region turtles
     public static double turtleSize = 1.0;
-    public static double turtleDeformThreshold = 3.0;
+    public static double turtleDeformThreshold = 3.5;
     public static double turtleMass = 4.0;
     public static int turtleNakedFrames = 30;
     public static double recoil = 12.0;
     //endregion
     //region shells
     public static double shellMergeThreshold = 10.0;
-    public static double shellStrapExtensionLimit = 1.4;
+    public static double shellStrapExtensionLimit = 1.52;
     public static double shellMass = 4.0;
     //endregion
     //region player
@@ -52,11 +52,12 @@ public class DevConfig {
     public static int maxAnimations = 200;
     public static double shakeDecay = 0.9;
     public static double shakeIntensity = 1.0;
-    public static double burstIntensity = 0.008;
+    public static double burstIntensity = 0.0008;
     public static double particleLingerFrames = 20;
     public static int shellSnapFlashFrames = 50;
     //endregion
     //region menu
     public static int maxNameLength = 30;
+    public static int maxParticles = 100;
     //endregion
 }

@@ -291,6 +291,18 @@ public final class World {
         } else return projectionY.get(1).getKey() < 0;
     }
 
+    public static boolean isOutOfBounds(@NotNull ArrayRealVector v) {
+        //boolean gone = false;
+        if (v.getEntry(0) > WIDTH) {
+            return true;
+        } else if (v.getEntry(0) < 0) {
+            return true;
+        }
+        if (v.getEntry(1) > HEIGHT) {
+            return true;
+        } else return v.getEntry(1) < 0;
+    }
+
     public static ArrayRealVector getDistance(ArrayRealVector pos1, @NotNull ArrayRealVector pos2) {
         return pos2.combine(1, -1, pos1);
     }
