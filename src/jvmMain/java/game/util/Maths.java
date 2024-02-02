@@ -35,6 +35,7 @@ public final class Maths {
         double y = Math.sin(theta);
         return getVector(x, y);
     }
+
     @NotNull
     public static ArrayRealVector randomUnitVector(double circleFraction) {
         double theta = circleFraction * Math.PI * 2;
@@ -51,5 +52,9 @@ public final class Maths {
     @Contract(value = "_ -> new", pure = true)
     public static ArrayRealVector getVector(double... coords) {
         return new ArrayRealVector(coords);
+    }
+
+    public static double round(double number, int decimals) {
+        return ((double) (int) (number * Math.pow(10, decimals))) / Math.pow(10, decimals);
     }
 }

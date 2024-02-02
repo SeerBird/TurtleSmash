@@ -1,13 +1,9 @@
 package game.output.ui.rectangles;
 
-import game.Config;
 import game.GameHandler;
 import game.Player;
-import game.connection.packets.ServerPacket;
 import game.util.DevConfig;
-
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class PlayerList extends RectElement {
     ArrayList<Label> labels;

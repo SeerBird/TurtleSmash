@@ -1,6 +1,7 @@
 package game.world.constraints;
 
 import game.util.DevConfig;
+import game.util.Maths;
 import game.world.BPoint;
 import org.apache.commons.math3.linear.ArrayRealVector;
 
@@ -10,7 +11,7 @@ public class FixedEdge extends Edge {
 
     public FixedEdge(BPoint p1, BPoint p2, double rest_d) {
         super(p1, p2);
-        this.rest_d = rest_d;
+        this.rest_d = Maths.round(rest_d,3);
     }
 
 

@@ -57,7 +57,6 @@ public class GameHandler {
     //region Players
     private static final Map<Player, ServerPacket> players = new HashMap<>();//player 0 is local
     private static final Player host = new Player(Config.getPlayerName());
-    ;//player 0 is local
     private static final ArrayList<Player> addedPlayers = new ArrayList<>();
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
     //endregion
@@ -178,14 +177,19 @@ public class GameHandler {
     private static void broadcastServerPacket() {
         WorldData world = new WorldData(World.getBodies());
         boolean playing = state == GameState.playServer;
-        //region reset
+        //region I don't wanna think, make sure they have their packets
         for (Player player : players.keySet()) {
             if (players.get(player) == null) {
-                players.put(player, new ServerPacket());
+                if (!isHost(player)) {
+                    players.put(player, new ServerPacket());
+                }
             }
         }
         //endregion
         for (Player recipient : players.keySet()) {
+            if (isHost(recipient)) {
+                continue;
+            }
             players.get(recipient).lobby = new LobbyData(new ArrayList<>(players.keySet()), recipient); // repeated actions inside.
             players.get(recipient).world = world;
             players.get(recipient).playing = playing;
@@ -367,9 +371,8 @@ public class GameHandler {
     }
 
     private static void setPlayers(@NotNull LobbyData lobby) {
-        Player local = getHost();
         players.clear();
-        players.put(local, new ServerPacket());
+        players.put(getHost(), null);
         for (String name : lobby.players) {
             if (name != null) {
                 Player dummy = new Player(name);
@@ -391,13 +394,17 @@ public class GameHandler {
 
     public static void broadcastSound(Sound sound) {
         for (ServerPacket packet : players.values()) {
-            packet.sounds.add(sound);
+            if (packet != null) {
+                packet.sounds.add(sound);
+            }
         }
     }
 
     public static void broadcastAnimation(AnimationImage<?> animationImage) {
         for (ServerPacket packet : players.values()) {
-            packet.animationImages.add(animationImage);
+            if (packet != null) {
+                packet.animationImages.add(animationImage);
+            }
         }
     }
 

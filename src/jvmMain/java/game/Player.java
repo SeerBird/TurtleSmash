@@ -82,7 +82,10 @@ public class Player {
             if (channel.isActive()) {
                 String json;
                 try {
+                    long time = System.nanoTime();
                     json = packet.getClass() + gson.toJson(packet);
+                    if((time=System.nanoTime()-time)>1204200*5){
+                    logger.warning("Took " + time + " ns to serialize!");}
                 } catch (IllegalArgumentException e) {
                     logger.severe(e.getMessage());
                     return;
