@@ -249,7 +249,11 @@ public abstract class Body {
         GameHandler.broadcastAnimation(new ScreenShakeAnimationImage(
                 (ScreenShakeAnimation) Renderer.addAnimation(new ScreenShakeAnimation(overlap.getNorm()))));
         GameHandler.broadcastAnimation(new CollisionBurstAnimationImage((CollisionBurstAnimation) Renderer.addAnimation(new CollisionBurstAnimation(collision))));
+        long time = System.nanoTime();
         Audio.playCooldownSound(Sound.collision);
+        if((time=(System.nanoTime()-time)/1000000)>10){
+            logger.severe("Took "+time+" millis to out sound(outside)");
+        }
         GameHandler.broadcastSound(Sound.collision);
     }
 

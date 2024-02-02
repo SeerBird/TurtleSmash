@@ -153,6 +153,7 @@ public class Turtle extends Body {
         addEdge(leftArm2, rightLeg2);
         //endregion
         World.addBody(this);
+        relevance = 1000000000;
         nakedFrames = 1; //let the velocity get recorded
     }
 
@@ -175,9 +176,14 @@ public class Turtle extends Body {
     @Override
     public ArrayList<Edge> getSides() {
         ArrayList<Edge> sides = new ArrayList<>();
-        for (int i = 0; i < 23; i++) {
-            sides.add(edges.get(i));
-        }
+        sides.add(edges.get(1));
+        sides.add(edges.get(5));
+        sides.add(edges.get(7));
+        sides.add(edges.get(9));
+        sides.add(edges.get(11));
+        sides.add(edges.get(16));
+        sides.add(edges.get(18));
+        sides.add(edges.get(20));
         return sides;
     }
 

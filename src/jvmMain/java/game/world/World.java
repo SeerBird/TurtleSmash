@@ -16,12 +16,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import static game.util.DevConfig.HEIGHT;
 import static game.util.DevConfig.WIDTH;
 import static game.util.Maths.*;
 
 public final class World {
+    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     static ArrayList<Body> bodies = new ArrayList<>();
     static ArrayList<Body> toRemove = new ArrayList<>();
     static ArrayList<Body> toAdd = new ArrayList<>();
@@ -146,19 +148,16 @@ public final class World {
                     //endregion
                     //region check collision using projection overlap and store the potential collision edge and overlap
                     if ((projection1 > projection2.get(0).getKey()) && (projection1 < projection2.get(1).getKey())) {
-                        if (sticky.project(parallelAxis) > e.getEdge1().project(parallelAxis) &&
-                                sticky.project(parallelAxis) < e.getEdge2().project(parallelAxis)) {
-                            distance = Math.abs(sticky.project(normalAxis) - e.getEdge1().project(normalAxis));
-                            if (distance < minDistance) {
-                                minDistance = distance;
-                                collisionEdge = e;
-                                collisionAxis = normalAxis;
-                            }
+                        distance = Math.abs(sticky.project(normalAxis) - e.getEdge1().project(normalAxis));
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            collisionEdge = e;
+                            collisionAxis = normalAxis;
                         }
                     } else {
                         collided = false;
                         break;
-                    } // no collision
+                    }
                     //endregion
                 }
                 //region if no separating axis has been found, return the collision data with minimal overlap
