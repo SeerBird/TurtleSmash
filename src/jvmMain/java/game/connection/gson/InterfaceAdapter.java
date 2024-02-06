@@ -34,8 +34,8 @@ public class InterfaceAdapter<T> implements JsonSerializer<T>, JsonDeserializer<
             BodyEdgePointer.class, "BE"
     );
 
-    private static final String CLASSNAME = "CLASSNAME";
-    private static final String DATA = "DATA";
+    private static final String CLASSNAME = "C";
+    private static final String DATA = "D";
 
     public T deserialize(JsonElement jsonElement, Type type,
                          JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {

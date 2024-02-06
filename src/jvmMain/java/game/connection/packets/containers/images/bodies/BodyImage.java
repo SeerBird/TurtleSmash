@@ -10,13 +10,9 @@ import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 import game.world.constraints.Edge;
 import game.world.constraints.FixedEdge;
-import javafx.util.Pair;
-import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import static game.util.Maths.getVector;
 
@@ -86,7 +82,7 @@ public abstract class BodyImage<T extends Body> {
         ArrayList<BPoint> bodyPoints = body.getPoints();
         for (EdgeImage e : edges) {
             if (e instanceof FixedEdgeImage) {
-                body.addEdge(new FixedEdge(bodyPoints.get(((FixedEdgeImage) e).index1), bodyPoints.get(((FixedEdgeImage) e).index2), ((FixedEdgeImage) e).distance));
+                body.addEdge(new FixedEdge(bodyPoints.get(((FixedEdgeImage) e).i1), bodyPoints.get(((FixedEdgeImage) e).i2), ((FixedEdgeImage) e).d));
             }
         }
     }

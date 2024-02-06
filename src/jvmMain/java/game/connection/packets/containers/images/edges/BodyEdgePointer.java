@@ -7,20 +7,20 @@ import game.world.constraints.Edge;
 import org.jetbrains.annotations.NotNull;
 
 public class BodyEdgePointer implements EdgeImage{
-    public int bodyindex;
-    public int index1;
-    public int index2;
+    public int bi;
+    public int i1;
+    public int i2;
 
     public BodyEdgePointer(@NotNull Edge e) {
         Body parent = e.getEdge1().getParentBody();
-        bodyindex = World.getBodies().indexOf(parent);
-        index1 = parent.getPoints().indexOf(e.getEdge1());
-        index2 = parent.getPoints().indexOf(e.getEdge2());
+        bi = World.getBodies().indexOf(parent);
+        i1 = parent.getPoints().indexOf(e.getEdge1());
+        i2 = parent.getPoints().indexOf(e.getEdge2());
     }
     public Edge findEdge(){
-        Body parent = World.getBodies().get(bodyindex);
-        BPoint p1=parent.getPoints().get(index1);
-        BPoint p2=parent.getPoints().get(index2);
+        Body parent = World.getBodies().get(bi);
+        BPoint p1=parent.getPoints().get(i1);
+        BPoint p2=parent.getPoints().get(i2);
         for(Edge e: parent.getEdges()){
             if(e.getEdge1()==p1){
                 if(e.getEdge2()==p2){

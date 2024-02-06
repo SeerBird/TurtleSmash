@@ -8,9 +8,7 @@ import game.world.BPoint;
 import game.world.World;
 import game.world.bodies.Web;
 import game.world.constraints.Edge;
-import javafx.util.Pair;
 import org.apache.commons.lang3.mutable.MutableDouble;
-import org.apache.commons.math3.linear.ArrayRealVector;
 
 import java.util.ArrayList;
 
@@ -52,7 +50,7 @@ public class WebImage extends BodyImage<Web> {
         ArrayList<BPoint> bodyPoints = body.getPoints();
         for (EdgeImage e : edges) {
             if (e instanceof ControlEdgePointer) {
-                body.addEdge(bodyPoints.get(((ControlEdgePointer) e).index1), bodyPoints.get(((ControlEdgePointer) e).index2), control);
+                body.addEdge(bodyPoints.get(((ControlEdgePointer) e).i1), bodyPoints.get(((ControlEdgePointer) e).i2), control);
             }
         }
         body.setGrowing(isGrowing);

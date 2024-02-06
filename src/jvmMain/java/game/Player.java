@@ -84,8 +84,10 @@ public class Player {
                 try {
                     long time = System.nanoTime();
                     json = packet.getClass() + gson.toJson(packet);
-                    if((time=System.nanoTime()-time)>1204200*5){
-                    logger.warning("Took " + time + " ns to serialize!");}
+                    logger.warning("Json length: "+json.length());
+                    if ((time = System.nanoTime() - time) > 1204200 * 5) {
+                        logger.warning("Took " + time/1000000 + " millis to serialize!");
+                    }
                 } catch (IllegalArgumentException e) {
                     logger.severe(e.getMessage());
                     return;
@@ -93,6 +95,7 @@ public class Player {
                     logger.severe(other.getMessage());
                     throw new RuntimeException(other.getMessage());
                 }
+                long time = System.nanoTime();
                 channel.writeAndFlush(json).addListener((ChannelFutureListener) future -> {
                     if (!future.isSuccess()) {
                         if (future.cause().getMessage() == null) {
@@ -100,6 +103,8 @@ public class Player {
                         } else {
                             logger.warning(future.cause().getMessage());
                         }
+                    } else {
+                        //logger.warning("Took " + (System.nanoTime() - time) / 1000000.0 + " millis to send packet");
                     }
                 });
             }

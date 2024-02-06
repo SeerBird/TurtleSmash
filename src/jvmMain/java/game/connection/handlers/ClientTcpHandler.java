@@ -10,12 +10,15 @@ import java.util.logging.Logger;
 
 public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    long last = 0;
 
     public ClientTcpHandler(){
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if(msg instanceof ServerPacket){
+            logger.warning("Time since last packet: "+(System.nanoTime()-last)/1000000.0/16.666666 + " frames");
+            last = System.nanoTime();
             GameHandler.receiveServerPacket((ServerPacket)msg);
         }else{
             logger.warning("Unknown message type");

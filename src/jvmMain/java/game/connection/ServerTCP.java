@@ -10,11 +10,13 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.SocketChannelConfig;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
+import java.net.SocketOption;
 import java.util.logging.Logger;
 
 
@@ -52,7 +54,6 @@ public class ServerTCP extends Thread {
                             );
                             logger.info("New connection with " + ch.remoteAddress().getAddress() + ":" + ch.remoteAddress().getPort());
                         }
-
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
                             tcpChannels.add(ctx.channel());
