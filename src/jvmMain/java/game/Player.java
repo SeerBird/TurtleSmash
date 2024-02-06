@@ -48,7 +48,11 @@ public class Player {
     }
 
     public void receive(@NotNull ClientPacket packet) {
-        input = packet.getInput();
+        input.detachWeb |= packet.getInput().detachWeb;
+        input.webFling |= packet.getInput().webFling;
+        input.create |= packet.getInput().create;
+        input.teleport |= packet.getInput().teleport;
+        input.mousepos = packet.getInput().mousepos;
         claimName(packet.name);
     }
 
@@ -84,9 +88,9 @@ public class Player {
                 try {
                     long time = System.nanoTime();
                     json = packet.getClass() + gson.toJson(packet);
-                    logger.warning("Json length: "+json.length());
+                    logger.warning("Json length: " + json.length());
                     if ((time = System.nanoTime() - time) > 1204200 * 5) {
-                        logger.warning("Took " + time/1000000 + " millis to serialize!");
+                        logger.warning("Took " + time / 1000000 + " millis to serialize!");
                     }
                 } catch (IllegalArgumentException e) {
                     logger.severe(e.getMessage());

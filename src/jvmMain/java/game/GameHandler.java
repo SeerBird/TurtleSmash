@@ -28,6 +28,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -55,7 +56,7 @@ public class GameHandler {
     private static final ArrayList<Runnable> jobs = new ArrayList<>();
     //endregion
     //region Players
-    private static final Map<Player, ServerPacket> players = new HashMap<>();//player 0 is local
+    private static final LinkedHashMap<Player, ServerPacket> players = new LinkedHashMap<>();//player 0 is local
     private static final Player host = new Player(Config.getPlayerName());
     private static final ArrayList<Player> addedPlayers = new ArrayList<>();
     private static final ArrayList<Player> removedPlayers = new ArrayList<>();
@@ -145,15 +146,19 @@ public class GameHandler {
                 if (input.teleport) {
                     body.shift((ArrayRealVector) body.getDistance(input.mousepos).mapMultiply(0.2));
                     body.stop();
+                    input.teleport=false;
                 }
                 if (input.create) {
                     World.spawn(input.mousepos);
+                    input.create=false;
                 }
                 if (input.webFling) {
                     player.getBody().webFling(input.mousepos.copy());
+                    input.webFling=false;
                 }
                 if (input.detachWeb) {
                     player.getBody().detachWeb(input.mousepos.copy());
+                    input.detachWeb=false;
                 }
             }
         }
@@ -370,18 +375,20 @@ public class GameHandler {
         TurtleMenu.refreshServerList(); // cringe. notify or whatever?
     }
 
-    private static void setPlayers(@NotNull LobbyData lobby) {
+    private static void setPlayers(@NotNull LobbyData lobby) { //client, obviously
         players.clear();
-        players.put(getHost(), null);
         for (String name : lobby.players) {
             if (name != null) {
                 Player dummy = new Player(name);
-                players.put(dummy, new ServerPacket());
+                players.put(dummy, null);
+            } else {
+                players.put(getHost(), null);
             }
         }
     }
 
     public static Player getLocalPlayerFromServerId(Integer id) {
+        /*
         ArrayList<String> playerNames = lastPacket.lobby.players;
         int localUser = playerNames.indexOf(null);
         if (id < localUser) {
@@ -389,6 +396,8 @@ public class GameHandler {
         } else if (id == localUser) {
             id = 0;
         }
+        return GameHandler.getPlayers().get(id);
+         */
         return GameHandler.getPlayers().get(id);
     }
 

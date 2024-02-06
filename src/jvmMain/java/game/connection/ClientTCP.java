@@ -72,7 +72,7 @@ public class ClientTCP extends Thread {
 
     public void send(InputInfo input) {
         if (channel != null) {
-            channel.writeAndFlush(gsonRegistry.gson.toJson(new ClientPacket(input, GameHandler.getPlayers().get(0).getName())));
+            channel.writeAndFlush(gsonRegistry.gson.toJson(new ClientPacket(input, GameHandler.getHost().getName())));
         }
     }
 

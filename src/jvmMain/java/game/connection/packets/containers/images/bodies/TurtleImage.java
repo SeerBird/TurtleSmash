@@ -42,7 +42,7 @@ public class TurtleImage extends BodyImage<Turtle> {
             body.spinnerets.put(body.getPoints().get(i),
                     spinnerets.get(i) == null ? null : (Web) World.getBodies().get(spinnerets.get(i)));
         }
-        body.owner = GameHandler.getLocalPlayerFromServerId(owner);
+        body.owner = owner == -1 ? null : GameHandler.getLocalPlayerFromServerId(owner);
         body.shell = shell == null ? null : (Shell) World.getBodies().get(shell);
     }
 }
