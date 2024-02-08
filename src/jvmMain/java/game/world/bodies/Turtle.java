@@ -153,7 +153,6 @@ public class Turtle extends Body {
         addEdge(leftArm2, rightLeg2);
         //endregion
         World.addBody(this);
-        relevance = 1000000000;
         nakedFrames = 1; //let the velocity get recorded
     }
 

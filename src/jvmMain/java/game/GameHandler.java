@@ -26,10 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 
@@ -146,19 +143,19 @@ public class GameHandler {
                 if (input.teleport) {
                     body.shift((ArrayRealVector) body.getDistance(input.mousepos).mapMultiply(0.2));
                     body.stop();
-                    input.teleport=false;
+                    input.teleport = false;
                 }
                 if (input.create) {
                     World.spawn(input.mousepos);
-                    input.create=false;
+                    input.create = false;
                 }
                 if (input.webFling) {
                     player.getBody().webFling(input.mousepos.copy());
-                    input.webFling=false;
+                    input.webFling = false;
                 }
                 if (input.detachWeb) {
                     player.getBody().detachWeb(input.mousepos.copy());
-                    input.detachWeb=false;
+                    input.detachWeb = false;
                 }
             }
         }
@@ -377,12 +374,19 @@ public class GameHandler {
 
     private static void setPlayers(@NotNull LobbyData lobby) { //client, obviously
         players.clear();
-        for (String name : lobby.players) {
-            if (name != null) {
+        for (String name : lobby.players.keySet()) {
+            if (!Objects.equals(name, "")) {
                 Player dummy = new Player(name);
+                dummy.score=lobby.players.get(name);
                 players.put(dummy, null);
             } else {
                 players.put(getHost(), null);
+                getHost().score=lobby.players.get("");
+            }
+        }
+        for (Player player : getPlayers()) {
+            if (!isHost(player) && Objects.equals(player.name, getHost().name)) {
+                player.claimName(player.name);
             }
         }
     }
@@ -467,10 +471,6 @@ public class GameHandler {
         removedPlayers.add(player);
     }
 
-    public static void killPlayer(Player player) {
-        TurtleMenu.refreshScores();
-    }
-
     public static boolean isHost(Player player) {
         return player == host;
     }
@@ -488,10 +488,6 @@ public class GameHandler {
 
     public static Map<InetAddress, ServerStatus> getServers() {
         return servers;
-    }
-
-    public static ServerPacket getPacket() {
-        return lastPacket;
     }
 
     //endregion

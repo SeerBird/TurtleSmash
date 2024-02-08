@@ -53,7 +53,9 @@ public class Player {
         input.create |= packet.getInput().create;
         input.teleport |= packet.getInput().teleport;
         input.mousepos = packet.getInput().mousepos;
-        claimName(packet.name);
+        if (!Objects.equals(packet.name, name)) {
+            claimName(packet.name);
+        }
     }
 
     public void claimName(String desiredName) {

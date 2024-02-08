@@ -33,7 +33,6 @@ public abstract class Body {
     ArrayRealVector movement;
     ArrayRealVector acceleration;
     double relevance;
-    static double defaultRelevance = 5;
     double mass;
     ArrayRealVector center;
     boolean centerMoved;
@@ -220,10 +219,6 @@ public abstract class Body {
         if (relevance < 0) {
             delete();
         }
-    }
-
-    public void resetRelevance() {
-        relevance = defaultRelevance;
     }
 
 

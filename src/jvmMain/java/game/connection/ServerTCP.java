@@ -43,7 +43,7 @@ public class ServerTCP extends Thread {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new ChannelDuplexHandler())
-                    .option(ChannelOption.TCP_NODELAY, true)
+                    //.option(ChannelOption.TCP_NODELAY, true)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
@@ -55,6 +55,7 @@ public class ServerTCP extends Thread {
                             );
                             logger.info("New connection with " + ch.remoteAddress().getAddress() + ":" + ch.remoteAddress().getPort());
                         }
+
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
                             tcpChannels.add(ctx.channel());

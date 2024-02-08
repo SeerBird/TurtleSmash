@@ -4,17 +4,18 @@ import game.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class LobbyData {
-    public ArrayList<String> players;
+    public LinkedHashMap<String, Integer> players;
 
     public LobbyData(@NotNull ArrayList<Player> playerList, Player recipient) {
-        this.players = new ArrayList<>();
+        this.players = new LinkedHashMap<>();
         for (Player p : playerList) {
             if (p == recipient) {
-                players.add(null);
+                players.put("", p.getScore());
             } else {
-                players.add(p.getName());
+                players.put(p.getName(), p.getScore());
             }
         }
     }
