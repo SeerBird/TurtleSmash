@@ -1,13 +1,11 @@
 package game.output;
 
 
-import game.util.DevConfig;
 import game.input.InputControl;
+import game.util.DevConfig;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.image.BufferStrategy;
 
 public class GameWindow extends JFrame {

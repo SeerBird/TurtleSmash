@@ -1,10 +1,10 @@
 package game.world.bodies;
 
 import game.GameHandler;
-import game.util.DevConfig;
 import game.Player;
 import game.output.audio.Audio;
 import game.output.audio.Sound;
+import game.util.DevConfig;
 import game.world.BPoint;
 import game.world.CollisionData;
 import game.world.World;

@@ -1,17 +1,15 @@
 package game.output;
 
 
-import game.connection.packets.containers.images.animations.AnimationImage;
-import game.connection.packets.containers.images.bodies.BodyImage;
-import game.output.animations.Animation;
-import game.output.ui.rectangles.Button;
-import game.util.DevConfig;
 import game.GameHandler;
 import game.GameState;
+import game.output.animations.Animation;
 import game.output.ui.IElement;
 import game.output.ui.TurtleMenu;
+import game.output.ui.rectangles.Button;
 import game.output.ui.rectangles.Label;
 import game.output.ui.rectangles.*;
+import game.util.DevConfig;
 import game.world.BPoint;
 import game.world.World;
 import game.world.bodies.Body;
@@ -23,13 +21,7 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import static game.util.Maths.getVector;
 
 public class Renderer {
     static Graphics g;

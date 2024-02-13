@@ -1,7 +1,6 @@
 package game.output.audio;
 
 
-import game.GameHandler;
 import game.Resources;
 import org.jetbrains.annotations.NotNull;
 

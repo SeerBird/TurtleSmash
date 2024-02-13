@@ -6,8 +6,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 import game.connection.packets.containers.images.animations.AnimationImage;
 import game.connection.packets.containers.images.bodies.BodyImage;
-import game.connection.packets.containers.images.edges.*;
-import javafx.util.Pair;
+import game.connection.packets.containers.images.edges.EdgeImage;
 
 import java.awt.*;
 import java.math.RoundingMode;

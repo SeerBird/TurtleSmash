@@ -119,11 +119,11 @@ public class GameHandler {
     }
 
     //region Job Methods - merge some of them!
-    public static void addJob(Job job) {
+    private static void addJob(Job job) {
         toAdd.add(job);
     }
 
-    public static void removeJob(Job job) {
+    private static void removeJob(Job job) {
         toRemove.add(job);
     }
 

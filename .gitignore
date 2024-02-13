@@ -20,6 +20,8 @@ Release.ps1
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+qodana.yaml
+qodana.sarif.json
 
 ### Eclipse ###
 .apt_generated

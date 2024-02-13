@@ -1,7 +1,7 @@
 package game.connection;
 
-import game.util.DevConfig;
 import game.connection.packets.containers.ServerStatus;
+import game.util.DevConfig;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

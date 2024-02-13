@@ -2,8 +2,6 @@ package game.output.animations;
 
 import game.output.ui.TurtleMenu;
 import game.output.ui.rectangles.Textbox;
-import game.util.DevConfig;
-import javafx.util.Pair;
 
 import java.awt.*;
 

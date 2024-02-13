@@ -3,6 +3,7 @@ package game.output.ui.rectangles;
 import game.GameHandler;
 import game.Player;
 import game.util.DevConfig;
+
 import java.util.ArrayList;
 
 public class PlayerList extends RectElement {

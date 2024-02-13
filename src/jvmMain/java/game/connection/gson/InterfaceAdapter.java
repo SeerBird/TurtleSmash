@@ -11,12 +11,8 @@ import game.connection.packets.containers.images.edges.BodyEdgePointer;
 import game.connection.packets.containers.images.edges.ControlEdgePointer;
 import game.connection.packets.containers.images.edges.FixedEdgeImage;
 import game.connection.packets.containers.images.edges.WorldEdgeImage;
-import game.output.animations.CollisionBurstAnimation;
-import game.output.animations.ScreenShakeAnimation;
-import game.output.animations.ShellSnapFlashAnimation;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
