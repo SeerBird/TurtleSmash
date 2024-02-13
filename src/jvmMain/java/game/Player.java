@@ -23,6 +23,7 @@ public class Player {
     InputInfo input;
     SocketChannel channel;
     String name;
+    long lastSend = 0;
 
     public Player(String name) {
         score = 0;
@@ -101,7 +102,6 @@ public class Player {
                     logger.severe(other.getMessage());
                     throw new RuntimeException(other.getMessage());
                 }
-                long time = System.nanoTime();
                 channel.writeAndFlush(json).addListener((ChannelFutureListener) future -> {
                     if (!future.isSuccess()) {
                         if (future.cause().getMessage() == null) {
@@ -110,7 +110,8 @@ public class Player {
                             logger.warning(future.cause().getMessage());
                         }
                     } else {
-                        //logger.warning("Took " + (System.nanoTime() - time) / 1000000.0 + " millis to send packet");
+                        logger.warning("Time since last send: " + (System.nanoTime() - lastSend) / 1000000.0 / 16.666667 + " frames");
+                        lastSend = System.nanoTime();
                     }
                 });
             }
