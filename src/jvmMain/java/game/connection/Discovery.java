@@ -92,10 +92,4 @@ public class Discovery {
         }
         logger.info("No longer listening for servers");
     }
-
-    public void shutDown() {
-        if (future != null) {
-            future.cancel(true);
-        }
-    }
 }

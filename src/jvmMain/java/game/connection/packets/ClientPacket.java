@@ -9,9 +9,6 @@ public class ClientPacket{
         this.input=input;
         this.name=name;
     }
-    public ClientPacket(){
-
-    }
 
     public InputInfo getInput() {
         return input;

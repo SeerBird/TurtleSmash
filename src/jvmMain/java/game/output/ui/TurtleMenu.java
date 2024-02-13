@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class TurtleMenu {
-    private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private static final ArrayList<IElement> elements = new ArrayList<>();
     private static final HashMap<GameState, ArrayList<IElement>> menuPresets = new HashMap<>();
     private static IElement pressed;
@@ -105,11 +104,6 @@ public class TurtleMenu {
     }
 
     public static void update() {
-        for (IElement element : new ArrayList<>(elements)) {
-            if (element instanceof Button) {
-
-            }
-        }
         if (GameHandler.getState() == GameState.lobby) {
             playerList.refresh();
         }
@@ -117,10 +111,6 @@ public class TurtleMenu {
 
     public static ArrayList<IElement> getElements() {
         return elements;
-    }
-
-    public static void popup(String message) {
-
     }
 
     public static Focusable getFocused() {

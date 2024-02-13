@@ -47,9 +47,9 @@ public class DevConfig {
     public static double constraintTolerance = 0.0;
     public static double gravity = 50;
     public static double minGravityRadius = 80;
+    public static double elasticity = 0.6;
     //endregion
     //region animations and effects
-    public static int maxAnimations = 200;
     public static double shakeDecay = 0.9;
     public static double shakeIntensity = 1.0;
     public static double burstIntensity = 0.0008;

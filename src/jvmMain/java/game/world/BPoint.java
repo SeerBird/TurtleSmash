@@ -27,16 +27,4 @@ public class BPoint extends Point {
     public Body getParentBody() {
         return parentBody;
     }
-
-    public void setParentBody(Body p) {
-        this.parentBody = p;
-    }
-
-    public BPoint copy(Body parent) {
-        return new BPoint(parent, mass, pos.copy());
-    }
-
-    public void setMass(double mass) {
-        this.mass=mass;
-    }
 }

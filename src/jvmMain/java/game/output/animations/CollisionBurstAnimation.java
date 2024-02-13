@@ -76,7 +76,7 @@ public class CollisionBurstAnimation implements Animation {
             //endregion
         }
         //endregion
-        return !(particles.size() == 0);
+        return !(particles.isEmpty());
     }
 
     private void removeParticle(Point p) {

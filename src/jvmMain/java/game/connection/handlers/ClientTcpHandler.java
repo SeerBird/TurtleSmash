@@ -17,7 +17,7 @@ public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if(msg instanceof ServerPacket){
-            logger.warning("Time since last receive: "+(System.nanoTime()-last)/1000000.0/16.666666 + " frames");
+            //logger.warning("Time since last receive: "+(System.nanoTime()-last)/1000000.0/16.666666 + " frames");
             last = System.nanoTime();
             GameHandler.receiveServerPacket((ServerPacket)msg);
         }else{

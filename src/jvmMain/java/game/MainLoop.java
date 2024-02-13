@@ -10,7 +10,6 @@ public class MainLoop {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     static boolean run;
     private final static Thread onShutdown = new Thread(Config::savePrefs);
-    @SuppressWarnings({})
 
     public static void run() {
         Runtime.getRuntime().addShutdownHook(onShutdown);
@@ -34,7 +33,7 @@ public class MainLoop {
                 try {
                     Thread.sleep(timeLeft / 1001000);
                 } catch (InterruptedException e) {
-                    logger.info(e.getMessage());
+                    logger.severe(e.getMessage());
                 }
             }
         }

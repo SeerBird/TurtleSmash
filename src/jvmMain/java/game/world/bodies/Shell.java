@@ -155,15 +155,11 @@ public class Shell extends Body {
     }
 
     public boolean isFree() {
-        return straps.size() == 0;
+        return straps.isEmpty();
     }
 
     public boolean isUnbound() {
-        return parent == null && bound.size() == 0;
-    }
-
-    private void snap() {
-
+        return parent == null && bound.isEmpty();
     }
 
     @Override

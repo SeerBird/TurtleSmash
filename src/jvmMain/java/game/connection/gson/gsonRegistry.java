@@ -15,8 +15,8 @@ import java.text.DecimalFormat;
 public class gsonRegistry {
     public static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(EdgeImage.class, new InterfaceAdapter<EdgeImage>())
-            .registerTypeAdapter(BodyImage.class, new InterfaceAdapter<BodyImage>())
-            .registerTypeAdapter(AnimationImage.class, new InterfaceAdapter<AnimationImage>())
+            .registerTypeAdapter(BodyImage.class, new InterfaceAdapter<BodyImage<?>>())
+            .registerTypeAdapter(AnimationImage.class, new InterfaceAdapter<AnimationImage<?>>())
             .registerTypeAdapter(Double.class, (JsonSerializer<Double>) (src, typeOfSrc, context) -> {
                 DecimalFormat df = new DecimalFormat("#.##");
                 df.setRoundingMode(RoundingMode.HALF_UP);

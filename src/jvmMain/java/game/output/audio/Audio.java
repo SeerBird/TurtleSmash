@@ -61,6 +61,7 @@ public class Audio {
                 cooldownSounds.put(sound, clip);
             } catch (LineUnavailableException | UnsupportedAudioFileException ignored) {
             } catch (IOException e) {
+                logger.severe("Failed to make a sound: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         });

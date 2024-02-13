@@ -7,6 +7,7 @@ import game.world.bodies.Shell;
 import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +18,16 @@ public class TurtleImage extends BodyImage<Turtle> {
 
     public TurtleImage(Turtle turtle) {
         super(turtle);
+    }
+
+    @Override
+    public void makeImage(Turtle turtle) {
+        edges = getEdgesImage(turtle);
+        points = getPointsImage(turtle);
+        bound = new ArrayList<>();
+        for (Web web : turtle.bound) {
+            bound.add(World.getBodies().indexOf(web));
+        }
         spinnerets = new HashMap<>();
         for (BPoint p : turtle.spinnerets.keySet()) {
             spinnerets.put(turtle.getPoints().indexOf(p),

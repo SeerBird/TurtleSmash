@@ -10,9 +10,6 @@ public class ServerStatus {
     public int port;
     public long nanoTime;
     public String message;
-
-    public ServerStatus(){
-    }
     public ServerStatus(InetAddress address, int port, String message){
         this.address=address;
         this.port=port;

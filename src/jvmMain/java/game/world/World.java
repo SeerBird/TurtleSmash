@@ -78,6 +78,8 @@ public final class World {
         //endregion
     }
 
+    //region Bodies
+
     public static void clear() {
         toRemove.addAll(bodies);
         toAdd.clear();
@@ -94,6 +96,7 @@ public final class World {
     public static void addBody(Body b) {
         toAdd.add(b);
     }
+    //endregion
 
     //region Gravitation
     static void gravitate() {//optimize
@@ -278,7 +281,6 @@ public final class World {
     public static boolean isOutOfBounds(@NotNull Body b) {
         ArrayList<Pair<Double, BPoint>> projectionX = b.project(i);
         ArrayList<Pair<Double, BPoint>> projectionY = b.project(j);
-        //boolean gone = false;
         if (projectionX.get(0).getKey() > WIDTH) {
             return true;
         } else if (projectionX.get(1).getKey() < 0) {
@@ -290,7 +292,6 @@ public final class World {
     }
 
     public static boolean isOutOfBounds(@NotNull ArrayRealVector v) {
-        //boolean gone = false;
         if (v.getEntry(0) > WIDTH) {
             return true;
         } else if (v.getEntry(0) < 0) {
@@ -316,7 +317,6 @@ public final class World {
     }
 
     public static void spawn(ArrayRealVector pos) {
-        //new Box(pos, new ArrayRealVector(new Double[]{40.0, 0.0}), new ArrayRealVector(new Double[]{0.0, 40.0}));
         new Shell(pos, randomUnitVector(), null);
     }
 

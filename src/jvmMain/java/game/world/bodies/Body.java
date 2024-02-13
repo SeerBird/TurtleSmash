@@ -92,10 +92,6 @@ public abstract class Body {
         return satisfied;
     }
 
-    public double getRelevance() {
-        return relevance;
-    }
-
     public double getMass() {
         return mass;
     }
@@ -208,10 +204,6 @@ public abstract class Body {
         return true;
     }
 
-    public void decreaseRelevance(double decrease) {
-        relevance -= decrease;
-    }
-
     public void fade() {
         if (World.isOutOfBounds(this)) {
             relevance--;
@@ -231,7 +223,7 @@ public abstract class Body {
         double placement = (edge.getNorm() > 0) ? (Math.abs(edgeX) >= Math.abs(edgeY)) ? (collision.getVertex().getX() - collision.getEdge1().getX()) / (edgeX) : (collision.getVertex().getY() - collision.getEdge1().getY()) / (edgeY) : 0.5;
         double scaleFactor = 1 / (Math.pow(placement, 2) + Math.pow(1 - placement, 2)); // normalising factor
         // I like to move it, move it
-        double elasticity = 0.6;
+        double elasticity = DevConfig.elasticity;
         collision.getVertex().accelerate(overlap.mapMultiply(0.25 * elasticity));
         collision.getEdge1().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * (1 - placement) * elasticity));
         collision.getEdge2().accelerate(overlap.mapMultiply(-0.25 * scaleFactor * placement * elasticity));

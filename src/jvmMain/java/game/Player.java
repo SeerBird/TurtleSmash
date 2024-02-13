@@ -23,7 +23,6 @@ public class Player {
     InputInfo input;
     SocketChannel channel;
     String name;
-    long lastSend = 0;
 
     public Player(String name) {
         score = 0;
@@ -89,12 +88,8 @@ public class Player {
             if (channel.isActive()) {
                 String json;
                 try {
-                    long time = System.nanoTime();
                     json = packet.getClass() + gson.toJson(packet);
-                    logger.warning("Json length: " + json.length());
-                    if ((time = System.nanoTime() - time) > 1204200 * 5) {
-                        logger.warning("Took " + time / 1000000 + " millis to serialize!");
-                    }
+                    //logger.warning("Json length: " + json.length());
                 } catch (IllegalArgumentException e) {
                     logger.severe(e.getMessage());
                     return;
@@ -109,9 +104,6 @@ public class Player {
                         } else {
                             logger.warning(future.cause().getMessage());
                         }
-                    } else {
-                        logger.warning("Time since last send: " + (System.nanoTime() - lastSend) / 1000000.0 / 16.666667 + " frames");
-                        lastSend = System.nanoTime();
                     }
                 });
             }

@@ -27,7 +27,6 @@ public class InputControl extends MouseAdapter implements KeyListener {
     private static final Map<Integer, KeyEvent> keyReleaseEvents = new HashMap<>();
     private static final Map<Mousebutton, MouseEvent> mousePressEvents = new HashMap<>();
     private static final Map<Mousebutton, MouseEvent> mouseReleaseEvents = new HashMap<>();
-    private static MouseEvent mouseMoveEvent;
 
     //endregion
     //region MouseListener methods
@@ -43,14 +42,12 @@ public class InputControl extends MouseAdapter implements KeyListener {
 
     @Override
     public void mouseMoved(@NotNull MouseEvent e) {
-        mouseMoveEvent = e;
         mousepos.setEntry(0, e.getPoint().x);
         mousepos.setEntry(1, e.getPoint().y);
     }
 
     @Override
     public void mouseDragged(@NotNull MouseEvent e) {
-        mouseMoveEvent = e;
         mousepos.setEntry(0, e.getPoint().x);
         mousepos.setEntry(1, e.getPoint().y);
     }
@@ -120,7 +117,7 @@ public class InputControl extends MouseAdapter implements KeyListener {
                 //endregion
                 //region otherwise append and remove text according to the pressed keys
                 else if (pressed(VK_BACK_SPACE)) {
-                    if (textbox.text.length() > 0) {
+                    if (!textbox.text.isEmpty()) {
                         textbox.setText(textbox.text.substring(0, textbox.text.length() - 1));
                     }
                     unpress(VK_BACK_SPACE);
@@ -131,8 +128,6 @@ public class InputControl extends MouseAdapter implements KeyListener {
                     }
                 }
                 //endregion
-            } else {
-                //no other cases but yk how it is
             }
         }
         if (released(VK_ESCAPE)) {
@@ -163,12 +158,14 @@ public class InputControl extends MouseAdapter implements KeyListener {
         //endregion
         //region Play
         if (state == playClient || state == playServer) {
+            /*
             if (pressed(VK_SPACE)) {
                 input.drag();
             }
             if (released(VK_SPACE)) {
                 dispatch(VK_SPACE);
             }
+             */
             if (pressed(Left)) {
                 input.webFling();
                 dispatch(Left);
@@ -177,18 +174,20 @@ public class InputControl extends MouseAdapter implements KeyListener {
                 input.detachWeb();
                 dispatch(Right);
             }
+            /*
             if (pressed(VK_C)) {
                 input.create();
                 dispatch(KeyEvent.VK_C);
             }
-            if (pressed(VK_Z)) {
+             */
+            if (pressed(VK_S)) {
                 TurtleMenu.showScores();
                 TurtleMenu.refreshScores();
             } else {
                 TurtleMenu.hideScores();
             }
-            if (released(VK_Z)) {
-                dispatch(VK_Z);
+            if (released(VK_S)) {
+                dispatch(VK_S);
             }
         } else {
             dispatch(Left);

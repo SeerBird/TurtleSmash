@@ -22,17 +22,11 @@ public abstract class BodyImage<T extends Body> {
     public ArrayList<Integer> bound;
     public transient T body;
 
-    public BodyImage(Body body) {
-        edges = getEdgesImage(body);
-        points = getPointsImage(body);
-        bound = new ArrayList<>();
-        for (Web web : body.bound) {
-            bound.add(World.getBodies().indexOf(web));
-        }
+    public BodyImage(T body) {
+        makeImage(body);
     }
-
-    protected BodyImage() {
-    }
+    public abstract void makeImage(T body);
+    public abstract T getIsolatedBody();
 
     @NotNull
     ArrayList<EdgeImage> getEdgesImage(@NotNull Body body) {
@@ -57,7 +51,7 @@ public abstract class BodyImage<T extends Body> {
         return points;
     }
 
-    public static Class<? extends BodyImage> getImageClass(@NotNull Body body) {
+    public static Class<? extends BodyImage<?>> getImageClass(@NotNull Body body) {
         Class<? extends Body> clazz = body.getClass();
         if (clazz.equals(Web.class)) {
             return WebImage.class;
@@ -66,11 +60,10 @@ public abstract class BodyImage<T extends Body> {
         } else if (clazz.equals(Shell.class)) {
             return ShellImage.class;
         } else {
-            return BodyImage.class;
+            return ShellImage.class;
         }
     }
 
-    public abstract T getIsolatedBody();
 
     public void addPoints(Body body) {
         for (ArrayList<Double> point: points) {

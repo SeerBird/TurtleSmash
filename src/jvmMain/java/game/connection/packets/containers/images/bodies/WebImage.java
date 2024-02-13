@@ -21,6 +21,11 @@ public class WebImage extends BodyImage<Web> {
     public boolean isGrowing;
 
     public WebImage(Web web) {
+        super(web);
+    }
+
+    @Override
+    public void makeImage(Web web) {
         points = getPointsImage(web);
         edges = new ArrayList<>();
         for (Edge e : web.getEdges()) {

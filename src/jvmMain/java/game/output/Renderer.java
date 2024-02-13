@@ -89,7 +89,6 @@ public class Renderer {
         //endregion
         //region Webs
         else if (b instanceof Web) {
-            int i = 0;
             g.setColor(DevConfig.web);
             for (BPoint p : b.getPoints()) {
                 g.fillRect((int) p.getX() - 1, (int) p.getY() - 1, 2, 2);
@@ -165,8 +164,13 @@ public class Renderer {
 
 
     private static void drawButton(@NotNull Button button) {
-        g.setColor(button.textColor);
+        if (button.isPressed()) {
+            g.setColor(button.textColor.darker());
+        } else {
+            g.setColor(button.textColor);
+        }
         g.drawRect(button.x, button.y, button.width, button.height);
+
         g.drawRect(button.x + 4, button.y + 4, button.width - 8, button.height - 8);
         drawLabelText(button, button.textColor);
     }

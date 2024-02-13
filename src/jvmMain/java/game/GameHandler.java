@@ -65,21 +65,20 @@ public class GameHandler {
     static ClientTCP tcpClient;
     //endregion
     static final GameWindow window = new GameWindow();
-    public static boolean debug;
     private static GameState state;
 
     static {
         state = GameState.main;
         //region Define job dictionary
         job.clear();
-        job.put(Job.sendClient, () -> sendClientPacket());
-        job.put(Job.updateWorld, () -> World.update());
-        job.put(Job.handleInput, () -> InputControl.handleInput());
-        job.put(Job.handlePlayers, () -> handlePlayers());
-        job.put(Job.sendServer, () -> broadcastServerPacket());
-        job.put(Job.handleServerPacket, () -> handleServerPacket());
-        job.put(Job.updateMenu, () -> TurtleMenu.update());
-        job.put(Job.revivePlayers, () -> revivePlayers());
+        job.put(Job.sendClient, GameHandler::sendClientPacket);
+        job.put(Job.updateWorld, World::update);
+        job.put(Job.handleInput, InputControl::handleInput);
+        job.put(Job.handlePlayers, GameHandler::handlePlayers);
+        job.put(Job.sendServer, GameHandler::broadcastServerPacket);
+        job.put(Job.handleServerPacket, GameHandler::handleServerPacket);
+        job.put(Job.updateMenu, TurtleMenu::update);
+        job.put(Job.revivePlayers, GameHandler::revivePlayers);
         job.put(Job.clearWorld, () -> {
             World.clear();
             World.update();
@@ -491,7 +490,4 @@ public class GameHandler {
     }
 
     //endregion
-    public void terminate() {
-        // you think you can stop me?
-    }
 }

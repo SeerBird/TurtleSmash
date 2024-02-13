@@ -31,19 +31,4 @@ public abstract class IElement {
     public int getY() {
         return y;
     }
-
-    private Area getArea(BufferedImage image, int maxAlpha) {
-        if (image == null) return null;
-        Area area = new Area();
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
-                int pAlpha = new Color(image.getRGB(x, y)).getAlpha();
-                if ((pAlpha <= maxAlpha)) {
-                    Rectangle r = new Rectangle(x, y, 1, 1);
-                    area.add(new Area(r));
-                }
-            }
-        }
-        return area;
-    }
 }

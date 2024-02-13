@@ -16,7 +16,7 @@ public class WorldData {
         bodyImages = new ArrayList<>();
         for (Body body : bodies) {
             try {
-                Constructor<? extends BodyImage> constructor = BodyImage.getImageClass(body).getDeclaredConstructor(body.getClass());
+                Constructor<? extends BodyImage<?>> constructor = BodyImage.getImageClass(body).getDeclaredConstructor(body.getClass());
                 bodyImages.add(constructor.newInstance(body));
             } catch (InstantiationException | InvocationTargetException | IllegalAccessException |
                      NoSuchMethodException e) {
@@ -24,8 +24,5 @@ public class WorldData {
                 throw new RuntimeException(e.getMessage());
             }
         }
-    }
-    public WorldData(){
-
     }
 }
