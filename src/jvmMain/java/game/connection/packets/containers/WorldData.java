@@ -1,8 +1,7 @@
 package game.connection.packets.containers;
 
-import game.world.World;
-import game.world.bodies.Body;
 import game.connection.packets.containers.images.bodies.BodyImage;
+import game.world.bodies.Body;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

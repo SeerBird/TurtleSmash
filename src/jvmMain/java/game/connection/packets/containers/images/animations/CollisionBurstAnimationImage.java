@@ -2,8 +2,6 @@ package game.connection.packets.containers.images.animations;
 
 import game.output.animations.CollisionBurstAnimation;
 import game.util.DevConfig;
-import game.util.Util;
-import game.world.CollisionData;
 import game.world.Point;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;

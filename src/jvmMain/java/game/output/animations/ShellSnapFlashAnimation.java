@@ -1,7 +1,6 @@
 package game.output.animations;
 
 import game.util.DevConfig;
-import game.world.bodies.Shell;
 
 import java.awt.*;
 

@@ -2,7 +2,6 @@ package game.connection.handlers;
 
 import com.google.gson.Gson;
 import game.connection.packets.ClientPacket;
-import game.connection.packets.ServerPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.serialization.ClassResolver;

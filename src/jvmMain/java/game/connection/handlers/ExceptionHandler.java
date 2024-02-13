@@ -1,11 +1,11 @@
 package game.connection.handlers;
 
-import game.GameHandler;
-import io.netty.channel.*;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 
 import java.net.ConnectException;
 import java.net.SocketAddress;
-import java.net.SocketException;
 import java.util.logging.Logger;
 
 public class ExceptionHandler extends ChannelDuplexHandler {

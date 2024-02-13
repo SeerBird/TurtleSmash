@@ -41,10 +41,6 @@ public class Textbox extends Label implements Focusable {
         Renderer.removeAnimation(cursorAnimation);
     }
 
-    public void setText(String string) {
-        this.text = string;
-    }
-
     public void useValue() {
         currentDefaultText = text;
         if (Objects.equals(text, "")) {

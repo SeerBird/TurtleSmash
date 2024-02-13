@@ -1,10 +1,8 @@
 package game.connection.packets.containers.images.bodies;
 
 import game.GameHandler;
-import game.connection.packets.containers.images.bodies.BodyImage;
 import game.world.BPoint;
 import game.world.World;
-import game.world.bodies.Body;
 import game.world.bodies.Shell;
 import game.world.bodies.Turtle;
 import game.world.bodies.Web;

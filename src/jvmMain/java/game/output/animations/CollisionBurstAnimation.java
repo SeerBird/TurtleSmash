@@ -1,7 +1,6 @@
 package game.output.animations;
 
 import game.util.DevConfig;
-import game.util.Maths;
 import game.util.Util;
 import game.world.CollisionData;
 import game.world.Point;

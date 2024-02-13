@@ -1,10 +1,9 @@
 package game.world;
 
-import game.util.DevConfig;
 import game.Player;
 import game.connection.packets.containers.WorldData;
 import game.connection.packets.containers.images.bodies.BodyImage;
-import game.util.Maths;
+import game.util.DevConfig;
 import game.world.bodies.Body;
 import game.world.bodies.Shell;
 import game.world.bodies.Turtle;

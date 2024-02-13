@@ -4,9 +4,9 @@ import game.Config;
 import game.GameHandler;
 import game.GameState;
 import game.connection.Broadcaster;
-import game.output.ui.rectangles.*;
 import game.output.ui.rectangles.Button;
 import game.output.ui.rectangles.Label;
+import game.output.ui.rectangles.*;
 import game.util.DevConfig;
 import org.apache.commons.math3.linear.ArrayRealVector;
 
