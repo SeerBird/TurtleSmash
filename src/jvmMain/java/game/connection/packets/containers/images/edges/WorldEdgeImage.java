@@ -6,7 +6,11 @@ import game.world.constraints.Edge;
 import game.world.constraints.FixedEdge;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
+
 public class WorldEdgeImage implements EdgeImage{
+    @Serial
+    private static final long serialVersionUID = 8008504;
     public int bi1;
     public int bi2;
     public int i1;

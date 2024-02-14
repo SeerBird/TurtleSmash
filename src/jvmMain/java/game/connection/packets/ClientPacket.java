@@ -2,7 +2,13 @@ package game.connection.packets;
 
 import game.input.InputInfo;
 
-public class ClientPacket{
+import java.io.Serial;
+import java.io.Serializable;
+
+public class ClientPacket implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 80085;
+
     InputInfo input;
     public String name;
     public ClientPacket(InputInfo input, String name){

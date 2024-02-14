@@ -6,10 +6,14 @@ import game.input.InputInfo;
 import game.output.ui.TurtleMenu;
 import game.util.DevConfig;
 import game.world.bodies.Turtle;
+import io.netty.buffer.*;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.socket.SocketChannel;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -86,26 +90,26 @@ public class Player {
     public void send(ServerPacket packet) {
         if (channel != null) {
             if (channel.isActive()) {
-                String json;
                 try {
-                    json = packet.getClass() + gson.toJson(packet);
-                    //logger.warning("Json length: " + json.length());
-                } catch (IllegalArgumentException e) {
-                    logger.severe(e.getMessage());
-                    return;
-                } catch (Exception other) {
-                    logger.severe(other.getMessage());
-                    throw new RuntimeException(other.getMessage());
-                }
-                channel.writeAndFlush(json).addListener((ChannelFutureListener) future -> {
-                    if (!future.isSuccess()) {
-                        if (future.cause().getMessage() == null) {
-                            logger.warning("Failed to send a packet to a player.");
-                        } else {
-                            logger.warning(future.cause().getMessage());
+                    ByteBuf msg = Unpooled.directBuffer(10000, 50000);
+                    ObjectOutputStream out = new ObjectOutputStream(new ByteBufOutputStream(msg));
+                    out.writeObject(packet);
+                    out.flush();
+                    out.close();
+                    channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
+                        if (!future.isSuccess()) {
+                            if (future.cause().getMessage() == null) {
+                                logger.warning("Failed to send a packet to a player.");
+                            } else {
+                                logger.warning(future.cause().getMessage());
+                            }
                         }
-                    }
-                });
+                    });
+                } catch (IOException e) {
+                    logger.severe("Failed to serialize server packet: " + e.getMessage());
+                } catch(IndexOutOfBoundsException e){
+                    logger.severe("Too many things going on! Can't send this!");
+                }
             }
         }
     }

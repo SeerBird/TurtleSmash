@@ -7,9 +7,12 @@ import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 import game.world.constraints.Edge;
 
+import java.io.Serial;
 import java.util.ArrayList;
 
 public class ShellImage extends BodyImage<Shell> {
+    @Serial
+    private static final long serialVersionUID = 800857;
     Integer parent;
     boolean flag;
     public ArrayList<WorldEdgeImage> straps;

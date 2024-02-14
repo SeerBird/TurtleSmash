@@ -5,7 +5,10 @@ import game.output.animations.CollisionBurstAnimation;
 import game.output.animations.ScreenShakeAnimation;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AnimationImage<T extends Animation> {
+import java.io.Serial;
+import java.io.Serializable;
+
+public abstract class AnimationImage<T extends Animation> implements Serializable {
     public AnimationImage(T animation) {
         makeImage(animation);
     }

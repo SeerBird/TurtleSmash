@@ -6,7 +6,11 @@ import game.world.bodies.Body;
 import game.world.constraints.Edge;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
+
 public class BodyEdgePointer implements EdgeImage{
+    @Serial
+    private static final long serialVersionUID = 8008501;
     public int bi;
     public int i1;
     public int i2;

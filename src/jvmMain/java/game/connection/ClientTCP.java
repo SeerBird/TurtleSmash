@@ -10,6 +10,9 @@ import game.connection.packets.ClientPacket;
 import game.connection.packets.containers.ServerStatus;
 import game.input.InputInfo;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -18,6 +21,9 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.logging.Logger;
 
 public class ClientTCP extends Thread {
@@ -42,8 +48,6 @@ public class ClientTCP extends Thread {
                         public void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
                             p.addLast(
-                                    new ObjectEncoder(),
-                                    new ClientDecoder(1048576, ClassResolvers.cacheDisabled(null)),
                                     new ClientTcpHandler(),
                                     new ExceptionHandler()
                             );
@@ -72,7 +76,24 @@ public class ClientTCP extends Thread {
 
     public void send(InputInfo input) {
         if (channel != null) {
-            channel.writeAndFlush(gsonRegistry.gson.toJson(new ClientPacket(input, GameHandler.getHost().getName())));
+            try {
+                ByteBuf msg = Unpooled.directBuffer(3000, 5000);
+                ObjectOutputStream out = new ObjectOutputStream(new ByteBufOutputStream(msg));
+                out.writeObject(new ClientPacket(input, GameHandler.getHost().getName()));
+                out.flush();
+                out.close();
+                channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
+                    if (!future.isSuccess()) {
+                        if (future.cause().getMessage() == null) {
+                            logger.warning("Failed to send a packet to the server.");
+                        } else {
+                            logger.warning(future.cause().getMessage());
+                        }
+                    }
+                });
+            } catch (IOException e) {
+                logger.severe("Failed to serialize client packet");
+            }
         }
     }
 

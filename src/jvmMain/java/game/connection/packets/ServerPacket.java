@@ -6,9 +6,13 @@ import game.connection.packets.containers.images.animations.AnimationImage;
 import game.output.audio.Sound;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ServerPacket {
+public class ServerPacket implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 455;
     public boolean playing;
     public WorldData world;
     public LobbyData lobby;

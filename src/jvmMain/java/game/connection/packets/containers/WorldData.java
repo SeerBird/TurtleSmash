@@ -3,12 +3,16 @@ package game.connection.packets.containers;
 import game.connection.packets.containers.images.bodies.BodyImage;
 import game.world.bodies.Body;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-public class WorldData {
+public class WorldData implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 800853;
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     public ArrayList<BodyImage<?>> bodyImages;
 

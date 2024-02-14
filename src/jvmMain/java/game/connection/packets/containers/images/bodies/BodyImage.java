@@ -12,11 +12,14 @@ import game.world.constraints.Edge;
 import game.world.constraints.FixedEdge;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static game.util.Maths.getVector;
 
-public abstract class BodyImage<T extends Body> {
+public abstract class BodyImage<T extends Body> implements Serializable {
+
     public ArrayList<EdgeImage> edges;
     public ArrayList<ArrayList<Double>> points;
     public ArrayList<Integer> bound;

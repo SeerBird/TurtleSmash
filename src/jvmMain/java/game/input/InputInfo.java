@@ -2,7 +2,12 @@ package game.input;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 
-public class InputInfo {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class InputInfo implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 4550;
     public ArrayRealVector mousepos;
     public boolean teleport = false;//make boolean and move to mousepos because redundancy
     public boolean create = false;

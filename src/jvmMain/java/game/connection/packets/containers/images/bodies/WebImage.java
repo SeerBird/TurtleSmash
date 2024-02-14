@@ -10,9 +10,12 @@ import game.world.bodies.Web;
 import game.world.constraints.Edge;
 import org.apache.commons.lang3.mutable.MutableDouble;
 
+import java.io.Serial;
 import java.util.ArrayList;
 
 public class WebImage extends BodyImage<Web> {
+    @Serial
+    private static final long serialVersionUID = 800859;
     public BodyEdgePointer target;
     public double control;
     public WorldEdgeImage sourceEdge;

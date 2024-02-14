@@ -241,7 +241,6 @@ public abstract class Body {
         if((time=(System.nanoTime()-time)/1000000)>10){
             logger.severe("Took "+time+" millis to out sound(outside)");
         }
-        GameHandler.broadcastSound(Sound.collision);
     }
 
     static boolean intersect(@NotNull Edge edge1, @NotNull Edge edge2) {

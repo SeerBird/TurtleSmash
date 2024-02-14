@@ -1,4 +1,6 @@
 package game.connection.packets.containers.images.edges;
 
-public interface EdgeImage {
+import java.io.Serializable;
+
+public interface EdgeImage extends Serializable {
 }

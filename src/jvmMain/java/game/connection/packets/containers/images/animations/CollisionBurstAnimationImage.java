@@ -7,10 +7,13 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.io.Serial;
 
 import static game.util.Maths.randomUnitVector;
 
 public class CollisionBurstAnimationImage extends AnimationImage<CollisionBurstAnimation> {
+    @Serial
+    private static final long serialVersionUID = 800854;
     public ArrayRealVector pos;
     public double intensity;
     public Color color;

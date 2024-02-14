@@ -3,9 +3,14 @@ package game.connection.handlers;
 import game.GameHandler;
 import game.Player;
 import game.connection.packets.ClientPacket;
+import game.connection.packets.ServerPacket;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.logging.Logger;
 
 public class ServerPlayerHandler extends ChannelInboundHandlerAdapter {
@@ -18,10 +23,17 @@ public class ServerPlayerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        if (msg instanceof ClientPacket) {
-            player.receive((ClientPacket) msg);
-        }else{
-            logger.warning("Unknown message type");
+        if (msg instanceof ByteBuf) {
+            try {
+                player.receive((ClientPacket)
+                        new ObjectInputStream(new ByteBufInputStream((ByteBuf) msg)).readObject());
+            } catch (IOException e) {
+                logger.warning("Failed to deserialize client packet");// this just happens sometimes? idk.
+            } catch (ClassNotFoundException e) {
+                logger.warning("Unknown message type");
+            }
+        } else {
+            logger.warning("Message isn't a ByteBuf, what??");
         }
     }
 
@@ -34,6 +46,6 @@ public class ServerPlayerHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         GameHandler.removePlayer(player);
-        logger.info("Player "+player.getChannel().remoteAddress() + " disconnected.");
+        logger.info("Player " + player.getChannel().remoteAddress() + " disconnected.");
     }
 }

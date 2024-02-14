@@ -7,11 +7,14 @@ import game.world.bodies.Shell;
 import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class TurtleImage extends BodyImage<Turtle> {
+    @Serial
+    private static final long serialVersionUID = 800858;
     Map<Integer, Integer> spinnerets;
     Integer shell;
     Integer owner;
