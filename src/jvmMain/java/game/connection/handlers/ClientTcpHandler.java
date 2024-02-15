@@ -5,11 +5,9 @@ import game.GameState;
 import game.connection.packets.ServerPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.UnpooledHeapByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.logging.Logger;
@@ -30,7 +28,7 @@ public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
                 GameHandler.receiveServerPacket((ServerPacket)
                         new ObjectInputStream(new ByteBufInputStream((ByteBuf) msg)).readObject());
             } catch (IOException e) {
-                logger.warning("Failed to deserialize server packet: " + e.getMessage());// this just happens sometimes? idk.
+                logger.warning("Failed to deserialize server packet: " + e);// this just happens sometimes? idk.
             } catch (ClassNotFoundException e) {
                 logger.warning("Unknown message type");
             }

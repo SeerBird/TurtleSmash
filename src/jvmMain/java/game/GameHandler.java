@@ -4,6 +4,7 @@ import game.connection.Broadcaster;
 import game.connection.ClientTCP;
 import game.connection.Discovery;
 import game.connection.ServerTCP;
+import game.connection.packets.ClientPacket;
 import game.connection.packets.ServerPacket;
 import game.connection.packets.containers.LobbyData;
 import game.connection.packets.containers.ServerStatus;
@@ -200,7 +201,7 @@ public class GameHandler {
     }
 
     private static void sendClientPacket() {
-        tcpClient.send(getHost().input);
+        tcpClient.send(new ClientPacket(getHost().input, GameHandler.getHost().getName()));
     }
 
     private static void handleServerPacket() {

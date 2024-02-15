@@ -2,8 +2,6 @@ package game.connection;
 
 import game.GameHandler;
 import game.GameState;
-import game.connection.gson.gsonRegistry;
-import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ClientTcpHandler;
 import game.connection.handlers.ExceptionHandler;
 import game.connection.packets.ClientPacket;
@@ -17,13 +15,10 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.logging.Logger;
 
 public class ClientTCP extends Thread {
@@ -74,12 +69,12 @@ public class ClientTCP extends Thread {
         }
     }
 
-    public void send(InputInfo input) {
+    public void send(ClientPacket packet) {
         if (channel != null) {
             try {
                 ByteBuf msg = Unpooled.directBuffer(3000, 5000);
                 ObjectOutputStream out = new ObjectOutputStream(new ByteBufOutputStream(msg));
-                out.writeObject(new ClientPacket(input, GameHandler.getHost().getName()));
+                out.writeObject(packet);
                 out.flush();
                 out.close();
                 channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {

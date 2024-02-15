@@ -14,12 +14,12 @@ public class FixedEdgeImage implements EdgeImage{
     private static final long serialVersionUID = 8008503;
     public int i1;
     public int i2;
-    public double d;
+    public float d;
     public FixedEdgeImage(@NotNull Edge e){
         ArrayList<BPoint> points=e.getEdge1().getParentBody().getPoints();
         i1 =points.indexOf(e.getEdge1());
         i2 =points.indexOf(e.getEdge2());
-        d =e.getRestDistance();
+        d = (float) e.getRestDistance();
     }
     public Edge getEdge(@NotNull Body body){
         return new FixedEdge(body.getPoints().get(i1),body.getPoints().get(i2), d);

@@ -6,18 +6,17 @@ import game.input.InputInfo;
 import game.output.ui.TurtleMenu;
 import game.util.DevConfig;
 import game.world.bodies.Turtle;
-import io.netty.buffer.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.socket.SocketChannel;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.logging.Logger;
-
-import static game.connection.gson.gsonRegistry.gson;
 
 public class Player {
     Turtle body;
@@ -96,6 +95,7 @@ public class Player {
                     out.writeObject(packet);
                     out.flush();
                     out.close();
+                    logger.info(String.valueOf(msg.readableBytes()));
                     channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
                         if (!future.isSuccess()) {
                             if (future.cause().getMessage() == null) {

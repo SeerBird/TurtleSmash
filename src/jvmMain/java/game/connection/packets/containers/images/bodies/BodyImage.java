@@ -12,23 +12,25 @@ import game.world.constraints.Edge;
 import game.world.constraints.FixedEdge;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 
 import static game.util.Maths.getVector;
 
 public abstract class BodyImage<T extends Body> implements Serializable {
+    public static final double pointCoordPrecision = 10.0;
 
     public ArrayList<EdgeImage> edges;
-    public ArrayList<ArrayList<Double>> points;
+    public ArrayList<ArrayList<Short>> points;
     public ArrayList<Integer> bound;
     public transient T body;
 
     public BodyImage(T body) {
         makeImage(body);
     }
+
     public abstract void makeImage(T body);
+
     public abstract T getIsolatedBody();
 
     @NotNull
@@ -41,13 +43,13 @@ public abstract class BodyImage<T extends Body> implements Serializable {
     }
 
     @NotNull
-    ArrayList<ArrayList<Double>> getPointsImage(@NotNull Body body) {
-        ArrayList<ArrayList<Double>> points = new ArrayList<>();
-        ArrayList<Double> pointData=new ArrayList<>();
+    ArrayList<ArrayList<Short>> getPointsImage(@NotNull Body body) {
+        ArrayList<ArrayList<Short>> points = new ArrayList<>();
+        ArrayList<Short> pointData = new ArrayList<>();
         for (BPoint point : body.getPoints()) {
-            pointData.add(point.getX());
-            pointData.add(point.getY());
-            pointData.add(point.getMass());
+            pointData.add((short) (point.getX() * pointCoordPrecision));
+            pointData.add((short) (point.getY() * pointCoordPrecision));
+            pointData.add((short) point.getMass());
             points.add(new ArrayList<>(pointData));
             pointData.clear();
         }
@@ -69,8 +71,8 @@ public abstract class BodyImage<T extends Body> implements Serializable {
 
 
     public void addPoints(Body body) {
-        for (ArrayList<Double> point: points) {
-            body.addPoint(point.get(2),getVector( point.get(0),point.get(1)));
+        for (ArrayList<Short> point : points) {
+            body.addPoint(point.get(2), getVector(point.get(0) / pointCoordPrecision, point.get(1) / pointCoordPrecision));
         }
     }
 

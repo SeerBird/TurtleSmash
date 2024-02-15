@@ -8,14 +8,14 @@ import java.io.Serial;
 public class ScreenShakeAnimationImage extends AnimationImage<ScreenShakeAnimation> {
     @Serial
     private static final long serialVersionUID = 800855;
-    public double intensity;
+    public float intensity;
 
     public ScreenShakeAnimationImage(ScreenShakeAnimation animation) {
         super(animation);
     }
 
     public void makeImage(@NotNull ScreenShakeAnimation animation) {
-        this.intensity = animation.intensity;
+        this.intensity = (float) animation.intensity;
     }
 
     @Override

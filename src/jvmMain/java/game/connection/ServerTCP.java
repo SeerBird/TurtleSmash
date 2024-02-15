@@ -2,7 +2,6 @@ package game.connection;
 
 import game.GameHandler;
 import game.GameState;
-import game.connection.handlers.ServerDecoder;
 import game.connection.handlers.ServerPlayerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -11,8 +10,6 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.util.logging.Logger;

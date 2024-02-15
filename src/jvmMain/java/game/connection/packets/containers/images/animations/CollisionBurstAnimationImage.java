@@ -15,7 +15,7 @@ public class CollisionBurstAnimationImage extends AnimationImage<CollisionBurstA
     @Serial
     private static final long serialVersionUID = 800854;
     public ArrayRealVector pos;
-    public double intensity;
+    public float intensity;
     public Color color;
 
     public CollisionBurstAnimationImage(CollisionBurstAnimation animation) {
@@ -23,7 +23,7 @@ public class CollisionBurstAnimationImage extends AnimationImage<CollisionBurstA
     }
 
     public void makeImage(@NotNull CollisionBurstAnimation animation) {
-        intensity = animation.intensity;
+        intensity = (float) animation.intensity;
         pos = animation.pos;
         color = animation.color;
     }

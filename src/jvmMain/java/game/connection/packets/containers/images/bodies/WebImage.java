@@ -17,7 +17,7 @@ public class WebImage extends BodyImage<Web> {
     @Serial
     private static final long serialVersionUID = 800859;
     public BodyEdgePointer target;
-    public double control;
+    public Double control;
     public WorldEdgeImage sourceEdge;
     public WorldEdgeImage targetEdge1;
     public WorldEdgeImage targetEdge2;

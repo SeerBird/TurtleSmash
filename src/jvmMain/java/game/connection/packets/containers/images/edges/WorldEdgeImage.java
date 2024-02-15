@@ -8,14 +8,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 
-public class WorldEdgeImage implements EdgeImage{
+public class WorldEdgeImage implements EdgeImage {
     @Serial
     private static final long serialVersionUID = 8008504;
     public int bi1;
     public int bi2;
     public int i1;
     public int i2;
-    public double d;
+    public float d;
 
     public WorldEdgeImage(@NotNull Edge e) {
         Body parent = e.getEdge1().getParentBody();
@@ -24,11 +24,11 @@ public class WorldEdgeImage implements EdgeImage{
         parent = e.getEdge2().getParentBody();
         bi2 = World.getBodies().indexOf(parent);
         i2 = parent.getPoints().indexOf(e.getEdge2());
-        d = e.getRestDistance();
+        d = (float) e.getRestDistance();
     }
 
     public Edge getEdge() {
-        if(bi1 ==-1|| bi2 ==-1|| i1 ==-1|| i2 ==-1){
+        if (bi1 == -1 || bi2 == -1 || i1 == -1 || i2 == -1) {
             return null;
         }
         return new FixedEdge(World.getBodies().get(bi1).getPoints().get(i1),
