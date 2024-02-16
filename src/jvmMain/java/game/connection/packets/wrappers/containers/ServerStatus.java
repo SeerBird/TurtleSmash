@@ -1,4 +1,4 @@
-package game.connection.packets.containers;
+package game.connection.packets.wrappers.containers;
 
 import org.jetbrains.annotations.NotNull;
 

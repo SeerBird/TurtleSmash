@@ -1,7 +1,7 @@
 package game;
 
-import game.connection.packets.ClientPacket;
-import game.connection.packets.ServerPacket;
+import game.connection.packets.wrappers.ClientPacket;
+import game.connection.packets.wrappers.ServerPacket;
 import game.input.InputInfo;
 import game.output.ui.TurtleMenu;
 import game.util.DevConfig;

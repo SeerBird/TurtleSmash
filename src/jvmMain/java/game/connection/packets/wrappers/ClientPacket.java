@@ -1,4 +1,4 @@
-package game.connection.packets;
+package game.connection.packets.wrappers;
 
 import game.input.InputInfo;
 

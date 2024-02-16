@@ -1,8 +1,8 @@
-package game.connection.packets;
+package game.connection.packets.wrappers;
 
-import game.connection.packets.containers.LobbyData;
-import game.connection.packets.containers.WorldData;
-import game.connection.packets.containers.images.animations.AnimationImage;
+import game.connection.packets.wrappers.containers.LobbyData;
+import game.connection.packets.wrappers.containers.WorldData;
+import game.connection.packets.wrappers.containers.images.animations.AnimationImage;
 import game.output.audio.Sound;
 import org.jetbrains.annotations.NotNull;
 

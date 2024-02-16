@@ -44,6 +44,7 @@ kotlin {
                 implementation("org.apache.commons:commons-lang3:3.12.0")
                 implementation("io.netty:netty-all:4.1.105.Final")
                 implementation("com.google.code.gson:gson:2.10.1")
+                implementation("com.google.protobuf:protobuf-java:3.25.1")
             }
         }
     }

@@ -1,4 +1,4 @@
-package game.connection.packets.containers.images;
+package game.connection.packets.wrappers.containers.images;
 
 import game.util.Maths;
 import org.apache.commons.math3.linear.ArrayRealVector;

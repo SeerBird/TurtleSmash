@@ -1,9 +1,9 @@
-package game.connection.packets.containers.images.bodies;
+package game.connection.packets.wrappers.containers.images.bodies;
 
-import game.connection.packets.containers.images.edges.BodyEdgePointer;
-import game.connection.packets.containers.images.edges.ControlEdgePointer;
-import game.connection.packets.containers.images.edges.EdgeImage;
-import game.connection.packets.containers.images.edges.WorldEdgeImage;
+import game.connection.packets.wrappers.containers.images.edges.BodyEdgePointer;
+import game.connection.packets.wrappers.containers.images.edges.ControlEdgePointer;
+import game.connection.packets.wrappers.containers.images.edges.EdgeImage;
+import game.connection.packets.wrappers.containers.images.edges.WorldEdgeImage;
 import game.world.BPoint;
 import game.world.World;
 import game.world.bodies.Web;

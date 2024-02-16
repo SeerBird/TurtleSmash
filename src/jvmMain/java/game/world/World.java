@@ -1,8 +1,8 @@
 package game.world;
 
 import game.Player;
-import game.connection.packets.containers.WorldData;
-import game.connection.packets.containers.images.bodies.BodyImage;
+import game.connection.packets.wrappers.containers.WorldData;
+import game.connection.packets.wrappers.containers.images.bodies.BodyImage;
 import game.util.DevConfig;
 import game.world.bodies.Body;
 import game.world.bodies.Shell;

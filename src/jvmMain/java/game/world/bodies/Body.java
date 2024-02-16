@@ -1,8 +1,8 @@
 package game.world.bodies;
 
 import game.GameHandler;
-import game.connection.packets.containers.images.animations.CollisionBurstAnimationImage;
-import game.connection.packets.containers.images.animations.ScreenShakeAnimationImage;
+import game.connection.packets.wrappers.containers.images.animations.CollisionBurstAnimationImage;
+import game.connection.packets.wrappers.containers.images.animations.ScreenShakeAnimationImage;
 import game.output.Renderer;
 import game.output.animations.CollisionBurstAnimation;
 import game.output.animations.ScreenShakeAnimation;

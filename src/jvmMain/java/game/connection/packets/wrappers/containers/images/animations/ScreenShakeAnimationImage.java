@@ -1,4 +1,4 @@
-package game.connection.packets.containers.images.animations;
+package game.connection.packets.wrappers.containers.images.animations;
 
 import game.output.animations.ScreenShakeAnimation;
 import org.jetbrains.annotations.NotNull;

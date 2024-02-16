@@ -1,7 +1,7 @@
 package game.output.ui.rectangles;
 
 import game.GameHandler;
-import game.connection.packets.containers.ServerStatus;
+import game.connection.packets.wrappers.containers.ServerStatus;
 import game.output.Renderer;
 import game.util.DevConfig;
 

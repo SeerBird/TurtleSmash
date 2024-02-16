@@ -1,7 +1,7 @@
-package game.connection.packets.containers.images.bodies;
+package game.connection.packets.wrappers.containers.images.bodies;
 
-import game.connection.packets.containers.images.edges.EdgeImage;
-import game.connection.packets.containers.images.edges.FixedEdgeImage;
+import game.connection.packets.wrappers.containers.images.edges.EdgeImage;
+import game.connection.packets.wrappers.containers.images.edges.FixedEdgeImage;
 import game.world.BPoint;
 import game.world.World;
 import game.world.bodies.Body;

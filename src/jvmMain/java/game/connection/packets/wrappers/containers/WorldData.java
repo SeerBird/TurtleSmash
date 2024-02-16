@@ -1,6 +1,6 @@
-package game.connection.packets.containers;
+package game.connection.packets.wrappers.containers;
 
-import game.connection.packets.containers.images.bodies.BodyImage;
+import game.connection.packets.wrappers.containers.images.bodies.BodyImage;
 import game.world.bodies.Body;
 
 import java.io.Serial;

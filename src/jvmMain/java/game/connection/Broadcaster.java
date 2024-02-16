@@ -1,6 +1,6 @@
 package game.connection;
 
-import game.connection.packets.containers.ServerStatus;
+import game.connection.packets.wrappers.containers.ServerStatus;
 import game.util.DevConfig;
 
 import java.io.IOException;

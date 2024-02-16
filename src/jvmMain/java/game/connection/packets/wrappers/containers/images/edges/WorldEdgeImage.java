@@ -1,4 +1,4 @@
-package game.connection.packets.containers.images.edges;
+package game.connection.packets.wrappers.containers.images.edges;
 
 import game.world.World;
 import game.world.bodies.Body;

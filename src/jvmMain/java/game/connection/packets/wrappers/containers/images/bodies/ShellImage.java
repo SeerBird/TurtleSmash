@@ -1,6 +1,6 @@
-package game.connection.packets.containers.images.bodies;
+package game.connection.packets.wrappers.containers.images.bodies;
 
-import game.connection.packets.containers.images.edges.WorldEdgeImage;
+import game.connection.packets.wrappers.containers.images.edges.WorldEdgeImage;
 import game.world.World;
 import game.world.bodies.Shell;
 import game.world.bodies.Turtle;

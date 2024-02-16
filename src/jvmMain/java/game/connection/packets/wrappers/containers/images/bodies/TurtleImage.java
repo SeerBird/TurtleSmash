@@ -1,4 +1,4 @@
-package game.connection.packets.containers.images.bodies;
+package game.connection.packets.wrappers.containers.images.bodies;
 
 import game.GameHandler;
 import game.world.BPoint;

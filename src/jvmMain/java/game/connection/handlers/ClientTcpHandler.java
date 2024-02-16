@@ -2,7 +2,7 @@ package game.connection.handlers;
 
 import game.GameHandler;
 import game.GameState;
-import game.connection.packets.ServerPacket;
+import game.connection.packets.wrappers.ServerPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
