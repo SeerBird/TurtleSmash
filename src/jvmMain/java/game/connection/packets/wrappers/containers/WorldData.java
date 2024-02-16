@@ -1,7 +1,9 @@
 package game.connection.packets.wrappers.containers;
 
+import game.connection.packets.messages.ServerMessage;
 import game.connection.packets.wrappers.containers.images.bodies.BodyImage;
 import game.world.bodies.Body;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -28,5 +30,20 @@ public class WorldData implements Serializable {
                 throw new RuntimeException(e.getMessage());
             }
         }
+    }
+
+    public WorldData(@NotNull ServerMessage.WorldM message) {
+        bodyImages = new ArrayList<>();
+        for (ServerMessage.WorldM.BodyM body : message.getBodyList()) {
+            bodyImages.add(BodyImage.getImageFromMessage(body));
+        }
+    }
+
+    public ServerMessage.WorldM getMessage() {
+        ServerMessage.WorldM.Builder builder = ServerMessage.WorldM.newBuilder();
+        for (BodyImage<?> body : bodyImages) {
+            builder.addBody(body.getMessage());
+        }
+        return builder.build();
     }
 }

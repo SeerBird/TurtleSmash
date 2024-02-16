@@ -1,30 +1,29 @@
 package game.connection.packets.wrappers.containers.images;
 
-import game.util.Maths;
+
+import game.connection.packets.messages.VectorM;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.ArrayList;
 
-public class ArrayRealVectorImage implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 45500;
-    private static final int decimalPrecision = 10;
-    ArrayList<Short> values;
+public class ArrayRealVectorImage extends ArrayRealVector {
+    private static final double precision = 100.0;
 
-    public ArrayRealVectorImage(@NotNull ArrayRealVector vector) {
-        values = new ArrayList<>();
+    @NotNull
+    public static VectorM getMessage(@NotNull ArrayRealVector vector) {
+        VectorM.Builder builder =
+                VectorM.newBuilder();
         for (int i = 0; i < vector.getDimension(); i++) {
-            values.add((short) (vector.getEntry(i) * 10));
+            builder.addCoordinate((int) (vector.getEntry(i) * precision));
         }
+        return builder.build();
     }
 
-    public ArrayRealVector restoreVector() {
-        ArrayRealVector res = new ArrayRealVector(values.size());
-        for (short value : values) {
-            res.append((double) value / decimalPrecision);
+    @NotNull
+    public static ArrayRealVector getVector(@NotNull VectorM message) {
+        ArrayRealVector res = new ArrayRealVector(message.getCoordinateList().size());
+        for (int i=0;i<res.getDimension();i++) {
+            res.setEntry(i,message.getCoordinateList().get(i) / precision);
         }
         return res;
     }

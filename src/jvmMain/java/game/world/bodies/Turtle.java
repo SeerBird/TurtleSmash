@@ -318,10 +318,10 @@ public class Turtle extends Body {
             if (isAlive()) {
                 die();
             }
-        }
-        for (Web web : spinnerets.values()) {
-            if (web != null) {
-                web.disconnect();
+            for (Web web : spinnerets.values()) {
+                if (web != null) {
+                    web.disconnect();
+                }
             }
         }
     }

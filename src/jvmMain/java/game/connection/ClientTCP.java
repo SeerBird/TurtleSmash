@@ -70,24 +70,17 @@ public class ClientTCP extends Thread {
 
     public void send(ClientPacket packet) {
         if (channel != null) {
-            try {
-                ByteBuf msg = Unpooled.directBuffer(3000, 5000);
-                ObjectOutputStream out = new ObjectOutputStream(new ByteBufOutputStream(msg));
-                out.writeObject(packet);
-                out.flush();
-                out.close();
-                channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
-                    if (!future.isSuccess()) {
-                        if (future.cause().getMessage() == null) {
-                            logger.warning("Failed to send a packet to the server.");
-                        } else {
-                            logger.warning(future.cause().getMessage());
-                        }
+            ByteBuf msg = Unpooled.directBuffer(3000, 5000);
+            msg.writeBytes(packet.getMessage().toByteArray());
+            channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
+                if (!future.isSuccess()) {
+                    if (future.cause().getMessage() == null) {
+                        logger.warning("Failed to send a packet to the server.");
+                    } else {
+                        logger.warning(future.cause().getMessage());
                     }
-                });
-            } catch (IOException e) {
-                logger.severe("Failed to serialize client packet");
-            }
+                }
+            });
         }
     }
 

@@ -1,5 +1,6 @@
 package game;
 
+import game.connection.packets.messages.ServerMessage;
 import game.connection.packets.wrappers.ClientPacket;
 import game.connection.packets.wrappers.ServerPacket;
 import game.input.InputInfo;
@@ -7,6 +8,7 @@ import game.output.ui.TurtleMenu;
 import game.util.DevConfig;
 import game.world.bodies.Turtle;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -86,16 +88,18 @@ public class Player {
         return true;
     }
 
+    int dataSize = 0;
+
     public void send(ServerPacket packet) {
         if (channel != null) {
             if (channel.isActive()) {
                 try {
-                    ByteBuf msg = Unpooled.directBuffer(10000, 50000);
-                    ObjectOutputStream out = new ObjectOutputStream(new ByteBufOutputStream(msg));
-                    out.writeObject(packet);
-                    out.flush();
-                    out.close();
-                    logger.info(String.valueOf(msg.readableBytes()));
+                    ServerMessage data = packet.getMessage();
+                    ByteBuf msg = Unpooled.directBuffer(data.getSerializedSize());
+                    data.writeTo(new ByteBufOutputStream(msg));
+                    if (msg.readableBytes() != dataSize) {
+                        logger.info(String.valueOf(dataSize = msg.readableBytes()));
+                    }
                     channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
                         if (!future.isSuccess()) {
                             if (future.cause().getMessage() == null) {
@@ -105,10 +109,10 @@ public class Player {
                             }
                         }
                     });
-                } catch (IOException e) {
-                    logger.severe("Failed to serialize server packet: " + e.getMessage());
-                } catch(IndexOutOfBoundsException e){
+                } catch (IndexOutOfBoundsException e) {
                     logger.severe("Too many things going on! Can't send this!");
+                } catch (IOException e) {
+                    logger.severe("I/O exception serializing server packet: "+ e);
                 }
             }
         }

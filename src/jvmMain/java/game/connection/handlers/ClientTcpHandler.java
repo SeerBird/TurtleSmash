@@ -1,7 +1,9 @@
 package game.connection.handlers;
 
+import com.google.protobuf.CodedInputStream;
 import game.GameHandler;
 import game.GameState;
+import game.connection.packets.messages.ServerMessage;
 import game.connection.packets.wrappers.ServerPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -25,12 +27,9 @@ public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
             //logger.warning("Time since last receive: "+(System.nanoTime()-last)/1000000.0/16.666666 + " frames");
             //last = System.nanoTime();
             try {
-                GameHandler.receiveServerPacket((ServerPacket)
-                        new ObjectInputStream(new ByteBufInputStream((ByteBuf) msg)).readObject());
+                GameHandler.receiveServerPacket(new ServerPacket(ServerMessage.parseFrom(((ByteBuf) msg).nioBuffer())));
             } catch (IOException e) {
                 logger.warning("Failed to deserialize server packet: " + e);// this just happens sometimes? idk.
-            } catch (ClassNotFoundException e) {
-                logger.warning("Unknown message type");
             }
         } else {
             logger.severe("Message isn't a ByteBuf, what??");

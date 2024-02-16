@@ -1,5 +1,7 @@
 package game.connection.packets.wrappers.containers.images.animations;
 
+import game.connection.packets.messages.ServerMessage;
+import game.connection.packets.wrappers.containers.images.ArrayRealVectorImage;
 import game.output.animations.CollisionBurstAnimation;
 import game.util.DevConfig;
 import game.world.Point;
@@ -9,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.io.Serial;
 
+import static game.util.DevConfig.doublePrecision;
 import static game.util.Maths.randomUnitVector;
 
 public class CollisionBurstAnimationImage extends AnimationImage<CollisionBurstAnimation> {
@@ -21,6 +24,13 @@ public class CollisionBurstAnimationImage extends AnimationImage<CollisionBurstA
     public CollisionBurstAnimationImage(CollisionBurstAnimation animation) {
         super(animation);
     }
+
+    public CollisionBurstAnimationImage(@NotNull ServerMessage.AnimationM.CollisionBurstM message) {
+        intensity = (float) (message.getIntensity()/doublePrecision);
+        pos = ArrayRealVectorImage.getVector(message.getPos());
+        color = getColor(message.getColor());
+    }
+
 
     public void makeImage(@NotNull CollisionBurstAnimation animation) {
         intensity = (float) animation.intensity;
@@ -39,5 +49,29 @@ public class CollisionBurstAnimationImage extends AnimationImage<CollisionBurstA
             p.accelerate(randomUnitVector().mapMultiply(Math.random() * intensity * 5));
         }
         return animation;
+    }
+
+    @Override
+    public ServerMessage.AnimationM getMessage() {
+        return ServerMessage.AnimationM.newBuilder()
+                .setCollisionBurstM(ServerMessage.AnimationM.CollisionBurstM.newBuilder()
+                        .setColor(getMessage(color))
+                        .setIntensity((int) (intensity * doublePrecision))
+                        .setPos(ArrayRealVectorImage.getMessage(pos))
+                        .build())
+                .build();
+    }
+
+    @NotNull
+    private static ServerMessage.AnimationM.CollisionBurstM.Color getMessage(@NotNull Color color) {
+        return ServerMessage.AnimationM.CollisionBurstM.Color.newBuilder()
+                .setR(color.getRed())
+                .setG(color.getGreen())
+                .setB(color.getBlue())
+                .build();
+    }
+
+    private static Color getColor(ServerMessage.AnimationM.CollisionBurstM.Color message) {
+        return new Color(message.getR(), message.getG(), message.getB());
     }
 }

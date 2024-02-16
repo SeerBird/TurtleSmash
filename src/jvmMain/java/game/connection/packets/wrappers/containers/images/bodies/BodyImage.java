@@ -1,5 +1,8 @@
 package game.connection.packets.wrappers.containers.images.bodies;
 
+import game.connection.packets.messages.EdgeM;
+import game.connection.packets.messages.ServerMessage;
+import game.connection.packets.wrappers.containers.images.ArrayRealVectorImage;
 import game.connection.packets.wrappers.containers.images.edges.EdgeImage;
 import game.connection.packets.wrappers.containers.images.edges.FixedEdgeImage;
 import game.world.BPoint;
@@ -10,23 +13,51 @@ import game.world.bodies.Turtle;
 import game.world.bodies.Web;
 import game.world.constraints.Edge;
 import game.world.constraints.FixedEdge;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import static game.util.DevConfig.doublePrecision;
 import static game.util.Maths.getVector;
 
 public abstract class BodyImage<T extends Body> implements Serializable {
-    public static final double pointCoordPrecision = 10.0;
 
     public ArrayList<EdgeImage> edges;
-    public ArrayList<ArrayList<Short>> points;
+    public LinkedHashMap<ArrayRealVector, Double> points;
     public ArrayList<Integer> bound;
     public transient T body;
 
     public BodyImage(T body) {
         makeImage(body);
+    }
+
+    public BodyImage(@NotNull ServerMessage.WorldM.BodyM message) {
+        edges = new ArrayList<>();
+        for (EdgeM edge : message.getEdgeList()) {
+            edges.add(EdgeImage.getImageFromMessage(edge));
+        }
+        points = new LinkedHashMap<>();
+        for (ServerMessage.WorldM.BodyM.PointM point : message.getPointList()) {
+            points.put(ArrayRealVectorImage.getVector(point.getPos()), point.getMass() / doublePrecision);
+        }
+        bound = new ArrayList<>();
+        bound.addAll(message.getBoundList());
+    }
+
+    public static BodyImage<?> getImageFromMessage(ServerMessage.WorldM.BodyM message) {
+        if (message.hasShell()) {
+            return new ShellImage(message);
+        } else if (message.hasTurtle()) {
+            return new TurtleImage(message);
+        } else if (message.hasWeb()) {
+            return new WebImage(message);
+        }
+        return null;
     }
 
     public abstract void makeImage(T body);
@@ -43,15 +74,10 @@ public abstract class BodyImage<T extends Body> implements Serializable {
     }
 
     @NotNull
-    ArrayList<ArrayList<Short>> getPointsImage(@NotNull Body body) {
-        ArrayList<ArrayList<Short>> points = new ArrayList<>();
-        ArrayList<Short> pointData = new ArrayList<>();
+    LinkedHashMap<ArrayRealVector, Double> getPointsImage(@NotNull Body body) {
+        LinkedHashMap<ArrayRealVector, Double> points = new LinkedHashMap<>();
         for (BPoint point : body.getPoints()) {
-            pointData.add((short) (point.getX() * pointCoordPrecision));
-            pointData.add((short) (point.getY() * pointCoordPrecision));
-            pointData.add((short) point.getMass());
-            points.add(new ArrayList<>(pointData));
-            pointData.clear();
+            points.put(point.getPos().copy(), point.getMass());
         }
         return points;
     }
@@ -71,8 +97,8 @@ public abstract class BodyImage<T extends Body> implements Serializable {
 
 
     public void addPoints(Body body) {
-        for (ArrayList<Short> point : points) {
-            body.addPoint(point.get(2), getVector(point.get(0) / pointCoordPrecision, point.get(1) / pointCoordPrecision));
+        for (ArrayRealVector point : points.keySet()) {
+            body.addPoint(points.get(point), point);
         }
     }
 
@@ -90,4 +116,6 @@ public abstract class BodyImage<T extends Body> implements Serializable {
             body.bound.add((Web) World.getBodies().get(i));
         }
     }
+
+    public abstract ServerMessage.WorldM.BodyM getMessage();
 }

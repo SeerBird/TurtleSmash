@@ -2,6 +2,7 @@ package game.input;
 
 import game.GameHandler;
 import game.GameState;
+import game.connection.packets.wrappers.containers.images.ArrayRealVectorImage;
 import game.output.ui.TurtleMenu;
 import game.output.ui.rectangles.Textbox;
 import game.util.DevConfig;

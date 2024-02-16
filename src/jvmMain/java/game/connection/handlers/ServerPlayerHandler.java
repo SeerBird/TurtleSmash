@@ -2,6 +2,7 @@ package game.connection.handlers;
 
 import game.GameHandler;
 import game.Player;
+import game.connection.packets.messages.ClientMessage;
 import game.connection.packets.wrappers.ClientPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -24,12 +25,9 @@ public class ServerPlayerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof ByteBuf) {
             try {
-                player.receive((ClientPacket)
-                        new ObjectInputStream(new ByteBufInputStream((ByteBuf) msg)).readObject());
+                player.receive(new ClientPacket(ClientMessage.parseFrom(new ByteBufInputStream((ByteBuf) msg))));
             } catch (IOException e) {
                 logger.warning("Failed to deserialize client packet");// this just happens sometimes? idk.
-            } catch (ClassNotFoundException e) {
-                logger.warning("Unknown message type");
             }
         } else {
             logger.warning("Message isn't a ByteBuf, what??");
