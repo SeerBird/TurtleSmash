@@ -95,7 +95,8 @@ public class Player {
             if (channel.isActive()) {
                 try {
                     ServerMessage data = packet.getMessage();
-                    ByteBuf msg = Unpooled.directBuffer(data.getSerializedSize());
+                    ByteBuf msg = Unpooled.directBuffer(data.getSerializedSize() + 4);
+                    msg.writeInt(data.getSerializedSize());
                     data.writeTo(new ByteBufOutputStream(msg));
                     if (msg.readableBytes() != dataSize) {
                         logger.info(String.valueOf(dataSize = msg.readableBytes()));
@@ -112,7 +113,7 @@ public class Player {
                 } catch (IndexOutOfBoundsException e) {
                     logger.severe("Too many things going on! Can't send this!");
                 } catch (IOException e) {
-                    logger.severe("I/O exception serializing server packet: "+ e);
+                    logger.severe("I/O exception serializing server packet: " + e);
                 }
             }
         }
