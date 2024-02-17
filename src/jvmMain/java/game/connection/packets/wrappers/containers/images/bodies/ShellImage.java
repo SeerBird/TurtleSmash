@@ -5,6 +5,7 @@ import game.connection.packets.messages.ServerMessage;
 import game.connection.packets.wrappers.containers.images.ArrayRealVectorImage;
 import game.connection.packets.wrappers.containers.images.edges.EdgeImage;
 import game.connection.packets.wrappers.containers.images.edges.WorldEdgeImage;
+import game.world.Point;
 import game.world.World;
 import game.world.bodies.Shell;
 import game.world.bodies.Turtle;
@@ -85,10 +86,10 @@ public class ShellImage extends BodyImage<Shell> {
         }
         //endregion
         //region add points
-        for (ArrayRealVector point : points.keySet()) {
+        for (Point point : points) {
             builder.addPoint(ServerMessage.WorldM.BodyM.PointM.newBuilder()
-                    .setPos(ArrayRealVectorImage.getMessage(point))
-                    .setMass((int) (points.get(point) * doublePrecision))
+                    .setPos(ArrayRealVectorImage.getMessage(point.getPos()))
+                    .setMass((int) (point.getMass() * doublePrecision))
                     .build());
         }
         //endregion

@@ -99,7 +99,7 @@ public class Player {
                     msg.writeInt(data.getSerializedSize());
                     data.writeTo(new ByteBufOutputStream(msg));
                     if (msg.readableBytes() != dataSize) {
-                        logger.info(String.valueOf(dataSize = msg.readableBytes()));
+                        //logger.info(String.valueOf(dataSize = msg.readableBytes()));
                     }
                     channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
                         if (!future.isSuccess()) {

@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private static ByteBuf buffer = Unpooled.directBuffer(2000);
+    private static ByteBuf buffer = Unpooled.directBuffer(2048);
     private static int length = 0;
     //long last = 0;
 
@@ -32,7 +32,7 @@ public class ClientTcpHandler extends ChannelInboundHandlerAdapter {
             //logger.warning("Time since last receive: "+(System.nanoTime()-last)/1000000.0/16.666666 + " frames");
             //last = System.nanoTime();
             if (((ByteBuf) msg).readableBytes() != dataSize) {
-                logger.info(String.valueOf((dataSize = ((ByteBuf) msg).readableBytes())));
+                //logger.info(String.valueOf((dataSize = ((ByteBuf) msg).readableBytes())));
             }
             buffer.writeBytes((ByteBuf) msg);
             if (length == 0) {

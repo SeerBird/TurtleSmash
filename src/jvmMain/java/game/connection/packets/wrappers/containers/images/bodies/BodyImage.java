@@ -6,6 +6,7 @@ import game.connection.packets.wrappers.containers.images.ArrayRealVectorImage;
 import game.connection.packets.wrappers.containers.images.edges.EdgeImage;
 import game.connection.packets.wrappers.containers.images.edges.FixedEdgeImage;
 import game.world.BPoint;
+import game.world.Point;
 import game.world.World;
 import game.world.bodies.Body;
 import game.world.bodies.Shell;
@@ -28,7 +29,7 @@ import static game.util.Maths.getVector;
 public abstract class BodyImage<T extends Body> implements Serializable {
 
     public ArrayList<EdgeImage> edges;
-    public LinkedHashMap<ArrayRealVector, Double> points;
+    public ArrayList<Point> points;
     public ArrayList<Integer> bound;
     public transient T body;
 
@@ -41,9 +42,10 @@ public abstract class BodyImage<T extends Body> implements Serializable {
         for (EdgeM edge : message.getEdgeList()) {
             edges.add(EdgeImage.getImageFromMessage(edge));
         }
-        points = new LinkedHashMap<>();
-        for (ServerMessage.WorldM.BodyM.PointM point : message.getPointList()) {
-            points.put(ArrayRealVectorImage.getVector(point.getPos()), point.getMass() / doublePrecision);
+        points = new ArrayList<>();
+        for (int i = 0; i < message.getPointCount(); i++) {
+            points.add(new Point(message.getPoint(i).getMass() / doublePrecision,
+                    ArrayRealVectorImage.getVector(message.getPoint(i).getPos())));
         }
         bound = new ArrayList<>();
         bound.addAll(message.getBoundList());
@@ -74,10 +76,10 @@ public abstract class BodyImage<T extends Body> implements Serializable {
     }
 
     @NotNull
-    LinkedHashMap<ArrayRealVector, Double> getPointsImage(@NotNull Body body) {
-        LinkedHashMap<ArrayRealVector, Double> points = new LinkedHashMap<>();
+    ArrayList<Point> getPointsImage(@NotNull Body body) {
+        ArrayList<Point> points = new ArrayList<>();
         for (BPoint point : body.getPoints()) {
-            points.put(point.getPos().copy(), point.getMass());
+            points.add(new Point(point.getMass(), point.getPos().copy()));
         }
         return points;
     }
@@ -97,8 +99,8 @@ public abstract class BodyImage<T extends Body> implements Serializable {
 
 
     public void addPoints(Body body) {
-        for (ArrayRealVector point : points.keySet()) {
-            body.addPoint(points.get(point), point);
+        for (Point point : points) {
+            body.addPoint(point.getMass(), point.getPos());
         }
     }
 

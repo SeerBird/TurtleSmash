@@ -70,8 +70,10 @@ public class ClientTCP extends Thread {
 
     public void send(ClientPacket packet) {
         if (channel != null) {
-            ByteBuf msg = Unpooled.directBuffer(3000, 5000);
-            msg.writeBytes(packet.getMessage().toByteArray());
+            game.connection.packets.messages.ClientMessage data = packet.getMessage();
+            ByteBuf msg = Unpooled.directBuffer(data.getSerializedSize()+4);
+            msg.writeInt(data.getSerializedSize());
+            msg.writeBytes(data.toByteArray());
             channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
                 if (!future.isSuccess()) {
                     if (future.cause().getMessage() == null) {
