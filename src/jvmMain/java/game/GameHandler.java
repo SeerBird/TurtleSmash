@@ -224,6 +224,10 @@ public class GameHandler {
                     Renderer.addAnimation(animation.restoreAnimation());
                 }
                 for (Sound sound : lastPacket.sounds) {
+                    if (sound == Sound.collision) {
+                        Audio.playCooldownSound(sound);
+                        continue;
+                    }
                     Audio.playSound(sound);
                 }
                 lastPacket.changed = false;
@@ -376,11 +380,11 @@ public class GameHandler {
         for (String name : lobby.players.keySet()) {
             if (!Objects.equals(name, "")) {
                 Player dummy = new Player(name);
-                dummy.score=lobby.players.get(name);
+                dummy.score = lobby.players.get(name);
                 players.put(dummy, null);
             } else {
                 players.put(getHost(), null);
-                getHost().score=lobby.players.get("");
+                getHost().score = lobby.players.get("");
             }
         }
         for (Player player : getPlayers()) {

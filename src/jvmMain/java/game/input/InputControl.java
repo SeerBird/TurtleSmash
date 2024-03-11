@@ -158,14 +158,12 @@ public class InputControl extends MouseAdapter implements KeyListener {
         //endregion
         //region Play
         if (state == playClient || state == playServer) {
-            /*
             if (pressed(VK_SPACE)) {
                 input.drag();
             }
             if (released(VK_SPACE)) {
                 dispatch(VK_SPACE);
             }
-             */
             if (pressed(Left)) {
                 input.webFling();
                 dispatch(Left);
@@ -174,12 +172,10 @@ public class InputControl extends MouseAdapter implements KeyListener {
                 input.detachWeb();
                 dispatch(Right);
             }
-            /*
             if (pressed(VK_C)) {
                 input.create();
                 dispatch(KeyEvent.VK_C);
             }
-             */
             if (pressed(VK_S)) {
                 TurtleMenu.showScores();
                 TurtleMenu.refreshScores();
