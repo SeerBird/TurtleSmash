@@ -28,14 +28,14 @@ public class DevConfig {
     //endregion
     //region turtles
     public static double turtleSize = 1.0;
-    public static double turtleDeformThreshold = 5.0; //3.5
+    public static double turtleDeformThreshold = 3.7;
     public static double turtleMass = 4.0;
     public static int turtleNakedFrames = 30;
-    public static double recoil = 12.0;
+    public static double recoil = 10.0;
     //endregion
     //region shells
-    public static double shellMergeThreshold = 10.0;
-    public static double shellStrapExtensionLimit = 4.0;//1.52
+    public static double shellMergeThreshold = 8.0;
+    public static double shellStrapExtensionLimit = 1.42;
     public static double shellMass = 4.0;
     //endregion
     //region player
