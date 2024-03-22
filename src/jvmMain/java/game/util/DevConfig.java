@@ -24,6 +24,7 @@ public class DevConfig {
     //region network
     public static long discoveryMilliTimeout = 1300;
     public static long multicastMilliPeriod = 1000;
+    public static double doublePrecision = 100;
     //endregion
     //region turtles
     public static double turtleSize = 1.0;

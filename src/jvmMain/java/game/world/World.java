@@ -1,8 +1,8 @@
 package game.world;
 
 import game.Player;
-import game.connection.packets.containers.WorldData;
-import game.connection.packets.containers.images.bodies.BodyImage;
+import game.connection.packets.wrappers.containers.WorldData;
+import game.connection.packets.wrappers.containers.images.bodies.BodyImage;
 import game.util.DevConfig;
 import game.world.bodies.Body;
 import game.world.bodies.Shell;
@@ -38,6 +38,14 @@ public final class World {
             //wrapAround(b); // teleport through border
         }
         //endregion
+        //region Remove and add bodies. Separate this? Think about the states I want the lists to be in at the start and end of the world update cycle
+        for (Body b : toRemove) {
+            bodies.remove(b);
+        }
+        bodies.addAll(toAdd);
+        toRemove.clear();
+        toAdd.clear();
+        //endregion
         //region Constraints and collisions
         Body b1;
         Body b2;
@@ -67,14 +75,6 @@ public final class World {
                 }
             }
         }
-        //endregion
-        //region Remove and add bodies. Separate this? Think about the states I want the lists to be in at the start and end of the world update cycle
-        for (Body b : toRemove) {
-            bodies.remove(b);
-        }
-        bodies.addAll(toAdd);
-        toRemove.clear();
-        toAdd.clear();
         //endregion
     }
 

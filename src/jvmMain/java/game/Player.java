@@ -1,19 +1,24 @@
 package game;
 
-import game.connection.packets.ClientPacket;
-import game.connection.packets.ServerPacket;
+import game.connection.packets.messages.ServerMessage;
+import game.connection.packets.wrappers.ClientPacket;
+import game.connection.packets.wrappers.ServerPacket;
 import game.input.InputInfo;
 import game.output.ui.TurtleMenu;
 import game.util.DevConfig;
 import game.world.bodies.Turtle;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.socket.SocketChannel;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Objects;
 import java.util.logging.Logger;
-
-import static game.connection.gson.gsonRegistry.gson;
 
 public class Player {
     Turtle body;
@@ -83,29 +88,33 @@ public class Player {
         return true;
     }
 
+    int dataSize = 0;
+
     public void send(ServerPacket packet) {
         if (channel != null) {
             if (channel.isActive()) {
-                String json;
                 try {
-                    json = packet.getClass() + gson.toJson(packet);
-                    //logger.warning("Json length: " + json.length());
-                } catch (IllegalArgumentException e) {
-                    logger.severe(e.getMessage());
-                    return;
-                } catch (Exception other) {
-                    logger.severe(other.getMessage());
-                    throw new RuntimeException(other.getMessage());
-                }
-                channel.writeAndFlush(json).addListener((ChannelFutureListener) future -> {
-                    if (!future.isSuccess()) {
-                        if (future.cause().getMessage() == null) {
-                            logger.warning("Failed to send a packet to a player.");
-                        } else {
-                            logger.warning(future.cause().getMessage());
-                        }
+                    ServerMessage data = packet.getMessage();
+                    ByteBuf msg = Unpooled.directBuffer(data.getSerializedSize() + 4);
+                    msg.writeInt(data.getSerializedSize());
+                    data.writeTo(new ByteBufOutputStream(msg));
+                    if (msg.readableBytes() != dataSize) {
+                        //logger.info(String.valueOf(dataSize = msg.readableBytes()));
                     }
-                });
+                    channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
+                        if (!future.isSuccess()) {
+                            if (future.cause().getMessage() == null) {
+                                logger.warning("Failed to send a packet to a player.");
+                            } else {
+                                logger.warning(future.cause().getMessage());
+                            }
+                        }
+                    });
+                } catch (IndexOutOfBoundsException e) {
+                    logger.severe("Too many things going on! Can't send this!");
+                } catch (IOException e) {
+                    logger.severe("I/O exception serializing server packet: " + e);
+                }
             }
         }
     }

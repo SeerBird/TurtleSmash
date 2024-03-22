@@ -1,7 +1,7 @@
 package game.world.bodies;
 
 import game.GameHandler;
-import game.connection.packets.containers.images.animations.ShellSnapFlashAnimationImage;
+import game.connection.packets.wrappers.containers.images.animations.ShellSnapFlashAnimationImage;
 import game.output.Renderer;
 import game.output.animations.ShellSnapFlashAnimation;
 import game.util.DevConfig;

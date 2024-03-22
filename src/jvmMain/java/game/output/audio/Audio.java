@@ -1,6 +1,7 @@
 package game.output.audio;
 
 
+import game.GameHandler;
 import game.Resources;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,6 +60,7 @@ public class Audio {
                 autoClose(clip);
                 clip.start();
                 cooldownSounds.put(sound, clip);
+                GameHandler.broadcastSound(sound);
             } catch (LineUnavailableException | UnsupportedAudioFileException ignored) {
             } catch (IOException e) {
                 logger.severe("Failed to make a sound: " + e.getMessage());

@@ -2,22 +2,22 @@ package game.connection;
 
 import game.GameHandler;
 import game.GameState;
-import game.connection.gson.gsonRegistry;
-import game.connection.handlers.ClientDecoder;
 import game.connection.handlers.ClientTcpHandler;
 import game.connection.handlers.ExceptionHandler;
-import game.connection.packets.ClientPacket;
-import game.connection.packets.containers.ServerStatus;
-import game.input.InputInfo;
+import game.connection.packets.wrappers.ClientPacket;
+import game.connection.packets.wrappers.containers.ServerStatus;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
 public class ClientTCP extends Thread {
@@ -42,8 +42,6 @@ public class ClientTCP extends Thread {
                         public void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
                             p.addLast(
-                                    new ObjectEncoder(),
-                                    new ClientDecoder(1048576, ClassResolvers.cacheDisabled(null)),
                                     new ClientTcpHandler(),
                                     new ExceptionHandler()
                             );
@@ -70,9 +68,21 @@ public class ClientTCP extends Thread {
         }
     }
 
-    public void send(InputInfo input) {
+    public void send(ClientPacket packet) {
         if (channel != null) {
-            channel.writeAndFlush(gsonRegistry.gson.toJson(new ClientPacket(input, GameHandler.getHost().getName())));
+            game.connection.packets.messages.ClientMessage data = packet.getMessage();
+            ByteBuf msg = Unpooled.directBuffer(data.getSerializedSize()+4);
+            msg.writeInt(data.getSerializedSize());
+            msg.writeBytes(data.toByteArray());
+            channel.writeAndFlush(msg).addListener((ChannelFutureListener) future -> {
+                if (!future.isSuccess()) {
+                    if (future.cause().getMessage() == null) {
+                        logger.warning("Failed to send a packet to the server.");
+                    } else {
+                        logger.warning(future.cause().getMessage());
+                    }
+                }
+            });
         }
     }
 

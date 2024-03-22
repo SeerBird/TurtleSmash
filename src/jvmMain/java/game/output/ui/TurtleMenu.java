@@ -14,7 +14,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class TurtleMenu {
     private static final ArrayList<IElement> elements = new ArrayList<>();

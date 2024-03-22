@@ -4,11 +4,12 @@ import game.connection.Broadcaster;
 import game.connection.ClientTCP;
 import game.connection.Discovery;
 import game.connection.ServerTCP;
-import game.connection.packets.ServerPacket;
-import game.connection.packets.containers.LobbyData;
-import game.connection.packets.containers.ServerStatus;
-import game.connection.packets.containers.WorldData;
-import game.connection.packets.containers.images.animations.AnimationImage;
+import game.connection.packets.wrappers.ClientPacket;
+import game.connection.packets.wrappers.ServerPacket;
+import game.connection.packets.wrappers.containers.LobbyData;
+import game.connection.packets.wrappers.containers.ServerStatus;
+import game.connection.packets.wrappers.containers.WorldData;
+import game.connection.packets.wrappers.containers.images.animations.AnimationImage;
 import game.input.InputControl;
 import game.input.InputInfo;
 import game.output.GameWindow;
@@ -200,7 +201,7 @@ public class GameHandler {
     }
 
     private static void sendClientPacket() {
-        tcpClient.send(getHost().input);
+        tcpClient.send(new ClientPacket(getHost().input, GameHandler.getHost().getName()));
     }
 
     private static void handleServerPacket() {
